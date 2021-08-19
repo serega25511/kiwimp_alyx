@@ -1,0 +1,19 @@
+{
+  "name": "kiwimp_alyx",
+  "version": "1.0.0",
+  "description": "A work-in-progress customizable multiplayer mod for Half-Life: Alyx.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeamPopplio/kiwimp_alyx.git"
+  },
+  "author": "KiwifruitDev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TeamPopplio/kiwimp_alyx/issues"
+  },
+  "homepage": "https://github.com/TeamPopplio/kiwimp_alyx#readme"
+}
