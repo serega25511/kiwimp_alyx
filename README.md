@@ -27,6 +27,7 @@ The following configuration file should be saved as ``config.json`` in the root 
     "npccollision": false,
     "clientdisallowgamemodes": false,
     "clientdisallowvscripts": false,
+    "clientshowheadset": true,
     "vscripts": [],
     "servervscriptdir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\",
     "clientvscript": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\client.lua",
@@ -34,7 +35,7 @@ The following configuration file should be saved as ``config.json`` in the root 
     "pingtimeout": 2000,
     "pinginterval": 10,
     "serverinterval": 10,
-    "servertimeout": 5000,
+    "servertimeout": 15000,
     "channel": "kiwi"
 }
 ```

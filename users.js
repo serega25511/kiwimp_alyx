@@ -65,7 +65,7 @@ module.exports = {
     },
     getIndexByUsername: (username) => {
         for(i = 0; i < userSlots.length; i++) {
-            if(!userSlots[i]) return false;
+            if(!userSlots[i]) return false; // This is really hard to work with so I just return false.
             if(userSlots[i].username == username) {
                 return i;
             };

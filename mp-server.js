@@ -41,7 +41,7 @@ module.exports = (config, package, gamemode) => {
 					hostname: config.hostname,
 					gamemode: gamemode.gamemode || "",
 					gamemodelua: fs.readFileSync("./gamemodes/lua/"+config.gamemode+".lua", "utf8"),
-					gamemodeprint: gamemode.gamemodeprint || "",
+					gamemodeprint: gamemode.name || "",
 					description: gamemode.description || "",
 					vscripts: config.vscripts,
 					action: "pong",
@@ -154,7 +154,7 @@ module.exports = (config, package, gamemode) => {
 							username: username,
 							authid: authid,
 							from: header,
-							lua: vscript.updateServer(users.getUsers(), users.getOnlineUsers()),
+							lua: vscript.updateServer(users, player),
 							// These coordinates are just for convenience.
 							x: player.x,
 							y: player.y,

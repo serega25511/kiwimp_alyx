@@ -63,60 +63,64 @@ module.exports = {
 			//console.log('['+header+'] VConsole: '+data);
 			data = data.toString();
 			// If the data contains the string "KIWI", let's parse it.
-			if(data.indexOf(lookout) != -1) {
-				const command = data.slice(data.indexOf(lookout) + lookout.length+1); // Remove the KIWI and the space.
-				// If PRNT is found at the end of the string, split until then. This marks the end of the command.
-				const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
-				//console.log('['+header+'] VConsole: '+args.join(" "));
-				if(args[0] == "POS") {
-					localPlayer.x = parseFloat(args[1]);
-					localPlayer.y = parseFloat(args[2]);
-					localPlayer.z = parseFloat(args[3]);
-				} else if(args[0] == "ANG") {
-					localPlayer.pitch= parseFloat(args[1]);
-					localPlayer.yaw= parseFloat(args[2]);
-					localPlayer.roll= parseFloat(args[3]);
-				} else if(args[0] == "HEADPOS") {
-					localPlayer.headX = parseFloat(args[1]);
-					localPlayer.headY = parseFloat(args[2]);
-					localPlayer.headZ = parseFloat(args[3]);
-				} else if(args[0] == "LHANDPOS") {
-					localPlayer.leftHandX= parseFloat(args[1]);
-					localPlayer.leftHandY= parseFloat(args[2]);
-					localPlayer.leftHandZ= parseFloat(args[3]);
-				} else if(args[0] == "LHANDANG") {
-					localPlayer.leftHandPitch= parseFloat(args[1]);
-					localPlayer.leftHandYaw= parseFloat(args[2]);
-					localPlayer.leftHandRoll= parseFloat(args[3]);
-				} else if(args[0] == "RHANDPOS") {
-					localPlayer.rightHandX= parseFloat(args[1]);
-					localPlayer.rightHandY= parseFloat(args[2]);
-					localPlayer.rightHandZ= parseFloat(args[3]);
-				} else if(args[0] == "RHANDANG") {
-					localPlayer.rightHandPitch= parseFloat(args[1]);
-					localPlayer.rightHandYaw= parseFloat(args[2]);
-					localPlayer.rightHandRoll= parseFloat(args[3]);
-				} else if(args[0] == "DMGSTART") {
-					dmg = {};
-				} else if(args[0] == "DMGKEY") {
-					dmgkey = parseInt(args[1]);
-				} else if(args[0] == "DMG") {
-					dmg[dmgkey] = parseFloat(args[1]);
-				} else if(args[0] == "DMGEND") {
-					hub.publish(Object.apply(constructor, {
-						action: "damage-vote",
-						damage: dmg,
-						victim: dmgkey,
-						player: localPlayer,
-					}));
-				} else if(args[0] == "GMA") {
-					args.shift();
-					hub.publish(Object.apply(constructor, {
-						action: "gamemode-action",
-						args: args,
-						player: localPlayer,
-					}));
+			try {
+				if(data.indexOf(lookout) != -1) {
+					const command = data.slice(data.indexOf(lookout) + lookout.length+1); // Remove the KIWI and the space.
+					// If PRNT is found at the end of the string, split until then. This marks the end of the command.
+					const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
+					//console.log('['+header+'] VConsole: '+args.join(" "));
+					if(args[0] == "POS") {
+						localPlayer.x = parseFloat(args[1]);
+						localPlayer.y = parseFloat(args[2]);
+						localPlayer.z = parseFloat(args[3]);
+					} else if(args[0] == "ANG") {
+						localPlayer.pitch= parseFloat(args[1]);
+						localPlayer.yaw= parseFloat(args[2]);
+						localPlayer.roll= parseFloat(args[3]);
+					} else if(args[0] == "HEADPOS") {
+						localPlayer.headX = parseFloat(args[1]);
+						localPlayer.headY = parseFloat(args[2]);
+						localPlayer.headZ = parseFloat(args[3]);
+					} else if(args[0] == "LHANDPOS") {
+						localPlayer.leftHandX= parseFloat(args[1]);
+						localPlayer.leftHandY= parseFloat(args[2]);
+						localPlayer.leftHandZ= parseFloat(args[3]);
+					} else if(args[0] == "LHANDANG") {
+						localPlayer.leftHandPitch= parseFloat(args[1]);
+						localPlayer.leftHandYaw= parseFloat(args[2]);
+						localPlayer.leftHandRoll= parseFloat(args[3]);
+					} else if(args[0] == "RHANDPOS") {
+						localPlayer.rightHandX= parseFloat(args[1]);
+						localPlayer.rightHandY= parseFloat(args[2]);
+						localPlayer.rightHandZ= parseFloat(args[3]);
+					} else if(args[0] == "RHANDANG") {
+						localPlayer.rightHandPitch= parseFloat(args[1]);
+						localPlayer.rightHandYaw= parseFloat(args[2]);
+						localPlayer.rightHandRoll= parseFloat(args[3]);
+					} else if(args[0] == "DMGSTART") {
+						dmg = {};
+					} else if(args[0] == "DMGKEY") {
+						dmgkey = parseInt(args[1]);
+					} else if(args[0] == "DMG") {
+						dmg[dmgkey] = parseFloat(args[1]);
+					} else if(args[0] == "DMGEND") {
+						hub.publish(Object.apply(constructor, {
+							action: "damage-vote",
+							damage: dmg,
+							victim: dmgkey,
+							player: localPlayer,
+						}));
+					} else if(args[0] == "GMA") {
+						args.shift();
+						hub.publish(Object.apply(constructor, {
+							action: "gamemode-action",
+							args: args,
+							player: localPlayer,
+						}));
+					}
 				}
+			} catch (e) {
+				// It's shaky working with VConsole, so let's just ignore it.
 			}
 		});
 		client.on('close', function() {
@@ -128,7 +132,8 @@ module.exports = {
 			process.exit(1);
 		});
 	},
-	updateServer: (userSlots, onlineUsers) => {
+	updateServer: (users, player) => {
+		const userSlots = users.getUsers();
 		var luaStrings = [
 			`Msg("");\n`, // Player heads.
 			`Msg("");\n`, // Player NPCS.
@@ -137,25 +142,20 @@ module.exports = {
 			`Msg("");\n`, // Player right hands.
 		];
 		var user;
-		for(i = 0; i < onlineUsers; i++) {
+		for(i = 0; i < userSlots.length; i++) {
 			user = userSlots[i];
 			if(!user) continue; // ???
-			// TODO: Activate this on production.
-			// Update: This isn't working outside of listen servers.
-			//if(!config.dedicated && user.username == localPlayer.username)
-				//continue;
+			if(user.username == player.username && !config.clientshowheadset) continue; // Show just the player's headset if enabled, otherwise don't update the player at all.
 			// Player heads
-			//if(!config.dedicated && user.username != localPlayer.username)
-				luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
+			luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
 EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
+			if(user.username == player.username) continue; // Don't update the player for the client anymore.
 			// NPCs
 			if(config.npccollision == true) {
-				if(!config.dedicated && user.username != localPlayer.username)
 					luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
 			}
 			// Name tags
-			if(!config.dedicated && user.username != localPlayer.username)
-				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
+			luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, self, self);\n`
 			// Player left hands
