@@ -37,6 +37,10 @@ module.exports = {
 			fs.writeFileSync(clientpath, newclientlua, 'utf8');
 			const newdamagelua = fs.readFileSync("./lua/damage.lua", 'utf8');
 			fs.writeFileSync(path.join(path.dirname(clientpath), "damage.lua"), newdamagelua, 'utf8');
+			const blanklua = fs.readFileSync("./lua/blank.lua", 'utf8');
+			for(i = 0; i < serverpaths.length; i++) {
+				fs.writeFileSync(serverpaths[i], blanklua, 'utf8');
+			}
 		};
 		config = getconfig;
 	},
@@ -155,11 +159,11 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, self, self);\n`
 			// Player left hands
-			luaStrings[3] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
-EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
+			luaStrings[3] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.leftHandX},${user.leftHandY},${user.leftHandZ}));
+EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
 			// Player right hands
-			luaStrings[4] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
-EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
+			luaStrings[4] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.rightHandX},${user.rightHandY},${user.rightHandZ}));
+EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
 		}
 		if(config.writeserver) {
 			try {
