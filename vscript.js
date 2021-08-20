@@ -141,16 +141,16 @@ module.exports = {
 			//if(!config.dedicated && user.username == localPlayer.username)
 				//continue;
 			// Player heads
-			//if(user.username != localPlayer.username)
+			//if(!config.dedicated && user.username != localPlayer.username)
 				luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
 EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			// NPCs
 			if(config.npccollision == true) {
-				if(user.username != localPlayer.username)
+				if(!config.dedicated && user.username != localPlayer.username)
 					luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
 			}
 			// Name tags
-			if(user.username != localPlayer.username)
+			if(!config.dedicated && user.username != localPlayer.username)
 				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, self, self);\n`
