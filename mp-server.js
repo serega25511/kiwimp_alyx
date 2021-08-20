@@ -118,7 +118,7 @@ module.exports = (config, package, gamemode) => {
 						}, config.servertimeout);
 					} else {
 						console.log('['+header+'] '+username+' failed to create a user.');
-						users.logOut(index);
+						//users.logOut(index);
 						hub.publish({
 							version: package.version,
 							username: username,

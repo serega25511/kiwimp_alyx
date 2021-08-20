@@ -148,7 +148,7 @@ module.exports = (config, package, gamemode) => {
 			}, config.pingtimeout);
         },
 		errorCallback: (err) => {
-			config.verbose ? console.log('['+header+'] An error has occured.', err) : console.log('['+header+'] An error has occured.');
+			config.verbose ? console.log('['+header+'] An error has occured. The process can not continue, exiting...', err) : console.log('['+header+'] An error has occured. The process can not continue, exiting...');
 			process.exit(1);
 		}
 	}

@@ -61,7 +61,7 @@ function _log() {
 
 // black magic
 process.on('uncaughtException', (err) => {
-	err.stack && console.log(err.stack);
+	err.stack && console.log(err.stack); // alyx change for debugging purposes
 	console.error('Exception: ' + err); // TODO: think we should terminate it on such exception
 });
 

@@ -21,7 +21,7 @@ The following configuration file should be saved as ``config.json`` in the root 
     "hostname": "A Half-Life: Alyx server",
     "username": "Alyx",
     "gamemode": "base",
-    "verbose": true,
+    "verbose": false,
     "writeserver": false,
     "printmovesuccess": false,
     "npccollision": false,
