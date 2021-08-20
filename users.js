@@ -10,15 +10,6 @@ module.exports = {
     getOnlineUsers: () => {
         return onlineUsers;
     },
-    // Make sure the user table does not already contain the username.
-    // If it does, then the user might as well be already logged in.
-    checkUser: (desiredUsername) => {
-        for(i = 0; i < onlineUsers; i++) {
-            if(userSlots[i].username == desiredUsername)
-                return true;
-        }
-        return false;
-    },
     // Add a user to the user table and assign their authid.
     newUser: (desiredUsername, authid) => {
         for(i = 0; i < onlineUsers; i++) {
@@ -33,16 +24,8 @@ module.exports = {
         return true;
     },
     // Remove a user from the user table.
-    logOut: (username) => {
-        var user;
-        var index;
-        for(i = 0; i < onlineUsers; i++) {
-            if(userSlots[i].username == username) {
-                user = userSlots[i];
-                index = i;
-                break;
-            };
-        };
+    logOut: (index) => {
+        var user = userSlots[index];
         if(!user)
             return false; // No such user.
         delete userSlots[index];

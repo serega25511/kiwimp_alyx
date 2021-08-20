@@ -20,7 +20,8 @@ module.exports = (config, package) => {
 			if(data.action == "ping") {
 				// We don't ignore version information for pings.
 				// But we'll send it over to the client so they are aware.
-				if(users.checkUser(username)) return; // This state should never be reached, but just in case.
+				const index = users.getIndexByUsername(username);
+				if(index !== false) return; // This state should never be reached, but just in case
 				hub.publish({
 					version: package.version,
 					username: username,
@@ -48,7 +49,8 @@ module.exports = (config, package) => {
 			} else if(data.action == "logout") {
 				// We don't ignore version information for logging out.
 				// But we'll send it over to the client so they are aware.
-				if(users.checkUser(username)) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
+				const index = users.getIndexByUsername(username);
+				if(index !== false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
 				if(users.logOut(username)) {
 					console.log('['+header+'] '+username+' has logged out.');
 					hub.publish({
@@ -68,7 +70,19 @@ module.exports = (config, package) => {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const password = data.password
 				if(!password && config.password != "") return; // Skip if the password is incorrect, but only if the password is set.
-				if(password == config.password && !users.checkUser(username)) {
+				const index = users.getIndexByUsername(username);
+				if(index !== false) {
+					console.log('['+header+'] '+username+' is already logged in.');
+					hub.publish({
+						version: package.version,
+						username: username,
+						authid: authid,
+						from: header,
+						action: "auth-fail",
+						timestamp: Date.now()
+					});
+				}
+				if(password == config.password) {
 					console.log('['+header+'] '+username+' is authenticating...');
 					if (users.newUser(username, authid)) {
 						console.log('['+header+'] '+username+' has authenticated. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
@@ -103,7 +117,7 @@ module.exports = (config, package) => {
 							};
 						}, config.servertimeout);
 					} else {
-						console.log('['+header+'] '+username+' failed to authenticate.');
+						console.log('['+header+'] '+username+' failed to create a user.');
 						hub.publish({
 							version: package.version,
 							username: username,
