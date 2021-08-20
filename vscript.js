@@ -104,6 +104,13 @@ module.exports = {
 						victim: dmgkey,
 						player: localPlayer,
 					}));
+				} else if(args[0] == "GMA") {
+					args.shift();
+					hub.publish(Object.apply(constructor, {
+						action: "gamemode-action",
+						args: args,
+						player: localPlayer,
+					}));
 				}
 			}
 		});
@@ -126,17 +133,21 @@ module.exports = {
 		for(i = 0; i < onlineUsers; i++) {
 			user = userSlots[i];
 			// TODO: Activate this on production.
-			if(!config.dedicated && user.username == localPlayer.username)
-				continue;
+			// Update: This isn't working outside of listen servers.
+			//if(!config.dedicated && user.username == localPlayer.username)
+				//continue;
 			// Player heads
-			luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+30}));
+			if(user.username != localPlayer.username)
+				luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+30}));
 EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			// NPCs
-			if(config.npccollision) {
-				luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
+			if(config.npccollision == true) {
+				if(user.username != localPlayer.username)
+					luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
 			}
 			// Name tags
-			luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+40}));
+			if(user.username != localPlayer.username)
+				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+40}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, self, self);\n`
 		}

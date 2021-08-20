@@ -9,7 +9,7 @@ var freemode = false; // Used to determine whether or not we should accept actio
 var lastmove = {x: 0, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0}; // Used to determine whether or not we should send movement to the server and if we should print it out.
 var moveok = true;
 
-module.exports = (config, package) => {
+module.exports = (config, package, gamemode) => {
 	header = header+"-"+config.channel;
 	const noobhub = require('./noobhub/client');
 	const hub = noobhub.new(config);

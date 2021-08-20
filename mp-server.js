@@ -1,12 +1,12 @@
 var header = "alyx-server"; // NoobHub header for the server. This is used by clients to know that the server sent the message.
-const { fs } = require("./gamemodes/base");
 const users = require("./users");
 const vscript = require("./vscript"); // This is how we can write to the script that will be ran by the game.
 var damagetable = [];
 var lastmoves = [];
 var lastmoveintervals = [];
+const fs = require("fs");
 
-module.exports = (config, package) => {
+module.exports = (config, package, gamemode) => {
 	header = header+"-"+config.channel;
 	const noobhub = require('./noobhub/client');
 	const hub = noobhub.new(config);
@@ -20,8 +20,8 @@ module.exports = (config, package) => {
 			if(data.action == "ping") {
 				// We don't ignore version information for pings.
 				// But we'll send it over to the client so they are aware.
-				const index = users.getIndexByUsername(username);
-				if(index !== false) return; // This state should never be reached, but just in case
+				//const index = users.getIndexByUsername(username);
+				//if(index !== false) return; // This state should never be reached, but just in case
 				hub.publish({
 					version: package.version,
 					username: username,
@@ -188,12 +188,18 @@ module.exports = (config, package) => {
 						delete damagetable[victim];
 					}
 				};
+			} else if(data.action == "gamemode-action") {
+				if(data.version != package.version) return; // If the version is not the same, ignore the message.
+				const index = users.getIndexByUsername(username);
+				if(index === false) return; // If the index is false, the player is not in the list.
+				gamemode.playerAction(data, hub, users, index);
 			} else {
 				config.verbose ? console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?');
 			};
 		},
 		subscribedCallback: () => {
 			console.log('['+header+'] Subscribed. Waiting for clients...');
+			config = gamemode.initialize(hub, users);
 		},
 		errorCallback: (err) => {
 			config.verbose ? console.log('['+header+'] An error has occured.', err) : console.log('['+header+'] An error has occured.');

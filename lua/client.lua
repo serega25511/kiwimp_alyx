@@ -10,8 +10,8 @@ Msg("");
 Msg("KIWI HP "..playerHealth);
 Msg("");
 if playerHealth < health then
-    local dmg = CreateDamageInfo(self, self, Vector(0, 0, 100000), Vector(0,0,0), 1000, DMG_BURN)
-    player:TakeDamage(dmg);
-    DestroyDamageInfo(dmg);
+    //local dmg = CreateDamageInfo(self, self, Vector(0, 0, 100000), Vector(0,0,0), 1000, DMG_BURN)
+    //player:TakeDamage(dmg);
+    //DestroyDamageInfo(dmg);
     player:SetHealth(100);
 end

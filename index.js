@@ -12,10 +12,10 @@ const header = "alyx-handler-"+config.channel;
 // Start the server only if we're not connecting to a remote server
 if(config.server == "localhost" || config.dedicated) {
 	require('./noobhub/server');
-	require("./mp-server")(config, package);
+	require("./mp-server")(config, package, gamemode);
 }
 
 // Set up client networking only if we aren't a dedicated server
 if(!config.dedicated) {
-	client = require("./mp-client")(config, package);
+	client = require("./mp-client")(config, package, gamemode);
 }
