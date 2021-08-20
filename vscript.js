@@ -165,7 +165,7 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			try {
 				// files may not be in use, let's write to them
 				for(i = 0; i < serverpaths.length; i++) {
-					fs.writeFileSync(`./lua/server/${serverpaths[i]}`, luaStrings[i]);
+					fs.writeFileSync(serverpaths[i], luaStrings[i]);
 				}
 			} catch (err) {
 				// let's just rest here because the files are in use.
@@ -177,7 +177,7 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 		try {
 			// files may not be in use, let's write to them
 			for(i = 0; i < serverpaths.length; i++) {
-				fs.writeFileSync(`./lua/server/${serverpaths[i]}`, luaStrings[i]);
+				fs.writeFileSync(serverpaths[i], lua[i]);
 			}
 		} catch (err) {
 			// let's just rest here because the files are in use.
