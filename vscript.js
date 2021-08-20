@@ -14,6 +14,8 @@ const serverpaths = [
 	path.join(serverpathdir, "server.lua"),
 	path.join(serverpathdir, "npcs.lua"),
 	path.join(serverpathdir, "nametags.lua"),
+	path.join(serverpathdir, "lefthands.lua"),
+	path.join(serverpathdir, "righthands.lua"),
 ];
 const clientpath = path.normalize(config.clientvscript)
 const clientvscript = fs.existsSync(clientpath)
@@ -30,16 +32,11 @@ var dmgkey = 0;
 module.exports = {
 	updateConfig: (getconfig, client) => {
 		if(client) {
-			// Update lua files.
+			// Updatable lua files.
 			const newclientlua = fs.readFileSync("./lua/client.lua", 'utf8');
 			fs.writeFileSync(clientpath, newclientlua, 'utf8');
 			const newdamagelua = fs.readFileSync("./lua/damage.lua", 'utf8');
 			fs.writeFileSync(path.join(path.dirname(clientpath), "damage.lua"), newdamagelua, 'utf8');
-			// These two aren't really needed...
-			const newnametaglua = fs.readFileSync("./lua/nametags.lua", 'utf8');
-			fs.writeFileSync(path.join(path.dirname(clientpath), "nametags.lua"), newnametaglua, 'utf8');
-			const newnpcslua = fs.readFileSync("./lua/npcs.lua", 'utf8');
-			fs.writeFileSync(path.join(path.dirname(clientpath), "npcs.lua"), newnpcslua, 'utf8');
 		};
 		config = getconfig;
 	},
@@ -132,6 +129,8 @@ module.exports = {
 			`Msg("");\n`, // Player heads.
 			`Msg("");\n`, // Player NPCS.
 			`Msg("");\n`, // Player names.
+			`Msg("");\n`, // Player left hands.
+			`Msg("");\n`, // Player right hands.
 		];
 		var user;
 		for(i = 0; i < onlineUsers; i++) {
@@ -155,13 +154,19 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, self, self);\n`
+			// Player left hands
+			luaStrings[3] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
+EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
+			// Player right hands
+			luaStrings[4] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
+EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 		}
 		if(config.writeserver) {
 			try {
-				// files are not in use, let's write to them
-				fs.writeFileSync(serverpaths[0], lua[0], 'utf8');
-				fs.writeFileSync(serverpaths[1], lua[1], 'utf8');
-				fs.writeFileSync(serverpaths[2], lua[2], 'utf8');
+				// files may not be in use, let's write to them
+				for(i = 0; i < serverpaths.length; i++) {
+					fs.writeFileSync(`./lua/server/${serverpaths[i]}`, luaStrings[i]);
+				}
 			} catch (err) {
 				// let's just rest here because the files are in use.
 			}
@@ -170,10 +175,10 @@ DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, 
 	},
 	updateClient: (lua) => {
 		try {
-			// files are not in use, let's write to them
-			fs.writeFileSync(serverpaths[0], lua[0], 'utf8');
-			fs.writeFileSync(serverpaths[1], lua[1], 'utf8');
-			fs.writeFileSync(serverpaths[2], lua[2], 'utf8');
+			// files may not be in use, let's write to them
+			for(i = 0; i < serverpaths.length; i++) {
+				fs.writeFileSync(`./lua/server/${serverpaths[i]}`, luaStrings[i]);
+			}
 		} catch (err) {
 			// let's just rest here because the files are in use.
 		}
