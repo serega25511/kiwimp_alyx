@@ -9,9 +9,9 @@ class Player {
 	pitch = 0; // The rotational pitch of the user.
 	yaw = 0; // The rotational yaw of the user.
 	roll = 0; // The rotational roll of the user.
-	centerX = 0; // The x coordinate of the center of the user's body.
-	centerY = 0; // The y coordinate of the center of the user's body.
-	centerZ = 0; // The z coordinate of the center of the user's body.
+	headX = 0; // The x coordinate of the head of the user.
+	headY = 0; // The y coordinate of the head of the user.
+	headZ = 0; // The z coordinate of the head of the user.
 	leftHandX = 0; // The x coordinate of the user's left hand.
 	leftHandY = 0; // The y coordinate of the user's left hand.
 	leftHandZ = 0; // The z coordinate of the user's left hand.
@@ -24,16 +24,17 @@ class Player {
 	rightHandPitch = 0; // The rotational pitch of the user's right hand.
 	rightHandYaw = 0; // The rotational yaw of the user's right hand.
 	rightHandRoll = 0; // The rotational roll of the user's right hand.
+	// The following are the user's current stats. (Will update once vscript gets a chance to run)
+	health = 100; // The user's health points. (Updates with Alyx's health.)
+	//// ALL OF THE FOLLOWING ARE UNUSED!!! ////
+	resin = 0; // The user's resin. (Updates with Alyx's resin.)
+	armor = 0; // The user's armor. (Only here for custom game types to use; will not be updated by normal gameplay. TODO = Find a way to display this)
+	score = 0; // Unused score for custom game types. (TODO = Find a way to display this)
 	// Models used for the player. Not currently used.
 	leftHand = ""; // The model name of the player's left hand. (There isn't a way to detect if the player is grasping something; this is just here to be used for the user's hands.)
 	rightHand = ""; // The model name of the player's right hand. (Ditto.)
 	head = ""; // The model name of the player's head. (Uses VR model.)
 	body = ""; // The model name of the player's body. (The body uses the coordinates of the head but with only the head's yaw and pitch.)
-	// The following are the user's current stats. (Will update once vscript gets a chance to run)
-	health = 100; // The user's health points. (Updates with Alyx's health.)
-	resin = 0; // The user's resin. (Updates with Alyx's resin.)
-	armor = 0; // The user's armor. (Only here for custom game types to use; will not be updated by normal gameplay. TODO = Find a way to display this)
-	score = 0; // Unused score for custom game types. (TODO = Find a way to display this)
 	// What the player is currently doing.
 	action = ""; // The action the user is currently doing.
 	falling = false; // Whether the user is falling. (Updates with the user's falling state.)

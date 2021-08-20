@@ -67,14 +67,18 @@ module.exports = {
 				// If PRNT is found at the end of the string, split until then. This marks the end of the command.
 				const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
 				//console.log('['+header+'] VConsole: '+args.join(" "));
-				if(args[0] == "HEADPOS") {
+				if(args[0] == "POS") {
 					localPlayer.x = parseFloat(args[1]);
 					localPlayer.y = parseFloat(args[2]);
 					localPlayer.z = parseFloat(args[3]);
-				} else if(args[0] == "HEADANG") {
+				} else if(args[0] == "ANG") {
 					localPlayer.pitch= parseFloat(args[1]);
 					localPlayer.yaw= parseFloat(args[2]);
 					localPlayer.roll= parseFloat(args[3]);
+				} else if(args[0] == "HEADPOS") {
+					localPlayer.headX = parseFloat(args[1]);
+					localPlayer.headY = parseFloat(args[2]);
+					localPlayer.headZ = parseFloat(args[3]);
 				} else if(args[0] == "LHANDPOS") {
 					localPlayer.leftHandX= parseFloat(args[1]);
 					localPlayer.leftHandY= parseFloat(args[2]);
@@ -137,8 +141,8 @@ module.exports = {
 			//if(!config.dedicated && user.username == localPlayer.username)
 				//continue;
 			// Player heads
-			if(user.username != localPlayer.username)
-				luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+30}));
+			//if(user.username != localPlayer.username)
+				luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
 EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			// NPCs
 			if(config.npccollision == true) {
@@ -147,7 +151,7 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			}
 			// Name tags
 			if(user.username != localPlayer.username)
-				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+40}));
+				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, self, self);\n`
 		}
