@@ -109,11 +109,15 @@ self._handleIncomingMessage = (data) => {
 	self.buffer.len = self.buffer.write(str, 0);
 	// alyx modified code because for some reason this is a problem?
 	if(json.includes("__JSON__START__") || json.includes("__JSON__END__")) {
-		console.log("json error");
+		//console.log("json error");
 		json = "{}";
 	}
+	try {
+		json = JSON.parse(json);
+	} catch(e) {
+		// Do nothing because this is a lost message.
+	}
 	// end modified code
-	json = JSON.parse(json);
 	if (typeof self.messageCallback === 'function') {
 		self.messageCallback(json);
 	}

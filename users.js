@@ -12,7 +12,7 @@ module.exports = {
     },
     // Add a user to the user table and assign their authid.
     newUser: (desiredUsername, authid) => {
-        for(i = 0; i < onlineUsers; i++) {
+        for(i = 0; i < userSlots.length; i++) {
             if(userSlots[i].username == desiredUsername) {
                 return false; // Username already taken at this time.
             };
@@ -42,7 +42,7 @@ module.exports = {
     damage: (victim, damage) => {
         var user;
         var index;
-        for(i = 0; i < onlineUsers; i++) {
+        for(i = 0; i < userSlots.length; i++) {
             if(userSlots[i].username == victim.username) {
                 user = userSlots[i];
                 index = i;
@@ -56,17 +56,17 @@ module.exports = {
         
         return true;
     },
-    getUserByUsername: (player) => {
-        for(i = 0; i < onlineUsers; i++) {
-            if(userSlots[i].username == player) {
+    getUserByUsername: (username) => {
+        for(i = 0; i < userSlots.length; i++) {
+            if(userSlots[i].username == username) {
                 return userSlots[i];
             };
         };
         return false;
     },
-    getIndexByUsername: (player) => {
-        for(i = 0; i < onlineUsers; i++) {
-            if(userSlots[i].username == player) {
+    getIndexByUsername: (username) => {
+        for(i = 0; i < userSlots.length; i++) {
+            if(userSlots[i].username == username) {
                 return i;
             };
         };

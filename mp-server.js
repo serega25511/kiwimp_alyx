@@ -51,7 +51,7 @@ module.exports = (config, package) => {
 				// But we'll send it over to the client so they are aware.
 				const index = users.getIndexByUsername(username);
 				if(index !== false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
-				if(users.logOut(username)) {
+				if(users.logOut(index)) {
 					console.log('['+header+'] '+username+' has logged out.');
 					hub.publish({
 						version: package.version,
@@ -101,7 +101,7 @@ module.exports = (config, package) => {
 						lastmoveintervals[index] = setInterval(() => {
 							// Check if the player is unresponsive...
 							if(lastmoves[index] < Date.now()-config.servertimeout/2) {
-								if(users.logOut(username)) {
+								if(users.logOut(index)) {
 									console.log('['+header+'] '+username+' has timed out.');
 									hub.publish({
 										version: package.version,
@@ -118,6 +118,7 @@ module.exports = (config, package) => {
 						}, config.servertimeout);
 					} else {
 						console.log('['+header+'] '+username+' failed to create a user.');
+						users.logOut(index);
 						hub.publish({
 							version: package.version,
 							username: username,

@@ -77,7 +77,7 @@ module.exports = (config, package) => {
 					authid: authid,
 				});
 				setInterval(() => {
-					if(!moveok) return; // Only move if the server has confirmed our previous move.
+					//if(!moveok) return; // Only move if the server has confirmed our previous move.
 					const player = vscript.updatePlayer(config.username, authid);
 					//var thismove = {x: player.x, y: player.y, z: player.z, pitch: player.pitch, yaw: player.yaw, roll: player.roll};
 					//if(thismove != lastmove) {
@@ -92,7 +92,7 @@ module.exports = (config, package) => {
 							action: "move",
 							player: player
 						});
-						moveok = false;
+						//moveok = false;
 					//}
 				}, config.pinginterval);
 			} else if(data.action == "auth-fail") {
@@ -107,7 +107,7 @@ module.exports = (config, package) => {
 					//lastmove = thismove;
 				//}
 				vscript.updateClient(data.lua);
-				moveok = true;
+				//moveok = true;
 			} else if(authorized && data.action == "force-logout") {
 				console.log('['+header+'] The server has requested your client to log out. If you have sent a log out request, this means it is now safe to leave. Exiting...');
 				process.exit(0);

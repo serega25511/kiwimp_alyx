@@ -126,8 +126,8 @@ module.exports = {
 		for(i = 0; i < onlineUsers; i++) {
 			user = userSlots[i];
 			// TODO: Activate this on production.
-			//if(!config.dedicated && user.username == localPlayer.username)
-				//continue;
+			if(!config.dedicated && user.username == localPlayer.username)
+				continue;
 			// Player heads
 			luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z+30}));
 EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
