@@ -155,7 +155,7 @@ module.exports = (config, package, gamemode) => {
 							username: username,
 							authid: authid,
 							from: header,
-							lua: vscript.updateServer(users, player),
+							lua: vscript.updateServer(users, player, gamemode),
 							// These coordinates are just for convenience.
 							x: player.x,
 							y: player.y,

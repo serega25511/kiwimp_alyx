@@ -29,4 +29,8 @@ module.exports = {
     initialize: (hub, users) => {
         return config; // The config may be overwritten here. (e.g. config.npccollision = false)
     },
+    
+    getGamemodeProperties: (user) => {
+        return ``; // Send lua to the client for the gamemode properties.
+    },
 }

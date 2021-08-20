@@ -16,6 +16,7 @@ const serverpaths = [
 	path.join(serverpathdir, "nametags.lua"),
 	path.join(serverpathdir, "lefthands.lua"),
 	path.join(serverpathdir, "righthands.lua"),
+	path.join(serverpathdir, "gamemodeprops.lua"),
 ];
 const clientpath = path.normalize(config.clientvscript)
 /*
@@ -67,31 +68,31 @@ module.exports = {
 					const command = data.slice(data.indexOf(lookout) + lookout.length+1); // Remove the KIWI and the space.
 					// If PRNT is found at the end of the string, split until then. This marks the end of the command.
 					const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
-					if(args[0].includes("POS")) {
+					if(args[0] == ("POS")) {
 						localPlayer.x = parseFloat(args[1]);
 						localPlayer.y = parseFloat(args[2]);
 						localPlayer.z = parseFloat(args[3]);
-					} else if(args[0].includes("ANG")) {
+					} else if(args[0] == ("ANG")) {
 						localPlayer.pitch= parseFloat(args[1]);
 						localPlayer.yaw= parseFloat(args[2]);
 						localPlayer.roll= parseFloat(args[3]);
-					} else if(args[0].includes("HEADPOS")) {
+					} else if(args[0] == ("HEADPOS")) {
 						localPlayer.headX = parseFloat(args[1]);
 						localPlayer.headY = parseFloat(args[2]);
 						localPlayer.headZ = parseFloat(args[3]);
-					} else if(args[0].includes("LHANDPOS")) {
+					} else if(args[0] == ("LHANDPOS")) {
 						localPlayer.leftHandX= parseFloat(args[1]);
 						localPlayer.leftHandY= parseFloat(args[2]);
 						localPlayer.leftHandZ= parseFloat(args[3]);
-					} else if(args[0].includes("LHANDANG")) {
+					} else if(args[0] == ("LHANDANG")) {
 						localPlayer.leftHandPitch= parseFloat(args[1]);
 						localPlayer.leftHandYaw= parseFloat(args[2]);
 						localPlayer.leftHandRoll= parseFloat(args[3]);
-					} else if(args[0].includes("RHANDPOS")) {
+					} else if(args[0] == ("RHANDPOS")) {
 						localPlayer.rightHandX= parseFloat(args[1]);
 						localPlayer.rightHandY= parseFloat(args[2]);
 						localPlayer.rightHandZ= parseFloat(args[3]);
-					} else if(args[0].includes("RHANDANG")) {
+					} else if(args[0] == ("RHANDANG")) {
 						localPlayer.rightHandPitch= parseFloat(args[1]);
 						localPlayer.rightHandYaw= parseFloat(args[2]);
 						localPlayer.rightHandRoll= parseFloat(args[3]);
@@ -130,7 +131,7 @@ module.exports = {
 			process.exit(1);
 		});
 	},
-	updateServer: (users, player) => {
+	updateServer: (users, player, gamemode) => {
 		const userSlots = users.getUsers();
 		var luaStrings = [
 			`Msg("");\n`, // Player heads.
@@ -138,6 +139,7 @@ module.exports = {
 			`Msg("");\n`, // Player names.
 			`Msg("");\n`, // Player left hands.
 			`Msg("");\n`, // Player right hands.
+			`Msg("");\n`, // Gamemode properties.
 		];
 		var user;
 		for(i = 0; i < userSlots.length; i++) {
@@ -161,6 +163,8 @@ EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.l
 			// Player right hands
 			luaStrings[4] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.rightHandX},${user.rightHandY},${user.rightHandZ}));
 EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
+			// Gamemode properties
+			luaStrings[5] += gamemode.getGamemodeProperties(user);
 		}
 		if(config.writeserver) {
 			try {
