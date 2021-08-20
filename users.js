@@ -1,14 +1,13 @@
 const vscript = require('./vscript');
 const Player = require('./classes/player');
 var userSlots = []
-var onlineUsers = 0
 
 module.exports = {
     getUsers: () => {
         return userSlots;
     },
     getOnlineUsers: () => {
-        return onlineUsers;
+        return userSlots.length;
     },
     // Add a user to the user table and assign their authid.
     newUser: (desiredUsername, authid) => {
@@ -17,10 +16,10 @@ module.exports = {
                 return false; // Username already taken at this time.
             };
         };
-        userSlots[onlineUsers] = new Player(desiredUsername, authid);
-        userSlots[onlineUsers].authid = authid;
-        userSlots[onlineUsers].username = desiredUsername;
-        onlineUsers++;
+        const ply = new Player(desiredUsername, authid)
+        userSlots.push(ply)
+        ply.authid = authid;
+        ply.username = desiredUsername;
         return true;
     },
     // Remove a user from the user table.
@@ -29,7 +28,6 @@ module.exports = {
         if(!user)
             return false; // No such user.
         delete userSlots[index];
-        onlineUsers--;
         return true;
     },
     move: (index, player) => {
