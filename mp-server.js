@@ -171,22 +171,26 @@ module.exports = (config, package, gamemode) => {
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			} else if(data.action == "damage-vote") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const player = data.player;
 				const victim = users.getUsers()[data.victim];
-				if(player && victim) {
-					if(!damagetable[victim]) {
-						damagetable[victim] = {};
-						damagetable[victim].vote = 1;
-						damagetable[victim].damage = data.damage;
-					}
-					if(damagetable[victim].damage == data.damage) {
-						console.log('['+header+'] '+player.username+' has voted to deal '+data.damage+' damage to '+victim.username);
-						damagetable[victim].votes++;
-					}
-					if(damagetable[victim].votes >= Math.floor(users.getOnlineUsers()/2)) {
-						console.log('['+header+'] Damage vote has passed. '+victim.username+' will be set to '+damagetable[victim].damage+' health.');
-						users.damage(data.victim, damagetable[victim].damage);
-						delete damagetable[victim];
+				console.log("damage vote!")
+				if(victim) {
+					console.log("damage vote 2!")
+					if(data.damage < victim.health) {
+						console.log("damage vote 3!")
+						if(!damagetable[victim]) {
+							damagetable[victim] = {};
+							damagetable[victim].vote = 1;
+							damagetable[victim].damage = data.damage;
+						}
+						if(damagetable[victim].damage == data.damage) {
+							console.log('['+header+'] '+username+' has voted to deal '+data.damage+' damage to '+victim.username);
+							damagetable[victim].votes++;
+						}
+						if(damagetable[victim].votes >= Math.floor(users.getOnlineUsers()/2)) {
+							console.log('['+header+'] Damage vote has passed. '+victim.username+' will be set to '+damagetable[victim].damage+' health.');
+							users.damage(data.victim, damagetable[victim].damage);
+							delete damagetable[victim];
+						}
 					}
 				};
 			} else if(data.action == "gamemode-action") {

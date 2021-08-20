@@ -2,6 +2,18 @@
 -- Keep in mind that static functions do not automatically update and require a changelevel.
 Msg(""); -- Blank lines are used to buffer vconsole so much it has so accept our vconsole trick.
 
+-- This script is ran every time a collision box entity is damaged.
+-- This is due to be moved into damage.lua but it is not executed every refire yet.
+Msg("");
+Msg("KIWI DMGSTART");
+-- We literally don't know what entity was damaged, so we'll cycle through all of them and send them to the server.
+for k,v in ipairs(EntityGroup) do
+	Msg("KIWI DMGKEY "..k);
+	Msg("KIWI DMG "..v:GetHealth());
+	v:SetHealth(100);
+end;
+Msg("KIWI DMGEND");
+
 -- You can get networked collision boxes ("players") by calling EntityGroup[Player].
 -- You can also use the "players" to check if other players are in a certain area for custom maps.
 
