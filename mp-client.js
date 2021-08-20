@@ -79,11 +79,11 @@ module.exports = (config, package) => {
 				setInterval(() => {
 					if(!moveok) return; // Only move if the server has confirmed our previous move.
 					const player = vscript.updatePlayer(config.username, authid);
-					var thismove = {x: player.x, y: player.y, z: player.z, pitch: player.pitch, yaw: player.yaw, roll: player.roll};
-					if(thismove != lastmove) {
-						if(thismove.x == 0 && thismove.y == 0 && thismove.z == 0 && thismove.pitch == 0 && thismove.yaw == 0 && thismove.roll == 0)
-							return; // Don't print out empty moves.
-						lastmove = thismove;
+					//var thismove = {x: player.x, y: player.y, z: player.z, pitch: player.pitch, yaw: player.yaw, roll: player.roll};
+					//if(thismove != lastmove) {
+						//if(thismove.x == 0 && thismove.y == 0 && thismove.z == 0 && thismove.pitch == 0 && thismove.yaw == 0 && thismove.roll == 0)
+							//return; // Don't print out empty moves.
+						//lastmove = thismove;
 						hub.publish({
 							version: package.version,
 							from: header,
@@ -93,19 +93,19 @@ module.exports = (config, package) => {
 							player: player
 						});
 						moveok = false;
-					}
+					//}
 				}, config.pinginterval);
 			} else if(data.action == "auth-fail") {
 				console.log('['+header+'] Authorization failed. The username may be taken, or the password is wrong.');
 				process.exit(1);
 			} else if(data.action == "move-success") {
-				var thismove = {x: data.x, y: data.y, z: data.z, pitch: data.pitch, yaw: data.yaw, roll: data.roll};
-				if(thismove != lastmove) {
-					if(thismove.x == 0 && thismove.y == 0 && thismove.z == 0 && thismove.pitch == 0 && thismove.yaw == 0 && thismove.roll == 0)
-						return; // Don't print out empty moves.
+				//var thismove = {x: data.x, y: data.y, z: data.z, pitch: data.pitch, yaw: data.yaw, roll: data.roll};
+				//if(thismove != lastmove) {
+					//if(thismove.x == 0 && thismove.y == 0 && thismove.z == 0 && thismove.pitch == 0 && thismove.yaw == 0 && thismove.roll == 0)
+						//return; // Don't print out empty moves.
 					if(config.printmovesuccess) console.log('['+header+'] Move success. X='+data.x+' Y='+data.y+' Z='+data.z+' Pitch='+data.pitch+' Yaw='+data.yaw+' Roll='+data.roll+'.');
-					lastmove = thismove;
-				}
+					//lastmove = thismove;
+				//}
 				vscript.updateClient(data.lua);
 				moveok = true;
 			} else if(authorized && data.action == "force-logout") {

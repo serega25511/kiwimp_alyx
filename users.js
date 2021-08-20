@@ -22,7 +22,7 @@ module.exports = {
     // Add a user to the user table and assign their authid.
     newUser: (desiredUsername, authid) => {
         for(i = 0; i < onlineUsers; i++) {
-            if(userSlots[i].username == username) {
+            if(userSlots[i].username == desiredUsername) {
                 return false; // Username already taken at this time.
             };
         };
@@ -43,24 +43,14 @@ module.exports = {
         };
         if(!user)
             return false; // No such user.
-        delete userslots[index];
+        delete userSlots[index];
         onlineUsers--;
         return true;
     },
-    move: (player) => {
-        var user;
-        var index;
-        for(i = 0; i < onlineUsers; i++) {
-            if(userSlots[i].username == player.username) {
-                user = userSlots[i];
-                index = i;
-                break;
-            };
-        };
+    move: (index, player) => {
+        const user = userSlots[index];
         if(!user)
             return false; // No such user.
-        if(!user.authid == player.authid)
-            return false; // Not the correct authid, discard.
         userSlots[index] = player;
         return true;
     },

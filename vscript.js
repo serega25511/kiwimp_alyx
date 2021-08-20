@@ -122,7 +122,6 @@ module.exports = {
 		];
 		var user;
 		for(i = 0; i < onlineUsers; i++) {
-			console.log('['+header+'] Updating user '+i+'.');
 			user = userSlots[i];
 			// TODO: Activate this on production.
 			//if(!config.dedicated && user.username == localPlayer.username)
@@ -146,7 +145,6 @@ DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, 
 				fs.writeFileSync(serverpaths[1], lua[1], 'utf8');
 				fs.writeFileSync(serverpaths[2], lua[2], 'utf8');
 			} catch (err) {
-				console.log('['+header+'] Error writing to client files: '+err);
 				// let's just rest here because the files are in use.
 			}
 		}
@@ -159,7 +157,6 @@ DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username}", 0.0, 
 			fs.writeFileSync(serverpaths[1], lua[1], 'utf8');
 			fs.writeFileSync(serverpaths[2], lua[2], 'utf8');
 		} catch (err) {
-			console.log('['+header+'] Error writing to client files: '+err);
 			// let's just rest here because the files are in use.
 		}
 		return lua;

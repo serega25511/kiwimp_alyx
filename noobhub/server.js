@@ -61,7 +61,8 @@ function _log() {
 
 // black magic
 process.on('uncaughtException', (err) => {
-	_log('Exception: ' + err); // TODO: think we should terminate it on such exception
+	err.stack && console.log(err.stack);
+	console.error('Exception: ' + err); // TODO: think we should terminate it on such exception
 });
 
 server.on('connection', (socket) => {

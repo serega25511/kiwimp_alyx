@@ -69,6 +69,7 @@ module.exports = (config, package) => {
 				const password = data.password
 				if(!password && config.password != "") return; // Skip if the password is incorrect, but only if the password is set.
 				if(password == config.password && !users.checkUser(username)) {
+					console.log('['+header+'] '+username+' is authenticating...');
 					if (users.newUser(username, authid)) {
 						console.log('['+header+'] '+username+' has authenticated. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
 						hub.publish({
@@ -99,6 +100,16 @@ module.exports = (config, package) => {
 								};
 							};
 						}, config.servertimeout);
+					} else {
+						console.log('['+header+'] '+username+' failed to authenticate.');
+						hub.publish({
+							version: package.version,
+							username: username,
+							authid: authid,
+							from: header,
+							action: "auth-fail",
+							timestamp: Date.now()
+						});
 					};
 				// At this point, this user will not recieve any more messages after this as their slot does not exist.
 				} else {
@@ -116,10 +127,9 @@ module.exports = (config, package) => {
 			} else if(data.action == "move") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const player = data.player;
-				if(users.move(player)) {
-					const index = users.getIndexByUsername(username);
-					if(index === false) return; // If the index is false, the player is not in the list.
-					console.log("here2");
+				const index = users.getIndexByUsername(username);
+				if(index === false) return; // If the index is false, the player is not in the list.
+				if(users.move(index, player)) {
 					lastmoves[index] = Date.now();
 					setTimeout(() => {
 						hub.publish({
