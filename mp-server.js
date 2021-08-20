@@ -80,6 +80,8 @@ module.exports = (config, package) => {
 							action: "auth-ok",
 							timestamp: Date.now()
 						});
+						if(config.username == username)
+							return; // If the username is the same as the owner, we don't need to do anything else.
 						const index = users.getIndexByUsername(username);
 						if(index === false) return; // If the index is false, the player is not in the list.
 						lastmoveintervals[index] = setInterval(() => {
