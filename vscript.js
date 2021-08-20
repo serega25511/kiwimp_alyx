@@ -46,7 +46,9 @@ module.exports = {
 	// Create the local player object.
 	updatePlayer: (username,authid) => {
 		if (!localPlayer)
-			localPlayer = new Player(username,authid);
+			localPlayer = new Player();
+		localPlayer.username = username;
+		localPlayer.authid = authid;
 		return localPlayer;
 	},
 	initVConsole: (hub, constructor) => {

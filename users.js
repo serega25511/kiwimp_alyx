@@ -27,6 +27,8 @@ module.exports = {
             };
         };
         userSlots[onlineUsers] = new Player(desiredUsername, authid);
+        userSlots[onlineUsers].authid = authid;
+        userSlots[onlineUsers].username = desiredUsername;
         onlineUsers++;
         return true;
     },

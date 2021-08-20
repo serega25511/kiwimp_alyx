@@ -1,9 +1,4 @@
 class Player {
-	// Construct a player.
-	constructor(username, authid) {
-		this.username = username;
-		this.authid = authid;
-	};
 	// These are the user's properties.
 	username = "Player"; // The username of the user.
 	authId = 0; // The authid of the user. (This is their unique id and will be used alongside their username for server-to-client communication.)
