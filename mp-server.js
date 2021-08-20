@@ -16,6 +16,7 @@ module.exports = (config, package, gamemode) => {
 			const username = data.username
 			const authid = data.authid
 			if(!username || !authid) return; // Why would you send a message without a username or authid?
+			if(data.username == "MrRagtime") console.log(data.action);
 			//config.verbose ? console.log('['+header+'] Received data from '+data.from+'.', data) : console.log('['+header+'] Received data from '+data.from+'.');
 			if(data.action == "ping") {
 				// We don't ignore version information for pings.
@@ -38,10 +39,10 @@ module.exports = (config, package, gamemode) => {
 					verbose: config.verbose,
 					freemode: config.freemode,
 					hostname: config.hostname,
-					gamemode: config.gamemode,
+					gamemode: gamemode.gamemode || "",
 					gamemodelua: fs.readFileSync("./gamemodes/lua/"+config.gamemode+".lua", "utf8"),
-					gamemodeprint: config.gamemodeprint,
-					description: config.description,
+					gamemodeprint: gamemode.gamemodeprint || "",
+					description: gamemode.description || "",
 					vscripts: config.vscripts,
 					action: "pong",
 					timestamp: Date.now(),
@@ -62,7 +63,6 @@ module.exports = (config, package, gamemode) => {
 						timestamp: Date.now(),
 					});
 					const index = users.getIndexByUsername(username);
-					if(index === false) return; // If the index is false, the player is not in the list.
 					clearInterval(lastmoveintervals[index]);
 					delete lastmoveintervals[index];
 				};

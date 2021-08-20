@@ -4,8 +4,6 @@ const packageloc = "./package.json";
 const package = fs.existsSync(packageloc) ? JSON.parse(fs.readFileSync(packageloc)) : {};
 var config = fs.existsSync(configloc) ? JSON.parse(fs.readFileSync(configloc)) : {};
 const gamemode = require("./gamemodes/"+(config.gamemode || "base"));
-config.description = gamemode.description;
-config.gamemodeprint = gamemode.name;
 
 const header = "alyx-handler-"+config.channel;
 

@@ -12,6 +12,7 @@ module.exports = {
     // Add a user to the user table and assign their authid.
     newUser: (desiredUsername, authid) => {
         for(i = 0; i < userSlots.length; i++) {
+            if(!userSlots[i]) continue; //???
             if(userSlots[i].username == desiredUsername) {
                 return false; // Username already taken at this time.
             };
@@ -64,6 +65,7 @@ module.exports = {
     },
     getIndexByUsername: (username) => {
         for(i = 0; i < userSlots.length; i++) {
+            if(!userSlots[i]) return false;
             if(userSlots[i].username == username) {
                 return i;
             };

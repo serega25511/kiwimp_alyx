@@ -136,6 +136,7 @@ module.exports = {
 		var user;
 		for(i = 0; i < onlineUsers; i++) {
 			user = userSlots[i];
+			if(!user) continue; // ???
 			// TODO: Activate this on production.
 			// Update: This isn't working outside of listen servers.
 			//if(!config.dedicated && user.username == localPlayer.username)
