@@ -52,11 +52,5 @@ Msg("");
 Msg("KIWI HP "..playerHealth);
 Msg("");
 
--- We don't want the player to die in multiplayer, let's make make them respawn.
-if playerHealth <= 1 then
-    player:SetHealth(100);
-    local start = FindByClassname(nil, "info_player_start");
-    if start then
-        player:SetOrigin(start:GetOrigin());
-    end
-end
+-- We don't want the player to die in multiplayer, let's make make them invincible.
+player:SetHealth(100);

@@ -184,7 +184,7 @@ module.exports = (config, package, gamemode) => {
 						damagetable[victim].votes++;
 					}
 					if(damagetable[victim].votes >= Math.floor(users.getOnlineUsers()/2)) {
-						console.log('['+header+'] Damage vote has passed. '+victim.username+' will be dealt '+damagetable[victim].damage+' damage.');
+						console.log('['+header+'] Damage vote has passed. '+victim.username+' will be set to '+damagetable[victim].damage+' health.');
 						users.damage(data.victim, damagetable[victim].damage);
 						delete damagetable[victim];
 					}

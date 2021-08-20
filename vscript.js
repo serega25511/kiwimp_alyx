@@ -18,9 +18,8 @@ const serverpaths = [
 	path.join(serverpathdir, "righthands.lua"),
 ];
 const clientpath = path.normalize(config.clientvscript)
-const clientvscript = fs.existsSync(clientpath)
 /*
-if(!fs.existsSync(serverpathdir) || !clientvscript) {
+if(!fs.existsSync(serverpathdir)) {
 	console.log("["+header+"] One or more vscript files are missing! Double check config.json.");
 	process.exit(1);
 };
@@ -160,7 +159,7 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			if(user.username == player.username) continue; // Don't update the player for the client anymore.
 			// NPCs
 			if(config.npccollision == true) {
-					luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
+				luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
 			}
 			// Name tags
 			luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));

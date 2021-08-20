@@ -52,7 +52,7 @@ module.exports = {
             return false; // No such user.
         if(!user.authid == victim.authid)
             return false; // Not the correct authid, discard.
-        
+        user.health = damage; // Damage the user.
         return true;
     },
     getUserByUsername: (username) => {
