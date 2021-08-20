@@ -26,8 +26,8 @@ if(!fs.existsSync(serverpathdir)) {
 };
 */
 
-var dmg = {};
-var dmgkey = false; // we'll check this with === or !==
+const timeout = 100;
+var cur = 0;
 
 module.exports = {
 	updateConfig: (getconfig, client) => {
@@ -96,26 +96,27 @@ module.exports = {
 						localPlayer.rightHandPitch= parseFloat(args[1]);
 						localPlayer.rightHandYaw= parseFloat(args[2]);
 						localPlayer.rightHandRoll= parseFloat(args[3]);
-					} else if(args[0].includes("DMGSTART")) {
-						dmg = {};
-					} else if(args[0].includes("DMGKEY")) {
-						const tempdmg = parseInt(args[1])-1; // -1 because we're using 1-based indexing from Lua.
-						dmgkey = tempdmg;
-						// If the dmgkey is the same as the index, this is the local player so we should not send it.
-					} else if(args[0].includes("DMG")) {
-						dmg[dmgkey] = parseFloat(args[1]);
-					} else if(args[0].includes("DMGEND")) {
-						hub.publish(Object.apply(constructor, {
-							action: "damage-vote",
-							damage: dmg,
-							victim: dmgkey,
-						}));
-					} else if(args[0].includes("GMA")) {
-						args.shift();
-						hub.publish(Object.apply(constructor, {
-							action: "gamemode-action",
-							args: args,
-						}));
+					} else if(cur >= dmgtimeout) { // This is used for stressful variables.
+						cur = 0;
+						if(args[0].includes("DMGSTART")) {
+
+						} else if(args[0].includes("DMG")) {
+							hub.publish(Object.apply(constructor, {
+								action: "damage-vote",
+								damage: parseFloat(args[1]),
+								victim: parseInt(args[2]),
+							}));
+						} else if(args[0] == ("DMGEND")) {
+							
+						} else if(args[0].includes("GMA")) {
+							args.shift();
+							hub.publish(Object.apply(constructor, {
+								action: "gamemode-action",
+								args: args,
+							}));
+						}
+					} else {
+						cur++;
 					}
 				}
 			} catch (e) {
