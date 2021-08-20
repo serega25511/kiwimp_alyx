@@ -27,7 +27,7 @@ if(!fs.existsSync(serverpathdir) || !clientvscript) {
 */
 
 var dmg = {};
-var dmgkey = 0;
+var dmgkey = false; // we'll check this with === or !==
 
 module.exports = {
 	updateConfig: (getconfig, client) => {
@@ -45,14 +45,14 @@ module.exports = {
 		config = getconfig;
 	},
 	// Create the local player object.
-	updatePlayer: (username,authid) => {
+	updatePlayer: (username, authid) => {
 		if (!localPlayer)
 			localPlayer = new Player();
 		localPlayer.username = username;
 		localPlayer.authid = authid;
 		return localPlayer;
 	},
-	initVConsole: (hub, constructor) => {
+	initVConsole: (hub, constructor, index) => {
 		// VConsole interface, used to pull data without needing to memory spy.
 		const net = require('net');
 		const client = new net.Socket();
@@ -100,16 +100,24 @@ module.exports = {
 					} else if(args[0] == "DMGSTART") {
 						dmg = {};
 					} else if(args[0] == "DMGKEY") {
-						dmgkey = parseInt(args[1]);
+						const tempdmg = parseInt(args[1]);
+						if(tempdmg != index)
+							dmgkey = tempdmg;
+						// If the dmgkey is the same as the index, this is the local player so we should not send it.
 					} else if(args[0] == "DMG") {
-						dmg[dmgkey] = parseFloat(args[1]);
+						if(dmgkey !== false) {
+							dmg[dmgkey] = parseFloat(args[1]);
+						};
 					} else if(args[0] == "DMGEND") {
-						hub.publish(Object.apply(constructor, {
-							action: "damage-vote",
-							damage: dmg,
-							victim: dmgkey,
-							player: localPlayer,
-						}));
+						if(dmgkey !== false) {
+							hub.publish(Object.apply(constructor, {
+								action: "damage-vote",
+								damage: dmg,
+								victim: dmgkey,
+								player: localPlayer,
+							}));
+							dmgkey = false;
+						};
 					} else if(args[0] == "GMA") {
 						args.shift();
 						hub.publish(Object.apply(constructor, {

@@ -13,8 +13,9 @@ module.exports = {
     header: header,
     // Called when a client is initialized into the server.
     playerAuthorized: (data, hub, users, index) => {},
-    // Called when a client sends the gamemode action. Can be called in-game using vscript, such as Msg("KIWI GMA 1") with an optional parameter (1).
+    // Called when a client sends the gamemode action. Can be called in-game using vscript with optional arguments, such as Msg("KIWI GMA 1") (in this example, only one arg is present and it is 1).
     playerAction: (data, hub, users, index) => {
+        // Use data.args to get the arguments.
         hub.publish({
             version: data.version,
             username: data.username,

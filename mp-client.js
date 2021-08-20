@@ -8,6 +8,7 @@ var pinged = false;
 var freemode = false; // Used to determine whether or not we should accept actions from other clients. (do *not* send authids to other clients)
 var lastmove = {x: 0, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0}; // Used to determine whether or not we should send movement to the server and if we should print it out.
 var moveok = true;
+var index = 0;
 
 module.exports = (config, package, gamemode) => {
 	header = header+"-"+config.channel;
@@ -70,6 +71,7 @@ module.exports = (config, package, gamemode) => {
             } else if(data.action == "auth-ok") {
 				console.log('['+header+'] Authorization OK. Starting client routine...');
 				authorized = true;
+				index = data.index;
 				vscript.initVConsole(hub, {
 					version: package.version,
 					from: header,
@@ -78,7 +80,7 @@ module.exports = (config, package, gamemode) => {
 				});
 				setInterval(() => {
 					//if(!moveok) return; // Only move if the server has confirmed our previous move.
-					const player = vscript.updatePlayer(config.username, authid);
+					const player = vscript.updatePlayer(config.username, authid, index);
 					//var thismove = {x: player.x, y: player.y, z: player.z, pitch: player.pitch, yaw: player.yaw, roll: player.roll};
 					//if(thismove != lastmove) {
 						//if(thismove.x == 0 && thismove.y == 0 && thismove.z == 0 && thismove.pitch == 0 && thismove.yaw == 0 && thismove.roll == 0)

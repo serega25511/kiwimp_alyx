@@ -74,6 +74,7 @@ module.exports = (config, package, gamemode) => {
 				if(index !== false) {
 					console.log('['+header+'] '+username+' is already logged in.');
 					hub.publish({
+						index: index,
 						version: package.version,
 						username: username,
 						authid: authid,

@@ -1,6 +1,6 @@
-local health = 100;
 local player = Entities:FindByClassname(nil, "player");
 
+local playerOrigin = player:GetOrigin();
 local playerCenter = player:GetCenter();
 local playerAngles = player:GetAnglesAsVector();
 local playerHealth = player:GetHealth();
@@ -41,21 +41,22 @@ if head then
     Msg("KIWI RHANDANG "..playerRightHandAngles[1].." "..playerRightHandAngles[2].." "..playerRightHandAngles[3]);
     Msg("");
 else
-    Msg("KIWI HEADPOS "..playerCenter[1].." "..playerCenter[2].." "..playerCenter[3]+30
-);
+    Msg("KIWI HEADPOS "..playerCenter[1].." "..playerCenter[2].." "..playerCenter[3]+30);
     Msg("");
 end
 
-Msg("KIWI POS "..playerCenter[1].." "..playerCenter[2].." "..playerCenter[3]);
+Msg("KIWI POS "..playerOrigin[1].." "..playerOrigin[2].." "..playerOrigin[3]);
 Msg("");
 Msg("KIWI ANG "..playerAngles[1].." "..playerAngles[2].." "..playerAngles[3]);
 Msg("");
 Msg("KIWI HP "..playerHealth);
 Msg("");
 
-if playerHealth < health then
-    --local dmg = CreateDamageInfo(self, self, Vector(0, 0, 100000), Vector(0,0,0), 1000, DMG_BURN)
-    --player:TakeDamage(dmg);
-    --DestroyDamageInfo(dmg);
+-- We don't want the player to die in multiplayer, let's make make them respawn.
+if playerHealth <= 1 then
     player:SetHealth(100);
+    local start = FindByClassname(nil, "info_player_start");
+    if start then
+        player:SetOrigin(start:GetOrigin());
+    end
 end
