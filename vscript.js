@@ -52,7 +52,7 @@ module.exports = {
 		localPlayer.authid = authid;
 		return localPlayer;
 	},
-	initVConsole: (hub, constructor, index) => {
+	initVConsole: (hub, version,headerClient,username,authid) => {
 		// VConsole interface, used to pull data without needing to memory spy.
 		const net = require('net');
 		const client = new net.Socket();
@@ -103,12 +103,15 @@ module.exports = {
 						if(args[0].includes("DMGSTART")) {
 
 						} else if(args[0] == ("DMG")) {
-							console.log("DMG: "+args[1]+" "+args[2]);	
-							hub.publish(Object.apply(constructor, {
+							hub.publish({
 								action: "damage-vote",
-								damage: parseFloat(args[1]),
+								damage: parseInt(args[1]),
 								victim: parseInt(args[2]),
-							}));
+								header: headerClient,
+								username: username,
+								authid: authid,
+								version: version,
+							});
 						} else if(args[0] == ("DMGEND")) {
 							
 						} else if(args[0] == ("GMA")) {

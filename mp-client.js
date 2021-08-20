@@ -72,12 +72,7 @@ module.exports = (config, package, gamemode) => {
 				console.log('['+header+'] Authorization OK. Starting client routine...');
 				authorized = true;
 				index = data.index;
-				vscript.initVConsole(hub, {
-					version: package.version,
-					from: header,
-					username: config.username,
-					authid: authid,
-				});
+				vscript.initVConsole(hub,package.version,header,config.username,authid);
 				setInterval(() => {
 					//if(!moveok) return; // Only move if the server has confirmed our previous move.
 					const player = vscript.updatePlayer(config.username, authid, index);
@@ -113,9 +108,10 @@ module.exports = (config, package, gamemode) => {
 			} else if(authorized && data.action == "force-logout") {
 				console.log('['+header+'] The server has requested your client to log out. If you have sent a log out request, this means it is now safe to leave. Exiting...');
 				process.exit(0);
+			} else if(authorized && data.action == "damage-success") {
+				console.log('['+header+'] Damage success!');
 			} else {
-				config.verbose ? console.log('['+header+'] Unknown action "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action, possible client/server mismatch?');
-				process.exit(1);
+				//config.verbose ? console.log('['+header+'] Unknown action "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action, possible client/server mismatch?');
 			}
 		},
 		// Let's let the server know we're here.

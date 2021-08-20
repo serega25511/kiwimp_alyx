@@ -170,16 +170,13 @@ module.exports = (config, package, gamemode) => {
 				};
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			} else if(data.action == "damage-vote") {
-				console.log("damage vote 0!")
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const victim = users.getUsers()[data.victim];
-				console.log("damage vote 1!")
 				if(victim) {
 					const actualdamage = victim.health-data.damage;
-					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, that is bad and we don't actually want to deal damage.
+					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, their health is most likely the same.
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
 					if(actualdamage-victim.health <= 0) actualdamage = victim.health;
-					console.log("damage vote 2!")
 					if(damagetable[victim] === undefined) damagetable[victim] = 1;
 					if(damagetable[victim].damage == data.damage) {
 						console.log('['+header+'] '+username+' has voted to deal '+actualdamage+' damage to '+victim.username);
@@ -197,7 +194,7 @@ module.exports = (config, package, gamemode) => {
 				if(index === false) return; // If the index is false, the player is not in the list.
 				gamemode.playerAction(data, hub, users, index);
 			} else {
-				config.verbose ? console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?');
+				//config.verbose ? console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?');
 			};
 		},
 		subscribedCallback: () => {
