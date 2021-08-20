@@ -98,8 +98,9 @@ module.exports = {
 						localPlayer.rightHandRoll= parseFloat(args[3]);
 					} else if(args[0] == "DMGSTART") {
 						dmg = {};
+						//console.log("dmgstart")
 					} else if(args[0] == "DMGKEY") {
-						const tempdmg = parseInt(args[1]);
+						const tempdmg = parseInt(args[1])-1; // -1 because we're using 1-based indexing from Lua.
 						if(tempdmg != index)
 							dmgkey = tempdmg;
 						// If the dmgkey is the same as the index, this is the local player so we should not send it.
