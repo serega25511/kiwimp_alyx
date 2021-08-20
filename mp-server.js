@@ -170,27 +170,25 @@ module.exports = (config, package, gamemode) => {
 				};
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			} else if(data.action == "damage-vote") {
+				console.log("damage vote 0!")
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const victim = users.getUsers()[data.victim];
-				console.log("damage vote!")
+				console.log("damage vote 1!")
 				if(victim) {
+					const actualdamage = victim.health-data.damage;
+					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, that is bad and we don't actually want to deal damage.
+					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
+					if(actualdamage-victim.health <= 0) actualdamage = victim.health;
 					console.log("damage vote 2!")
-					if(data.damage < victim.health) {
-						console.log("damage vote 3!")
-						if(!damagetable[victim]) {
-							damagetable[victim] = {};
-							damagetable[victim].vote = 1;
-							damagetable[victim].damage = data.damage;
-						}
-						if(damagetable[victim].damage == data.damage) {
-							console.log('['+header+'] '+username+' has voted to deal '+data.damage+' damage to '+victim.username);
-							damagetable[victim].votes++;
-						}
-						if(damagetable[victim].votes >= Math.floor(users.getOnlineUsers()/2)) {
-							console.log('['+header+'] Damage vote has passed. '+victim.username+' will be set to '+damagetable[victim].damage+' health.');
-							users.damage(data.victim, damagetable[victim].damage);
-							delete damagetable[victim];
-						}
+					if(damagetable[victim] === undefined) damagetable[victim] = 1;
+					if(damagetable[victim].damage == data.damage) {
+						console.log('['+header+'] '+username+' has voted to deal '+actualdamage+' damage to '+victim.username);
+						damagetable[victim]++;
+					}
+					if(damagetable[victim] >= Math.floor(users.getOnlineUsers()/2)) {
+						console.log('['+header+'] Damage vote has passed. '+victim.username+' will be set to '+victim.health-actualdamage+' health.');
+						users.damage(data.victim, data.damage);
+						delete damagetable[victim];
 					}
 				};
 			} else if(data.action == "gamemode-action") {

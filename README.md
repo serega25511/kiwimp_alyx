@@ -29,12 +29,13 @@ The following configuration file should be saved as ``config.json`` in the root 
     "clientdisallowvscripts": false,
     "clientshowheadset": true,
     "vscripts": [],
+    "respawnvector": [0, 0, 0],
     "servervscriptdir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\",
     "clientvscript": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\client.lua",
     "freemode": false,
     "pingtimeout": 2000,
-    "pinginterval": 100,
-    "serverinterval": 100,
+    "pinginterval": 10,
+    "serverinterval": 10,
     "servertimeout": 15000,
     "channel": "kiwi"
 }

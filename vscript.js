@@ -68,6 +68,7 @@ module.exports = {
 					const command = data.slice(data.indexOf(lookout) + lookout.length+1); // Remove the KIWI and the space.
 					// If PRNT is found at the end of the string, split until then. This marks the end of the command.
 					const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
+					//if(args[0] != "POS" && args[0] != "ANG" && args[0] != "HEADPOS") console.log("["+header+"] VConsole: "+args);
 					if(args[0] == ("POS")) {
 						localPlayer.x = parseFloat(args[1]);
 						localPlayer.y = parseFloat(args[2]);
@@ -96,11 +97,13 @@ module.exports = {
 						localPlayer.rightHandPitch= parseFloat(args[1]);
 						localPlayer.rightHandYaw= parseFloat(args[2]);
 						localPlayer.rightHandRoll= parseFloat(args[3]);
-					} else if(cur >= dmgtimeout) { // This is used for stressful variables.
+					}
+					if(cur >= timeout) { // This is used for stressful variables.
 						cur = 0;
 						if(args[0].includes("DMGSTART")) {
 
-						} else if(args[0].includes("DMG")) {
+						} else if(args[0] == ("DMG")) {
+							console.log("DMG: "+args[1]+" "+args[2]);	
 							hub.publish(Object.apply(constructor, {
 								action: "damage-vote",
 								damage: parseFloat(args[1]),
@@ -108,7 +111,7 @@ module.exports = {
 							}));
 						} else if(args[0] == ("DMGEND")) {
 							
-						} else if(args[0].includes("GMA")) {
+						} else if(args[0] == ("GMA")) {
 							args.shift();
 							hub.publish(Object.apply(constructor, {
 								action: "gamemode-action",
