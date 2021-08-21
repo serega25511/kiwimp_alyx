@@ -142,20 +142,25 @@ module.exports = {
 		for(i = 0; i < userSlots.length; i++) {
 			user = userSlots[i];
 			if(!user) continue; // ???
-			// Client HUD
-			if(user.username == player.username && config.showhud) { // Server has HUD enabled.
-				// Get directional vectors based on the player's angles.
-				const directionX = Math.cos(player.yaw * (Math.PI / 180));
-				const directionY = Math.sin(player.yaw * (Math.PI / 180));
-				const directionZ = Math.cos((player.pitch + 90) * (Math.PI / 180));
-				// Place the HUD in front of the head with offsets that orbit around the player.
-				var hudX = user.headX + directionX * config.globalhudscale;
-				var hudY = user.headY + directionY * config.globalhudscale;
-				var hudZ = user.headZ + directionZ * config.globalhudscale;
-				luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${hudX},${hudY},${hudZ}));
+			// Clientside stuff
+			if(user.username == player.username) {
+				if(config.showhud) { // Server has HUD enabled.
+					// Get directional vectors based on the player's angles.
+					const directionX = Math.cos(player.yaw * (Math.PI / 180));
+					const directionY = Math.sin(player.yaw * (Math.PI / 180));
+					const directionZ = Math.cos((player.pitch + 90) * (Math.PI / 180));
+					// Place the HUD in front of the head with offsets that orbit around the player.
+					var hudX = user.headX + directionX * config.globalhudscale;
+					var hudY = user.headY + directionY * config.globalhudscale;
+					var hudZ = user.headZ + directionZ * config.globalhudscale;
+					luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${hudX},${hudY},${hudZ}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw-90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "Health: ${user.health}${user.armor ? `\nArmor: ${user.armor}` : ``}${user.score ? `\nScore: ${user.score}` : ``}", 0.0, self, self);\n`
-			}
+				}
+				if(user.teleportX > 0 && user.teleportY > 0 && user.teleportZ > 0) { // Player is teleporting.
+					luaStrings[0] += `Entities:GetLocalPlayer():SetOrigin(Vector(${user.teleportX},${user.teleportY},${user.teleportZ}));\n`;
+				}
+			};
 			// Player heads
 			if(user.username == player.username && !config.showheadsets) continue; // If the server has client headsets off, stop if this is the client.
 			luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));

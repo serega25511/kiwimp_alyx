@@ -147,7 +147,7 @@ module.exports = (config, package, gamemode) => {
 				const player = data.player;
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
-				if(users.move(index, player)) {
+				if(users.move(index, player, config)) {
 					lastmoves[index] = Date.now();
 					setTimeout(() => {
 						hub.publish({
@@ -177,10 +177,10 @@ module.exports = (config, package, gamemode) => {
 				if(victim) {
 					if(victim.username == username) return; // Don't allow the user to vote for themselves.
 					var actualdamage = data.player.victimDamage;
-					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, this doesn't make sense.
-					console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.');
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
 					if(victim.health-actualdamage <= 0) actualdamage = victim.health;
+					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, this is worthless and we can assume the player is already dead.
+					console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.');
 					if(damagetable[victim] === undefined) {
 						damagetable[victim] = {
 							damage: actualdamage,

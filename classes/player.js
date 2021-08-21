@@ -12,6 +12,9 @@ class Player {
 	x = 0; // The x coordinate of the user.
 	y = 0; // The y coordinate of the user.
 	z = 0; // The z coordinate of the user.
+	teleportx = 0; // The x coordinate of the user's next destination.
+	teleporty = 0; // The y coordinate of the user's next destination.
+	teleportz = 0; // The z coordinate of the user's next destination.
 	pitch = 0; // The rotational pitch of the user.
 	yaw = 0; // The rotational yaw of the user.
 	roll = 0; // The rotational roll of the user.

@@ -31,7 +31,7 @@ module.exports = {
         userSlots.splice(index, 1);
         return true;
     },
-    move: (index, player) => {
+    move: (index, player, config) => {
         const user = userSlots[index];
         if(!user)
             return false; // No such user.
@@ -50,14 +50,17 @@ module.exports = {
         userSlots[index].rightHandX = player.rightHandX;
         userSlots[index].rightHandY = player.rightHandY;
         userSlots[index].rightHandZ = player.rightHandZ;
-        /*
-        if(player.health <= 0) { // If the user is dead, respawn them.
-            player.health = 100;
-            player.x = config.respawnvector[0];
-            player.y = config.respawnvector[1];
-            player.z = config.respawnvector[2];
+        if(userSlots[i].health <= 0) { // If the user is dead, respawn them.
+            userSlots[i].health = 100;
+            const respawnvector = config.respawnvectors[Math.floor(Math.random() * config.respawnvectors.length)];
+            userSlots[i].teleportX = respawnvector[0];
+            userSlots[i].teleportY = respawnvector[1];
+            userSlots[i].teleportZ = respawnvector[2];
+        } else if(userSlots[i].teleportX > 0 && userSlots[i].teleportY > 0 && userSlots[i].teleportZ > 0) { // If the user was teleported, reset the teleport vectors.
+            userSlots[i].teleportX = 0;
+            userSlots[i].teleportY = 0;
+            userSlots[i].teleportZ = 0;
         };
-        */
         return true;
     },
     damage: (victim, damage) => {
