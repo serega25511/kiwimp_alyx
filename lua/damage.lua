@@ -4,7 +4,7 @@ for k,v in ipairs(EntityGroup) do
 	Msg("");
 	local health = v:GetHealth()
 	Msg("KIWI DMG "..health.." "..k);
-	if(health <= 0) then -- Hey don't die!
+	--if(health <= 0) then -- Hey don't die!
 		v:SetHealth(100);
-	end
+	--end
 end;
