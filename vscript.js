@@ -26,9 +26,6 @@ if(!fs.existsSync(serverpathdir)) {
 };
 */
 
-const timeout = 1;
-var cur = 0;
-
 module.exports = {
 	updateConfig: (getconfig, client) => {
 		if(client) {
@@ -70,59 +67,49 @@ module.exports = {
 					const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
 					//if(args[0] != "POS" && args[0] != "ANG" && args[0] != "HEADPOS") console.log("["+header+"] VConsole: "+args);
 					if(args[0] == ("POS")) {
+						localPlayer.action = "move";
 						localPlayer.x = parseFloat(args[1]);
 						localPlayer.y = parseFloat(args[2]);
 						localPlayer.z = parseFloat(args[3]);
 					} else if(args[0] == ("ANG")) {
+						localPlayer.action = "move";
 						localPlayer.pitch= parseFloat(args[1]);
 						localPlayer.yaw= parseFloat(args[2]);
 						localPlayer.roll= parseFloat(args[3]);
 					} else if(args[0] == ("HEADPOS")) {
+						localPlayer.action = "move";
 						localPlayer.headX = parseFloat(args[1]);
 						localPlayer.headY = parseFloat(args[2]);
 						localPlayer.headZ = parseFloat(args[3]);
 					} else if(args[0] == ("LHANDPOS")) {
+						localPlayer.action = "move";
 						localPlayer.leftHandX= parseFloat(args[1]);
 						localPlayer.leftHandY= parseFloat(args[2]);
 						localPlayer.leftHandZ= parseFloat(args[3]);
 					} else if(args[0] == ("LHANDANG")) {
+						localPlayer.action = "move";
 						localPlayer.leftHandPitch= parseFloat(args[1]);
 						localPlayer.leftHandYaw= parseFloat(args[2]);
 						localPlayer.leftHandRoll= parseFloat(args[3]);
 					} else if(args[0] == ("RHANDPOS")) {
+						localPlayer.action = "move";
 						localPlayer.rightHandX= parseFloat(args[1]);
 						localPlayer.rightHandY= parseFloat(args[2]);
 						localPlayer.rightHandZ= parseFloat(args[3]);
 					} else if(args[0] == ("RHANDANG")) {
+						localPlayer.action = "move";
 						localPlayer.rightHandPitch= parseFloat(args[1]);
 						localPlayer.rightHandYaw= parseFloat(args[2]);
 						localPlayer.rightHandRoll= parseFloat(args[3]);
-					}
-					if(cur >= timeout) { // This is used for stressful variables.
-						cur = 0;
-						if(args[0].includes("DMGSTART")) {
-
-						} else if(args[0] == ("DMG")) {
-							hub.publish({
-								action: "damage-vote",
-								damage: parseInt(args[1]),
-								victim: parseInt(args[2]),
-								header: headerClient,
-								username: username,
-								authid: authid,
-								version: version,
-							});
-						} else if(args[0] == ("DMGEND")) {
-							
-						} else if(args[0] == ("GMA")) {
-							args.shift();
-							hub.publish(Object.apply(constructor, {
-								action: "gamemode-action",
-								args: args,
-							}));
-						}
-					} else {
-						cur++;
+					} else if(args[0] == ("DMG")) {
+						localPlayer.action = "damage-vote";
+						localPlayer.victimHealth = parseInt(args[1]);
+						localPlayer.victimIndex = parseInt(args[2]);
+					} else if(args[0] == ("GMA")) {
+						args.shift();
+						localPlayer.action = "gamemode-action";
+						localPlayer.gamemodeArgs = args;
+						localPlayer.gamemodeSubmitted = Date.now();
 					}
 				}
 			} catch (e) {

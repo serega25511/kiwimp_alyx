@@ -171,7 +171,9 @@ module.exports = (config, package, gamemode) => {
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			} else if(data.action == "damage-vote") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const victim = users.getUsers()[data.victim-1]; // Minus 1 because the index starts at 0.
+				const index = users.getIndexByUsername(username);
+				if(index === false) return; // If the index is false, the player is not in the list.
+				const victim = users.getUsers()[data.player.victimIndex-1]; // Minus 1 because the index starts at 0.
 				if(victim) {
 					if(victim.username == username) return; // Don't allow the user to vote for themselves.
 					var actualdamage = victim.health-data.damage;
@@ -202,7 +204,7 @@ module.exports = (config, package, gamemode) => {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
-				gamemode.playerAction(data, hub, users, index);
+				gamemode.playerAction(data, hub, users, index, users.getUsers[index]);
 			} else {
 				//config.verbose ? console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?');
 			};

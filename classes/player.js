@@ -1,4 +1,10 @@
 class Player {
+	// CLIENT-ONLY VARIABLES
+	action = "";
+	victimHealth = 0;
+	victimIndex = 0;
+	gamemodeArgs = [];
+	gamemodeSubmitted = 0;
 	// These are the user's properties.
 	username = "Player"; // The username of the user.
 	authId = 0; // The authid of the user. (This is their unique id and will be used alongside their username for server-to-client communication.)

@@ -74,23 +74,15 @@ module.exports = (config, package, gamemode) => {
 				index = data.index;
 				vscript.initVConsole(hub,package.version,header,config.username,authid);
 				setInterval(() => {
-					//if(!moveok) return; // Only move if the server has confirmed our previous move.
 					const player = vscript.updatePlayer(config.username, authid, index);
-					//var thismove = {x: player.x, y: player.y, z: player.z, pitch: player.pitch, yaw: player.yaw, roll: player.roll};
-					//if(thismove != lastmove) {
-						//if(thismove.x == 0 && thismove.y == 0 && thismove.z == 0 && thismove.pitch == 0 && thismove.yaw == 0 && thismove.roll == 0)
-							//return; // Don't print out empty moves.
-						//lastmove = thismove;
-						hub.publish({
-							version: package.version,
-							from: header,
-							username: config.username,
-							authid: authid,
-							action: "move",
-							player: player
-						});
-						//moveok = false;
-					//}
+					hub.publish({ // Handles movement, gamemode actions, and damage votes.
+						version: package.version,
+						from: header,
+						username: config.username,
+						authid: authid,
+						action: player.action,
+						player: player
+					});
 				}, config.pinginterval);
 			} else if(data.action == "auth-fail") {
 				console.log('['+header+'] Authorization failed. The username may be taken, or the password is wrong.');

@@ -35,7 +35,21 @@ module.exports = {
         const user = userSlots[index];
         if(!user)
             return false; // No such user.
-        userSlots[index] = player;
+        userSlots[index].x = player.x;
+        userSlots[index].y = player.y;
+        userSlots[index].z = player.z;
+        userSlots[index].headX = player.headX;
+        userSlots[index].headY = player.headY;
+        userSlots[index].headZ = player.headZ;
+        userSlots[index].pitch = player.pitch;
+        userSlots[index].yaw = player.yaw;
+        userSlots[index].roll = player.roll;
+        userSlots[index].leftHandX = player.leftHandX;
+        userSlots[index].leftHandY = player.leftHandY;
+        userSlots[index].leftHandZ = player.leftHandZ;
+        userSlots[index].rightHandX = player.rightHandX;
+        userSlots[index].rightHandY = player.rightHandY;
+        userSlots[index].rightHandZ = player.rightHandZ;
         /*
         if(player.health <= 0) { // If the user is dead, respawn them.
             player.health = 100;
