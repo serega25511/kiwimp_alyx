@@ -16,14 +16,14 @@ module.exports = {
         for(i = 0; i < userSlots.length; i++) {
             if(!userSlots[i]) continue; //???
             if(userSlots[i].username == desiredUsername) {
-                return false; // Username already taken at this time.
+                return; // Username already taken at this time.
             };
         };
         const ply = new Player(desiredUsername, authid)
         userSlots.push(ply)
         ply.authid = authid;
         ply.username = desiredUsername;
-        return true;
+        return ply;
     },
     // Remove a user from the user table.
     logOut: (index) => {
@@ -96,6 +96,15 @@ module.exports = {
                 return i;
             };
         };
+        return false;
+    },
+    calledGamemodeAction: (index) => {
+        for (i = 0; i < userSlots.length; i++) {
+            if(userSlots[i].username == index) {
+                userSlots[i].gamemodeArgs = [];
+                return true;
+            };
+        }
         return false;
     }
 };

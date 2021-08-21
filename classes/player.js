@@ -8,6 +8,7 @@ class Player {
 	// These are the user's properties.
 	username = "Player"; // The username of the user.
 	authId = 0; // The authid of the user. (This is their unique id and will be used alongside their username for server-to-client communication.)
+	gamemodeProps = {}; // Special properties for the gamemode.
 	// The player's location coordinates in the world.
 	x = 0; // The x coordinate of the user.
 	y = 0; // The y coordinate of the user.
@@ -37,8 +38,8 @@ class Player {
 	health = 100; // The user's health points. (Updates with Alyx's health.)
 	//// ALL OF THE FOLLOWING ARE UNUSED!!! ////
 	resin = 0; // The user's resin. (Updates with Alyx's resin.)
-	armor = 0; // The user's armor. (Only here for custom game types to use; will not be updated by normal gameplay. TODO = Find a way to display this)
-	score = 0; // Unused score for custom game types. (TODO = Find a way to display this)
+	armor = 0; // The user's armor. (Only here for custom game types to use; will not be updated by normal gameplay.)
+	score = 0; // Unused score for custom game types.
 	// Models used for the player. Not currently used.
 	leftHand = ""; // The model name of the player's left hand. (There isn't a way to detect if the player is grasping something; this is just here to be used for the user's hands.)
 	rightHand = ""; // The model name of the player's right hand. (Ditto.)

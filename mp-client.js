@@ -38,7 +38,7 @@ module.exports = (config, package, gamemode) => {
 				console.log('['+header+'] The server is running with verbose mode '+(data.verbose ? 'enabled' : 'disabled')+'.')
 				console.log('['+header+'] The server is on map '+data.map+'. (may not be accurate!)')
 				console.log('['+header+'] This server is playing '+(data.gamemodeprint ? data.gamemodeprint : data.gamemode)+'.')
-				console.log('['+header+'] '+(data.gamemodeprint ? data.gamemodeprint : data.gamemode)+': '+data.description)
+				console.log('['+header+'] '+(data.gamemodeprint ? data.gamemodeprint : data.gamemode)+(data.gamemodeauthor ? ' by '+data.gamemodeauthor : '')+': '+data.description)
 				freemode = data.freemode; // Actions from other clients are trusted on this server.
 				if(!config.clientdisallowgamemodes) { // Install gamemode.
 					console.log('['+header+'] Installing gamemode... (Enabled by client.)')
@@ -100,8 +100,6 @@ module.exports = (config, package, gamemode) => {
 			} else if(authorized && data.action == "force-logout") {
 				console.log('['+header+'] The server has requested your client to log out. If you have sent a log out request, this means it is now safe to leave. Exiting...');
 				process.exit(0);
-			} else if(authorized && data.action == "damage-success") {
-				console.log('['+header+'] Damage success!');
 			} else {
 				//config.verbose ? console.log('['+header+'] Unknown action "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action, possible client/server mismatch?');
 			}

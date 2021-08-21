@@ -1,5 +1,5 @@
 -- This file is executed every time the "timer" entity fires the "relay" in kiwimp_alyx_x16.
--- Keep in mind that static functions do not automatically update and require a changelevel.
+
 Msg(""); -- Blank lines are used to buffer vconsole so much it has so accept our vconsole trick.
 
 -- You can get networked collision boxes ("players") by calling EntityGroup[Player].

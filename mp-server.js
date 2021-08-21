@@ -6,6 +6,8 @@ var lastmoves = [];
 var lastmoveintervals = [];
 const fs = require("fs");
 
+function noop() {};
+
 module.exports = (config, package, gamemode) => {
 	header = header+"-"+config.channel;
 	const noobhub = require('./noobhub/client');
@@ -42,6 +44,7 @@ module.exports = (config, package, gamemode) => {
 					gamemode: gamemode.gamemode || "",
 					gamemodelua: fs.readFileSync("./gamemodes/lua/"+config.gamemode+".lua", "utf8"),
 					gamemodeprint: gamemode.name || "",
+					gamemodeauthor: gamemode.author || "",
 					description: gamemode.description || "",
 					vscripts: config.vscripts,
 					action: "pong",
@@ -53,6 +56,7 @@ module.exports = (config, package, gamemode) => {
 				const index = users.getIndexByUsername(username);
 				if(index !== false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
 				if(users.logOut(index)) {
+					gamemode.playerDisconnect(data, hub, users, index);
 					console.log('['+header+'] '+username+' has logged out.');
 					hub.publish({
 						version: package.version,
@@ -98,7 +102,8 @@ module.exports = (config, package, gamemode) => {
 				};
 				if(password == config.password) {
 					console.log('['+header+'] '+username+' is authenticating...');
-					if (users.newUser(username, authid)) {
+					const player = users.newUser(username, authid);
+					if(player) {
 						console.log('['+header+'] '+username+' has authenticated. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
 						hub.publish({
 							version: package.version,
@@ -108,14 +113,14 @@ module.exports = (config, package, gamemode) => {
 							action: "auth-ok",
 							timestamp: Date.now()
 						});
-						if(config.username == username)
-							return; // If the username is the same as the owner, we don't need to do anything else.
-						const index = users.getIndexByUsername(username);
-						if(index === false) return; // If the index is false, the player is not in the list.
+						gamemode.playerAuthorized(data, hub, users, index);
+						if(config.username == username && !config.dedicated)
+							return; // If the username is the same as the owner on a listen server, we don't want to time them out.
 						lastmoveintervals[index] = setInterval(() => {
-							// Check if the player is unresponsive...
+							// Check if the player is unresponsive and then force them to log out.
 							if(lastmoves[index] < Date.now()-config.servertimeout/2) {
 								if(users.logOut(index)) {
+									gamemode.playerDisconnect(data, hub, users, index);
 									console.log('['+header+'] '+username+' has timed out.');
 									hub.publish({
 										version: package.version,
@@ -175,7 +180,9 @@ module.exports = (config, package, gamemode) => {
 					}, config.serverinterval); // This is so that servers don't get overloaded with move messages.
 				};
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
-			} else if(data.action == "damage-vote") {
+			// *** This actually worked with only two players but I realized that with more than two players, the client will never be able to tell the server who got damaged other than the user the player is damaging directly.
+			// Will scrap this code later and just fire damage callbacks directly.
+			} else if(data.action == "damage") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
@@ -186,7 +193,7 @@ module.exports = (config, package, gamemode) => {
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
 					if(victim.health-actualdamage <= 0) actualdamage = victim.health;
 					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, this is worthless and we can assume the player is already dead.
-					console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.');
+					config.verbose ? console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.') : noop();
 					if(damagetable[victim] === undefined) {
 						damagetable[victim] = {
 							damage: actualdamage,
@@ -194,15 +201,15 @@ module.exports = (config, package, gamemode) => {
 						};
 					};
 					if(actualdamage == damagetable[victim].damage) {
-						console.log('['+header+'] '+username+' has successfully voted to deal '+actualdamage+' damage to '+victim.username+'.');
+						config.verbose ? console.log('['+header+'] '+username+' has successfully voted to deal '+actualdamage+' damage to '+victim.username+'.') : noop();
 						damagetable[victim].votes++;
 					} else {
-						console.log('['+header+'] Discarding '+username+'\'s vote to deal '+actualdamage+' damage to '+victim.username+'.');
+						//console.log('['+header+'] Discarding '+username+'\'s vote to deal '+actualdamage+' damage to '+victim.username+'.');
 					};
-					if(damagetable[victim].votes >= Math.floor(users.getOnlineUsers()/2)-1) {
+					if(damagetable[victim].votes >= 0) { //Math.floor(users.getOnlineUsers()/2)-1) {
 						console.log('['+header+'] *** Damage vote has passed. '+victim.username+' will be set to '+(victim.health-actualdamage)+' health.');
 						if(!users.damage(victim.username, actualdamage))
-							console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.');
+						config.verbose ? console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.') : noop();
 						damagetable.splice(victim, 1);
 					}
 				};
@@ -210,7 +217,7 @@ module.exports = (config, package, gamemode) => {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
-				gamemode.playerAction(data, hub, users, index, users.getUsers[index]);
+				gamemode.playerAction(data, hub, users, index);
 			} else {
 				//config.verbose ? console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?');
 			};

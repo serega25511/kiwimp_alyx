@@ -1,5 +1,7 @@
 local player = Entities:FindByClassname(nil, "player");
 
+DoEntFire("player", "IgnoreFallDamage", "0.0", 0.0, self, self);
+
 local playerOrigin = player:GetOrigin();
 local playerCenter = player:GetCenter();
 local playerAngles = player:GetAnglesAsVector();
@@ -51,6 +53,3 @@ Msg("KIWI ANG "..playerAngles[1].." "..playerAngles[2].." "..playerAngles[3]);
 Msg("");
 Msg("KIWI HP "..playerHealth);
 Msg("");
-
--- We don't want the player to die in multiplayer, let's make make them invincible.
-player:SetHealth(100);

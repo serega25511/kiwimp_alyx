@@ -66,53 +66,52 @@ module.exports = {
 					// If PRNT is found at the end of the string, split until then. This marks the end of the command.
 					const args = command.substr(0, command.indexOf("PRNT") != -1 ? command.indexOf("PRNT") : command.length).split(" ");
 					//if(args[0] != "POS" && args[0] != "ANG" && args[0] != "HEADPOS") console.log("["+header+"] VConsole: "+args);
-					if(args[0] == ("POS")) {
+					if(args[0] == ("POS")) { // The position at the player's feet (origin).
 						localPlayer.action = "move";
 						localPlayer.x = parseFloat(args[1]);
 						localPlayer.y = parseFloat(args[2]);
 						localPlayer.z = parseFloat(args[3]);
-					} else if(args[0] == ("ANG")) {
+					} else if(args[0] == ("ANG")) { // The player's rotation.
 						localPlayer.action = "move";
 						localPlayer.pitch= parseFloat(args[1]);
 						localPlayer.yaw= parseFloat(args[2]);
 						localPlayer.roll= parseFloat(args[3]);
-					} else if(args[0] == ("HEADPOS")) {
+					} else if(args[0] == ("HEADPOS")) { // The center of the player's head.
 						localPlayer.action = "move";
 						localPlayer.headX = parseFloat(args[1]);
 						localPlayer.headY = parseFloat(args[2]);
 						localPlayer.headZ = parseFloat(args[3]);
-					} else if(args[0] == ("LHANDPOS")) {
+					} else if(args[0] == ("LHANDPOS")) { // The center of the player's left hand.
 						localPlayer.action = "move";
 						localPlayer.leftHandX= parseFloat(args[1]);
 						localPlayer.leftHandY= parseFloat(args[2]);
 						localPlayer.leftHandZ= parseFloat(args[3]);
-					} else if(args[0] == ("LHANDANG")) {
+					} else if(args[0] == ("LHANDANG")) { // The player's left hand rotation.
 						localPlayer.action = "move";
 						localPlayer.leftHandPitch= parseFloat(args[1]);
 						localPlayer.leftHandYaw= parseFloat(args[2]);
 						localPlayer.leftHandRoll= parseFloat(args[3]);
-					} else if(args[0] == ("RHANDPOS")) {
+					} else if(args[0] == ("RHANDPOS")) { // The center of the player's right hand.
 						localPlayer.action = "move";
 						localPlayer.rightHandX= parseFloat(args[1]);
 						localPlayer.rightHandY= parseFloat(args[2]);
 						localPlayer.rightHandZ= parseFloat(args[3]);
-					} else if(args[0] == ("RHANDANG")) {
+					} else if(args[0] == ("RHANDANG")) { // The player's right hand rotation.
 						localPlayer.action = "move";
 						localPlayer.rightHandPitch= parseFloat(args[1]);
 						localPlayer.rightHandYaw= parseFloat(args[2]);
 						localPlayer.rightHandRoll= parseFloat(args[3]);
-					} else if(args[0] == ("DMG")) {
+					} else if(args[0] == ("DMG")) { // Who the player is dealing damage to.
 						var damage = parseInt(args[1]);
 						if(damage > 0 && damage < 100) {
-							localPlayer.action = "damage-vote";
+							localPlayer.action = "damage";
 							localPlayer.victimDamage = damage;
 							localPlayer.victimIndex = parseInt(args[2]);
 						}
-					} else if(args[0] == ("GMA")) {
+					} else if(args[0] == ("GMA")) { // If the player is calling the gamemode action.
 						args.shift();
 						localPlayer.action = "gamemode-action";
 						localPlayer.gamemodeArgs = args;
-						localPlayer.gamemodeSubmitted = Date.now();
 					}
 				}
 			} catch (e) {
@@ -120,11 +119,11 @@ module.exports = {
 			}
 		});
 		client.on('close', function() {
-			console.log('['+header+'] VConsole connection closed. Process can not continue, exiting...');
+			console.log('['+header+'] VConsole connection closed. Did Half-Life: Alyx close? Process can not continue, exiting...');
 			process.exit(1);
 		});
 		client.on('error', function(err) {
-			console.log('['+header+'] VConsole connection error: '+err);
+			console.log('['+header+'] VConsole connection error: '+err+'. Is Half-Life: Alyx running? Process can not continue, exiting...');
 			process.exit(1);
 		});
 	},
@@ -154,12 +153,16 @@ module.exports = {
 					var hudZ = user.headZ + directionZ * config.globalhudscale;
 					luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${hudX},${hudY},${hudZ}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw-90},90);
-DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "Health: ${user.health}${user.armor ? `\nArmor: ${user.armor}` : ``}${user.score ? `\nScore: ${user.score}` : ``}", 0.0, self, self);\n`
-				}
-				if(user.teleportX != 0 && user.teleportY != 0 && user.teleportZ != 0) { // Player is teleporting.
-					console.log(`[${header}] You are teleporting to ${user.teleportX}, ${user.teleportY}, ${user.teleportZ}.`);
+DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.armor ? `\nArmor: ${user.armor}` : ``}${user.score ? `\nScore: ${user.score}` : ``}", 0.0, self, self);\n`
+				};
+				// Show health on the actual hud.
+				if(user.health > 0) {
+					luaStrings[0] += `Entities:GetLocalPlayer():SetHealth(${user.health});\n`;
+				};
+				// Player is teleporting, so we need to update the position.
+				if(user.teleportX != 0 && user.teleportY != 0 && user.teleportZ != 0) {
 					luaStrings[0] += `Entities:GetLocalPlayer():SetOrigin(Vector(${user.teleportX},${user.teleportY},${user.teleportZ}));\n`;
-				}
+				};
 			};
 			// Player heads
 			if(user.username == player.username && !config.showheadsets) continue; // If the server has client headsets off, stop if this is the client.
