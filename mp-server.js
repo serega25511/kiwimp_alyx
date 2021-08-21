@@ -176,8 +176,8 @@ module.exports = (config, package, gamemode) => {
 				const victim = users.getUsers()[data.player.victimIndex-1]; // Minus 1 because the index starts at 0.
 				if(victim) {
 					if(victim.username == username) return; // Don't allow the user to vote for themselves.
-					var actualdamage = victim.health-data.player.victimHealth;
-					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, their health is most likely the same.
+					var actualdamage = data.player.victimDamage;
+					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, this doesn't make sense.
 					console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.');
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
 					if(victim.health-actualdamage <= 0) actualdamage = victim.health;
@@ -188,7 +188,7 @@ module.exports = (config, package, gamemode) => {
 						};
 					};
 					if(actualdamage == damagetable[victim].damage) {
-						console.log('['+header+'] '+username+' has successfully voted to deal '+actualdamage+' damage to '+victim.username);
+						console.log('['+header+'] '+username+' has successfully voted to deal '+actualdamage+' damage to '+victim.username+'.');
 						damagetable[victim].votes++;
 					} else {
 						console.log('['+header+'] Discarding '+username+'\'s vote to deal '+actualdamage+' damage to '+victim.username+'.');

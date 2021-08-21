@@ -3,8 +3,8 @@ Msg("");
 for k,v in ipairs(EntityGroup) do
 	Msg("");
 	local health = v:GetHealth()
-	Msg("KIWI DMG "..health.." "..k);
-	--if(health <= 0) then -- Hey don't die!
-		v:SetHealth(100);
-	--end
+	if health < 100 then
+		Msg("KIWI DMG "..100-health.." "..k);
+	end
+	v:SetHealth(100);
 end;

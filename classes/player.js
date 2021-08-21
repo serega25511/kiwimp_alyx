@@ -1,7 +1,7 @@
 class Player {
 	// CLIENT-ONLY VARIABLES
 	action = "";
-	victimHealth = 0;
+	victimDamage = 0;
 	victimIndex = 0;
 	gamemodeArgs = [];
 	gamemodeSubmitted = 0;
