@@ -109,6 +109,8 @@ self._handleIncomingMessage = (data) => {
 	self.buffer.len = self.buffer.write(str, 0);
 	// alyx modified code because for some reason this is a problem?
 	if(json.includes("__JSON__START__") || json.includes("__JSON__END__")) {
+		// TODO: Either fix this entirely or once timeout is working without issue, remove the server owner bit.
+		if(json.includes("pong")) console.log("[noobhub-client] The server ping response malformed, please try again. If you are the server owner and the user has authenticated despite this, try restarting the server.");
 		//console.log("json error");
 		json = "{}";
 	}

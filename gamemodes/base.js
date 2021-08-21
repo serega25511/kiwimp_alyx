@@ -12,8 +12,6 @@ module.exports = {
     path: path,
     config: config,
     header: header,
-    // Called when a client is initialized into the server.
-    playerAuthorized: (data, hub, users, index) => {},
 
     // Called when a client sends the gamemode action.
     // Can be called in-game using vscript with optional arguments using the following synxtax:
@@ -32,11 +30,19 @@ module.exports = {
     
     // Send lua to the client for the gamemode properties.
     // This is a great way to make dynamically updating properties.
-    // e.g. `
     getGamemodeProperties: (user) => {
         return ``;
     },
 
+    // Called when a client is initialized into the server.
+    playerAuthorized: (data, hub, users, index) => {},
+
     // Called when a client disconnects from the server.
     playerDisconnect: (data, hub, users, index) => {},
+
+    // Called when a player is damaged.
+    playerDamage: (data, hub, users, index, damage, attacker) => {},
+
+    // Called when a player is killed.
+    playerKilled: (data, hub, users, index, damage, attacker) => {},
 }

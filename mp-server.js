@@ -1,7 +1,6 @@
 var header = "alyx-server"; // NoobHub header for the server. This is used by clients to know that the server sent the message.
 const users = require("./users");
 const vscript = require("./vscript"); // This is how we can write to the script that will be ran by the game.
-var damagetable = [];
 var lastmoves = [];
 var lastmoveintervals = [];
 const fs = require("fs");
@@ -103,7 +102,7 @@ module.exports = (config, package, gamemode) => {
 				if(password == config.password) {
 					console.log('['+header+'] '+username+' is authenticating...');
 					const player = users.newUser(username, authid);
-					if(player) {
+					if(player !== false) {
 						console.log('['+header+'] '+username+' has authenticated. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
 						hub.publish({
 							version: package.version,
@@ -113,7 +112,10 @@ module.exports = (config, package, gamemode) => {
 							action: "auth-ok",
 							timestamp: Date.now()
 						});
-						gamemode.playerAuthorized(data, hub, users, index);
+						// Player doesn't exist yet, so we need to time out before we can initialize the gamemode.
+						setTimeout(() => {
+							gamemode.playerAuthorized(data, hub, users, player);
+						}, 1000);
 						if(config.username == username && !config.dedicated)
 							return; // If the username is the same as the owner on a listen server, we don't want to time them out.
 						lastmoveintervals[index] = setInterval(() => {
@@ -181,37 +183,32 @@ module.exports = (config, package, gamemode) => {
 				};
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			// *** This actually worked with only two players but I realized that with more than two players, the client will never be able to tell the server who got damaged other than the user the player is damaging directly.
-			// Will scrap this code later and just fire damage callbacks directly.
+			// Therefore, now we are just firing damage callbacks directly.
 			} else if(data.action == "damage") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
+				if(data.player.victimIndex-1 == index) return; // Don't allow the user to vote for themselves.
+				const player = users.getUsers()[index];
+				if(player.teleportX != 0 && player.teleportY != 0 && player.teleportZ != 0) return; // If the player is teleporting, ignore the damage.
 				const victim = users.getUsers()[data.player.victimIndex-1]; // Minus 1 because the index starts at 0.
 				if(victim) {
-					if(victim.username == username) return; // Don't allow the user to vote for themselves.
 					var actualdamage = data.player.victimDamage;
+					var dead = false;
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
-					if(victim.health-actualdamage <= 0) actualdamage = victim.health;
+					if(victim.health-actualdamage <= 0) {
+						actualdamage = victim.health;
+						dead = true;
+					};
 					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, this is worthless and we can assume the player is already dead.
-					config.verbose ? console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.') : noop();
-					if(damagetable[victim] === undefined) {
-						damagetable[victim] = {
-							damage: actualdamage,
-							votes: 1,
-						};
-					};
-					if(actualdamage == damagetable[victim].damage) {
-						config.verbose ? console.log('['+header+'] '+username+' has successfully voted to deal '+actualdamage+' damage to '+victim.username+'.') : noop();
-						damagetable[victim].votes++;
-					} else {
-						//console.log('['+header+'] Discarding '+username+'\'s vote to deal '+actualdamage+' damage to '+victim.username+'.');
-					};
-					if(damagetable[victim].votes >= 0) { //Math.floor(users.getOnlineUsers()/2)-1) {
-						console.log('['+header+'] *** Damage vote has passed. '+victim.username+' will be set to '+(victim.health-actualdamage)+' health.');
-						if(!users.damage(victim.username, actualdamage))
+					config.verbose ? console.log('['+header+'] Player '+username+' is damaging '+victim.username+' for '+actualdamage+' damage.') : noop();
+					if(!users.damage(victim.username, actualdamage)) {
 						config.verbose ? console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.') : noop();
-						damagetable.splice(victim, 1);
-					}
+					} else {
+						gamemode.playerDamage(data, hub, users, data.player.victimIndex-1, actualdamage, index);
+						if(dead)
+							gamemode.playerKilled(data, hub, users, data.player.victimIndex-1, actualDamage, index);
+					};
 				};
 			} else if(data.action == "gamemode-action") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.

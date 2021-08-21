@@ -153,7 +153,7 @@ module.exports = {
 					var hudZ = user.headZ + directionZ * config.globalhudscale;
 					luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${hudX},${hudY},${hudZ}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw-90},90);
-DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.armor ? `\nArmor: ${user.armor}` : ``}${user.score ? `\nScore: ${user.score}` : ``}", 0.0, self, self);\n`
+DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.hud}", 0.0, self, self);\n`
 				};
 				// Show health on the actual hud.
 				if(user.health > 0) {

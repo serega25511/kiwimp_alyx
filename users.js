@@ -20,10 +20,10 @@ module.exports = {
             };
         };
         const ply = new Player(desiredUsername, authid)
-        userSlots.push(ply)
+        const index = userSlots.push(ply)-1
         ply.authid = authid;
         ply.username = desiredUsername;
-        return ply;
+        return index;
     },
     // Remove a user from the user table.
     logOut: (index) => {
@@ -80,6 +80,13 @@ module.exports = {
             };
         };
         return false;
+    },
+    updateUser: (newUser, index) => {
+        const user = userSlots[index];
+        if(!user)
+            return false; // No such user.
+        userSlots[index] = Object.assign(userSlots[index], newUser);
+        return true;
     },
     getUserByUsername: (username) => {
         for(i = 0; i < userSlots.length; i++) {
