@@ -1,6 +1,8 @@
 const vscript = require('./vscript');
 const Player = require('./classes/player');
+const header = 'alyx-users-kiwi'
 var userSlots = []
+var teletime = 0;
 
 module.exports = {
     getUsers: () => {
@@ -56,11 +58,18 @@ module.exports = {
             userSlots[i].teleportX = respawnvector[0];
             userSlots[i].teleportY = respawnvector[1];
             userSlots[i].teleportZ = respawnvector[2];
-        } else if(userSlots[i].teleportX > 0 && userSlots[i].teleportY > 0 && userSlots[i].teleportZ > 0) { // If the user was teleported, reset the teleport vectors.
-            userSlots[i].teleportX = 0;
-            userSlots[i].teleportY = 0;
-            userSlots[i].teleportZ = 0;
-        };
+            console.log(`[${header}] Respawning ${userSlots[i].username} at ${userSlots[i].teleportX}, ${userSlots[i].teleportY}, ${userSlots[i].teleportZ}.`);
+        }
+        if(teletime >= config.serverteletimeout) { // If the user was teleported, reset the teleport vectors when applicable
+            if(userSlots[i].teleportX != 0 && userSlots[i].teleportY != 0 && userSlots[i].teleportZ != 0) {
+                userSlots[i].teleportX = 0;
+                userSlots[i].teleportY = 0;
+                userSlots[i].teleportZ = 0;
+            };
+            teletime = 0;
+        } else {
+            teletime++;
+        }
         return true;
     },
     damage: (victim, damage) => {

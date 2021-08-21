@@ -138,9 +138,8 @@ module.exports = {
 			`Msg("");\n`, // Player right hands.
 			`Msg("");\n`, // Gamemode properties.
 		];
-		var user;
 		for(i = 0; i < userSlots.length; i++) {
-			user = userSlots[i];
+			const user = userSlots[i];
 			if(!user) continue; // ???
 			// Clientside stuff
 			if(user.username == player.username) {
@@ -157,7 +156,8 @@ module.exports = {
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw-90},90);
 DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "Health: ${user.health}${user.armor ? `\nArmor: ${user.armor}` : ``}${user.score ? `\nScore: ${user.score}` : ``}", 0.0, self, self);\n`
 				}
-				if(user.teleportX > 0 && user.teleportY > 0 && user.teleportZ > 0) { // Player is teleporting.
+				if(user.teleportX != 0 && user.teleportY != 0 && user.teleportZ != 0) { // Player is teleporting.
+					console.log(`[${header}] You are teleporting to ${user.teleportX}, ${user.teleportY}, ${user.teleportZ}.`);
 					luaStrings[0] += `Entities:GetLocalPlayer():SetOrigin(Vector(${user.teleportX},${user.teleportY},${user.teleportZ}));\n`;
 				}
 			};

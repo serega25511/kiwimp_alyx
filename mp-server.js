@@ -82,7 +82,20 @@ module.exports = (config, package, gamemode) => {
 						action: "auth-fail",
 						timestamp: Date.now()
 					});
+					return;
 				}
+				if(users.getOnlineUsers() > config.maxplayers) { // We don't want to add more users than we can handle.
+					hub.publish({
+						index: index,
+						version: package.version,
+						username: username,
+						authid: authid,
+						from: header,
+						action: "auth-fail",
+						timestamp: Date.now()
+					});
+					return;
+				};
 				if(password == config.password) {
 					console.log('['+header+'] '+username+' is authenticating...');
 					if (users.newUser(username, authid)) {
@@ -156,13 +169,6 @@ module.exports = (config, package, gamemode) => {
 							authid: authid,
 							from: header,
 							lua: vscript.updateServer(users, player, gamemode),
-							// These coordinates are just for convenience.
-							x: player.x,
-							y: player.y,
-							z: player.z,
-							pitch: player.pitch,
-							yaw: player.yaw,
-							roll: player.roll,
 							action: "move-success",
 							timestamp: Date.now()
 						});
