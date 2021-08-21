@@ -28,7 +28,7 @@ module.exports = {
         var user = userSlots[index];
         if(!user)
             return false; // No such user.
-        delete userSlots[index];
+        userSlots.splice(index, 1);
         return true;
     },
     move: (index, player) => {

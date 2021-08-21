@@ -103,9 +103,11 @@ module.exports = {
 						localPlayer.rightHandRoll= parseFloat(args[3]);
 					} else if(args[0] == ("DMG")) {
 						var damage = parseInt(args[1]);
-						localPlayer.action = "damage-vote";
-						localPlayer.victimDamage = damage;
-						localPlayer.victimIndex = parseInt(args[2]);
+						if(damage > 0 && damage < 100) {
+							localPlayer.action = "damage-vote";
+							localPlayer.victimDamage = damage;
+							localPlayer.victimIndex = parseInt(args[2]);
+						}
 					} else if(args[0] == ("GMA")) {
 						args.shift();
 						localPlayer.action = "gamemode-action";

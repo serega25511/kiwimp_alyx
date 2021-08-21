@@ -64,7 +64,7 @@ module.exports = (config, package, gamemode) => {
 					});
 					const index = users.getIndexByUsername(username);
 					clearInterval(lastmoveintervals[index]);
-					delete lastmoveintervals[index];
+					lastmoveintervals.splice(index, 1);
 				};
 			} else if(data.action == "auth") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
@@ -113,7 +113,7 @@ module.exports = (config, package, gamemode) => {
 										timestamp: Date.now()
 									});
 									clearInterval(lastmoveintervals[index]);
-									delete lastmoveintervals[index];
+									lastmoveintervals.splice(index, 1);
 								};
 							};
 						}, config.servertimeout);
@@ -197,7 +197,7 @@ module.exports = (config, package, gamemode) => {
 						console.log('['+header+'] *** Damage vote has passed. '+victim.username+' will be set to '+(victim.health-actualdamage)+' health.');
 						if(!users.damage(victim.username, actualdamage))
 							console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.');
-						delete damagetable[victim];
+						damagetable.splice(victim, 1);
 					}
 				};
 			} else if(data.action == "gamemode-action") {
