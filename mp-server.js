@@ -176,7 +176,7 @@ module.exports = (config, package, gamemode) => {
 				const victim = users.getUsers()[data.player.victimIndex-1]; // Minus 1 because the index starts at 0.
 				if(victim) {
 					if(victim.username == username) return; // Don't allow the user to vote for themselves.
-					var actualdamage = victim.health-data.damage;
+					var actualdamage = victim.health-data.player.victimHealth;
 					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, their health is most likely the same.
 					console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.');
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
