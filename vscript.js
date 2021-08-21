@@ -26,7 +26,7 @@ if(!fs.existsSync(serverpathdir)) {
 };
 */
 
-const timeout = 100;
+const timeout = 1;
 var cur = 0;
 
 module.exports = {

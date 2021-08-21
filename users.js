@@ -36,30 +36,24 @@ module.exports = {
         if(!user)
             return false; // No such user.
         userSlots[index] = player;
+        /*
         if(player.health <= 0) { // If the user is dead, respawn them.
             player.health = 100;
             player.x = config.respawnvector[0];
             player.y = config.respawnvector[1];
             player.z = config.respawnvector[2];
         };
+        */
         return true;
     },
     damage: (victim, damage) => {
-        var user;
-        var index;
         for(i = 0; i < userSlots.length; i++) {
-            if(userSlots[i].username == victim.username) {
-                user = userSlots[i];
-                index = i;
-                break;
+            if(userSlots[i].username == victim) {
+                userSlots[i].health -= damage;
+                return true;
             };
         };
-        if(!user)
-            return false; // No such user.
-        if(!user.authid == victim.authid)
-            return false; // Not the correct authid, discard.
-        user.health = user.health-damage; // Damage the user.
-        return true;
+        return false;
     },
     getUserByUsername: (username) => {
         for(i = 0; i < userSlots.length; i++) {

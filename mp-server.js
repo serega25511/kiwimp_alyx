@@ -16,7 +16,7 @@ module.exports = (config, package, gamemode) => {
 			const username = data.username
 			const authid = data.authid
 			if(!username || !authid) return; // Why would you send a message without a username or authid?
-			if(data.username == "MrRagtime") console.log(data.action);
+			//if(data.username == "MrRagtime") console.log(data.action);
 			//config.verbose ? console.log('['+header+'] Received data from '+data.from+'.', data) : console.log('['+header+'] Received data from '+data.from+'.');
 			if(data.action == "ping") {
 				// We don't ignore version information for pings.
@@ -171,20 +171,30 @@ module.exports = (config, package, gamemode) => {
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			} else if(data.action == "damage-vote") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const victim = users.getUsers()[data.victim];
+				const victim = users.getUsers()[data.victim-1]; // Minus 1 because the index starts at 0.
 				if(victim) {
-					const actualdamage = victim.health-data.damage;
+					if(victim.username == username) return; // Don't allow the user to vote for themselves.
+					var actualdamage = victim.health-data.damage;
 					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, their health is most likely the same.
+					console.log('['+header+'] Starting damage vote from '+username+' to '+victim.username+' for '+actualdamage+' damage.');
 					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
-					if(actualdamage-victim.health <= 0) actualdamage = victim.health;
-					if(damagetable[victim] === undefined) damagetable[victim] = 1;
-					if(damagetable[victim].damage == data.damage) {
-						console.log('['+header+'] '+username+' has voted to deal '+actualdamage+' damage to '+victim.username);
-						damagetable[victim]++;
-					}
-					if(damagetable[victim] >= Math.floor(users.getOnlineUsers()/2)) {
-						console.log('['+header+'] Damage vote has passed. '+victim.username+' will be set to '+victim.health-actualdamage+' health.');
-						users.damage(data.victim, data.damage);
+					if(victim.health-actualdamage <= 0) actualdamage = victim.health;
+					if(damagetable[victim] === undefined) {
+						damagetable[victim] = {
+							damage: actualdamage,
+							votes: 1,
+						};
+					};
+					if(actualdamage == damagetable[victim].damage) {
+						console.log('['+header+'] '+username+' has successfully voted to deal '+actualdamage+' damage to '+victim.username);
+						damagetable[victim].votes++;
+					} else {
+						console.log('['+header+'] Discarding '+username+'\'s vote to deal '+actualdamage+' damage to '+victim.username+'.');
+					};
+					if(damagetable[victim].votes >= Math.floor(users.getOnlineUsers()/2)-1) {
+						console.log('['+header+'] *** Damage vote has passed. '+victim.username+' will be set to '+(victim.health-actualdamage)+' health.');
+						if(!users.damage(victim.username, actualdamage))
+							console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.');
 						delete damagetable[victim];
 					}
 				};
