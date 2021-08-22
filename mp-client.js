@@ -6,9 +6,10 @@ const path = require("path"); // This is how we can get the path of the current 
 var authorized = false;
 var pinged = false;
 var freemode = false; // Used to determine whether or not we should accept actions from other clients. (do *not* send authids to other clients)
-var lastmove = {x: 0, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0}; // Used to determine whether or not we should send movement to the server and if we should print it out.
-var moveok = true;
+//var lastmove = {x: 0, y: 0, z: 0, pitch: 0, yaw: 0, roll: 0}; // Used to determine whether or not we should send movement to the server and if we should print it out.
+//var moveok = true;
 var index = 0;
+var lastoutput = 0;
 
 module.exports = (config, package, gamemode) => {
 	header = header+"-"+config.channel;
@@ -23,6 +24,7 @@ module.exports = (config, package, gamemode) => {
 			if(data.version != package.version) { // Version mismatch.
 				return config.verbose ? console.log('['+header+'] Client version mismatch. Expected: ' + package.version + ' Got: ' + data.version) : console.log('['+header+'] Client version mismatch. Expected: ' + package.version + ' Got: ' + data.version);
 			}
+			lastoutput = Date.now();
 			//config.verbose ? console.log('['+header+'] Received data from '+data.from+'.', data) : console.log('['+header+'] Received data from '+data.from+'.');
             if(data.action == "pong") {
 				if(authorized) return; // If the user is authorized already, we don't need to do anything. This could result in bad actors relogging clients.
@@ -31,7 +33,7 @@ module.exports = (config, package, gamemode) => {
 				console.log('['+header+'] This server is running on version '+data.version+'.')
 				console.log('['+header+'] '+data.players+'/'+data.maxplayers+' players are connected.')
 				console.log('['+header+'] This server is a '+(data.dedicated ? 'dedicated' : 'listen')+' server.')
-				console.log('['+header+'] The server is running as IP address '+data.ip+":"+data.port+'.')
+				console.log('['+header+'] The server is running as IP address '+data.ip+":"+data.port+'.  (may not be accurate!)')
 				console.log('['+header+'] The server is running on channel '+data.channel+'.')
 				console.log('['+header+'] The server is owned by '+data.owner+'.')
 				console.log('['+header+'] The server is running in '+(data.freemode ? 'free' : 'relay')+' mode.')
@@ -58,6 +60,7 @@ module.exports = (config, package, gamemode) => {
 					from: header,
 					username: config.username,
 					password: config.password,
+					showmyheadset: config.clientshowmyheadset,
 					authid: authid,
 					action: "auth",
 					timestamp: Date.now()
@@ -73,7 +76,13 @@ module.exports = (config, package, gamemode) => {
 				authorized = true;
 				index = data.index;
 				vscript.initVConsole(hub,package.version,header,config.username,authid);
+				if(config.dedicated) return; // Dedicated servers shouldn't time out.
 				setInterval(() => {
+					// Check if the server is unresponsive.
+					if(lastoutput < Date.now()-config.pingtimeout-10000) { // If the server has not sent any data in 10 seconds, we assume it is unresponsive.
+						console.log('['+header+'] Server is unresponsive. Exiting...');
+						process.exit(1);
+					};
 					const player = vscript.updatePlayer(config.username, authid, index);
 					hub.publish({ // Handles movement, gamemode actions, and damage votes.
 						version: package.version,

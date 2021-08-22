@@ -165,14 +165,17 @@ DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.hud}", 0.0, self,
 				if(user.teleportX != 0 || user.teleportY != 0 || user.teleportZ != 0) {
 					luaStrings[0] += `Entities:GetLocalPlayer():SetOrigin(Vector(${user.teleportX},${user.teleportY},${user.teleportZ}));\n`;
 				};
-			};
-			// Player heads
-			if(user.username == player.username && !config.showheadsets) continue; // If the server has client headsets off, stop if this is the client.
-			luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
-EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
+				// Player heads
+				if(config.showheadsets && user.showHeadsetLocally) { // Don't show the player's headset if it's disabled either by the server or the player.
+					luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
+EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`;
+				};
+			}
 			if(user.username == player.username) continue; // Don't update the player for the client anymore.
+			luaStrings[0] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ}));
+EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`;
 			// NPCs
-			if(config.npccollision == true) luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`
+			if(config.npccollision == true) luaStrings[1] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.x},${user.y},${user.z}));\n`;
 			// Name tags
 			luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);

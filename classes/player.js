@@ -7,8 +7,9 @@ class Player {
 	// These are the user's properties.
 	username = "Player"; // The username of the user.
 	authId = 0; // The authid of the user. (This is their unique id and will be used alongside their username for server-to-client communication.)
-	gamemodeProps = {}; // Special properties for the gamemode.
+	gamemodeProps = {}; // Special properties for the gamemode. DM uses this to store if the played was fragged or not.
 	hud = ""; // The HUD to be displayed in the game.
+	showHeadsetLocally = false; // Whether or not the headset should be shown locally for this player.
 	// The player's location coordinates in the world.
 	x = 0; // The x coordinate of the user.
 	y = 0; // The y coordinate of the user.

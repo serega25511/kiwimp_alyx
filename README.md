@@ -42,6 +42,7 @@ The following config file should be saved as ``config.json`` in the root directo
     "map": "mp_kiwitest",
     "hostname": "A Half-Life: Alyx server",
     "username": "Alyx",
+    "dedicatedhostpassword": "",
     "gamemode": "base",
     "gamemodeconfig": {},
     "verbose": false,
@@ -51,6 +52,7 @@ The following config file should be saved as ``config.json`` in the root directo
     "clientdisallowgamemodes": false,
     "clientdisallowvscripts": false,
     "showheadsets": true,
+    "clientshowmyheadset": true,
     "showhud": true,
     "globalhudscale": 200,
     "vscripts": [],
@@ -59,10 +61,10 @@ The following config file should be saved as ``config.json`` in the root directo
     ],
     "servervscriptdir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\",
     "freemode": false,
-    "pingtimeout": 2000,
-    "pinginterval": 1,
-    "serverinterval": 1,
-    "servertimeout": 15000,
+    "pingtimeout": 1000,
+    "pinginterval": 0,
+    "serverinterval": 10,
+    "servertimeout": 1000,
     "channel": "kiwi"
 }
 ```

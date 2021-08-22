@@ -1,6 +1,6 @@
 const vscript = require('./vscript');
 const Player = require('./classes/player');
-const header = 'alyx-users-kiwi'
+const header = 'alyx-users'
 var userSlots = []
 var teletime = 0;
 
@@ -12,7 +12,7 @@ module.exports = {
         return userSlots.length;
     },
     // Add a user to the user table and assign their authid.
-    newUser: (desiredUsername, authid) => {
+    newUser: (desiredUsername, authid, showHeadsetLocally) => {
         for(i = 0; i < userSlots.length; i++) {
             if(!userSlots[i]) continue; //???
             if(userSlots[i].username == desiredUsername) {
@@ -23,6 +23,7 @@ module.exports = {
         const index = userSlots.push(ply)-1
         ply.authid = authid;
         ply.username = desiredUsername;
+        ply.showHeadsetLocally = showHeadsetLocally;
         return index;
     },
     // Remove a user from the user table.
@@ -64,7 +65,7 @@ module.exports = {
             userSlots[i].teleportX = respawnvector[0];
             userSlots[i].teleportY = respawnvector[1];
             userSlots[i].teleportZ = respawnvector[2];
-            console.log(`[${header}] Respawning ${userSlots[i].username} at ${userSlots[i].teleportX}, ${userSlots[i].teleportY}, ${userSlots[i].teleportZ}.`);
+            console.log(`[${header}-${config.channel}] Respawning ${userSlots[i].username} at ${userSlots[i].teleportX}, ${userSlots[i].teleportY}, ${userSlots[i].teleportZ}.`);
         }
         if(teletime >= config.serverteletimeout) { // If the user was teleported, reset the teleport vectors when applicable
             if(userSlots[i].teleportX != 0 || userSlots[i].teleportY != 0 || userSlots[i].teleportZ || 0) {

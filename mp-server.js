@@ -2,6 +2,7 @@ var header = "alyx-server"; // NoobHub header for the server. This is used by cl
 const users = require("./users");
 const vscript = require("./vscript"); // This is how we can write to the script that will be ran by the game.
 var lastmoves = [];
+var logintimes = [];
 var lastmoveintervals = [];
 const fs = require("fs");
 
@@ -75,7 +76,7 @@ module.exports = (config, package, gamemode) => {
 				if(!password && config.password != "") return; // Skip if the password is incorrect, but only if the password is set.
 				const index = users.getIndexByUsername(username);
 				if(index !== false) {
-					console.log('['+header+'] '+username+' is already logged in.');
+					//console.log('['+header+'] '+username+' is already logged in.');
 					hub.publish({
 						index: index,
 						version: package.version,
@@ -101,7 +102,7 @@ module.exports = (config, package, gamemode) => {
 				};
 				if(password == config.password) {
 					console.log('['+header+'] '+username+' is authenticating...');
-					const player = users.newUser(username, authid);
+					const player = users.newUser(username, authid, data.showmyheadset);
 					if(player !== false) {
 						console.log('['+header+'] '+username+' has authenticated. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
 						hub.publish({
@@ -118,11 +119,13 @@ module.exports = (config, package, gamemode) => {
 						}, 1000);
 						if(config.username == username && !config.dedicated)
 							return; // If the username is the same as the owner on a listen server, we don't want to time them out.
-						lastmoveintervals[index] = setInterval(() => {
+						logintimes[player] = Date.now();
+						lastmoveintervals[player] = setInterval(() => {
 							// Check if the player is unresponsive and then force them to log out.
-							if(lastmoves[index] < Date.now()-config.servertimeout/2) {
-								if(users.logOut(index)) {
-									gamemode.playerDisconnect(data, hub, users, index);
+							// TODO: Why does this work? Could it be better?
+							if((lastmoves[player] || 0) > logintimes[player] && (lastmoves[player] || 0) < Date.now()-config.servertimeout-1000) { // 1 second before the timeout.
+								if(users.logOut(player)) {
+									gamemode.playerDisconnect(data, hub, users, player);
 									console.log('['+header+'] '+username+' has timed out.');
 									hub.publish({
 										version: package.version,
@@ -132,8 +135,8 @@ module.exports = (config, package, gamemode) => {
 										action: "force-logout",
 										timestamp: Date.now()
 									});
-									clearInterval(lastmoveintervals[index]);
-									lastmoveintervals.splice(index, 1);
+									clearInterval(lastmoveintervals[player]);
+									lastmoveintervals.splice(player, 1);
 								};
 							};
 						}, config.servertimeout);
@@ -179,7 +182,7 @@ module.exports = (config, package, gamemode) => {
 							action: "move-success",
 							timestamp: Date.now()
 						});
-					}, config.serverinterval); // This is so that servers don't get overloaded with move messages.
+					}, config.serverinterval); // This is so that servers can choose not to get overloaded with move messages.
 				};
 			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
 			// *** This actually worked with only two players but I realized that with more than two players, the client will never be able to tell the server who got damaged other than the user the player is damaging directly.
