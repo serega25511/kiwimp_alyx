@@ -21,10 +21,7 @@ module.exports = (config, package, gamemode) => {
 			if(data.from == header) return; // This is a client.
 			// auth-ok is here because we want to show join messages.
 			if(data.action == "auth-ok") {
-				if(data.username == config.username && data.authid != authid) {
-					console.log("["+header+"] Client "+data.username+" has joined your game, but you are already connected? This should not happen! The process can not continue, exiting...");
-					process.exit(1);
-				} else if(data.username != config.username && data.authid != authid) {
+				if(data.username != config.username && data.authid != authid) {
 					console.log("["+header+"] Client "+data.username+" has joined your game.");
 				} else {
 					console.log('['+header+'] Authorization OK. Starting client routine...');
@@ -52,10 +49,7 @@ module.exports = (config, package, gamemode) => {
 				}
 			// force-logout is here because we want to show leave messages.
 			} else if(data.action == "force-logout") {
-				if(data.username == config.username && data.authid != authid) {
-					console.log("["+header+"] Client "+data.username+" has left your game, but you are still connected? This should not happen! The process can not continue, exiting...");
-					process.exit(1);
-				} else if(data.username != config.username && data.authid != authid) {
+				if(data.username != config.username && data.authid != authid) {
 					console.log("["+header+"] Client "+data.username+" has left your game.");
 				} else {
 					console.log('['+header+'] The server has requested your client to log out. This most likely means that you timed out, but you might have logged out yourself. Exiting...');
@@ -63,7 +57,7 @@ module.exports = (config, package, gamemode) => {
 				};
 			};
 			if(data.username != config.username) return; // This is not the intended user.
-			if(data.authid != authid) return; // Authid mismatch despite the username match. (malicious use of the username)
+			if(data.authid != authid) return; // Authid mismatch despite the username match. This is a security measure.
 			if(data.version != package.version) { // Version mismatch.
 				return config.verbose ? console.log('['+header+'] Client version mismatch. Expected: ' + package.version + ' Got: ' + data.version) : console.log('['+header+'] Client version mismatch. Expected: ' + package.version + ' Got: ' + data.version);
 			}
