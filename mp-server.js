@@ -190,7 +190,7 @@ module.exports = (config, package, gamemode) => {
 				if(index === false) return; // If the index is false, the player is not in the list.
 				if(data.player.victimIndex-1 == index) return; // Don't allow the user to vote for themselves.
 				const player = users.getUsers()[index];
-				if(player.teleportX != 0 && player.teleportY != 0 && player.teleportZ != 0) return; // If the player is teleporting, ignore the damage.
+				if(player.teleportX != 0 || player.teleportY != 0 || player.teleportZ || 0) return; // If the player is teleporting, ignore the damage.
 				const victim = users.getUsers()[data.player.victimIndex-1]; // Minus 1 because the index starts at 0.
 				if(victim) {
 					var actualdamage = data.player.victimDamage;
@@ -200,7 +200,7 @@ module.exports = (config, package, gamemode) => {
 						actualdamage = victim.health;
 						dead = true;
 					};
-					if(actualdamage <= 0) return; // If the damage is less than or equal to 0, this is worthless and we can assume the player is already dead.
+					if(actualdamage <= 0) return; // If the damage is <= 0, this is worthless.
 					config.verbose ? console.log('['+header+'] Player '+username+' is damaging '+victim.username+' for '+actualdamage+' damage.') : noop();
 					if(!users.damage(victim.username, actualdamage)) {
 						config.verbose ? console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.') : noop();

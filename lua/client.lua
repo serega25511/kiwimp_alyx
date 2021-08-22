@@ -26,9 +26,10 @@ if head then
     local leftHand = GetHandFromController(leftController)
     local rightHand = GetHandFromController(rightController)
 
-    local playerHead = head:GetCenter();
-    local playerLeftHand = leftHand:GetCenter();
-    local playerRightHand = rightHand:GetCenter();
+    local playerHead = head:GetAbsOrigin();
+    local playerHeadAng = head:GetAnglesAsVector();
+    local playerLeftHand = leftHand:GetAbsOrigin();
+    local playerRightHand = rightHand:GetAbsOrigin();
     local playerLeftHandAngles = leftHand:GetAnglesAsVector();
     local playerRightHandAngles = rightHand:GetAnglesAsVector();
 
@@ -42,14 +43,16 @@ if head then
     Msg("");
     Msg("KIWI RHANDANG "..playerRightHandAngles[1].." "..playerRightHandAngles[2].." "..playerRightHandAngles[3]);
     Msg("");
+    Msg("KIWI ANG "..playerHeadAng[1].." "..playerHeadAng[2].." "..playerHeadAng[3]);
+Msg("");
 else
     Msg("KIWI HEADPOS "..playerCenter[1].." "..playerCenter[2].." "..playerCenter[3]+30);
     Msg("");
+    Msg("KIWI ANG "..playerAngles[1].." "..playerAngles[2].." "..playerAngles[3]);
+Msg("");
 end
 
 Msg("KIWI POS "..playerOrigin[1].." "..playerOrigin[2].." "..playerOrigin[3]);
-Msg("");
-Msg("KIWI ANG "..playerAngles[1].." "..playerAngles[2].." "..playerAngles[3]);
 Msg("");
 Msg("KIWI HP "..playerHealth);
 Msg("");

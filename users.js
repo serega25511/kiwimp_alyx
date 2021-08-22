@@ -52,6 +52,12 @@ module.exports = {
         userSlots[index].rightHandX = player.rightHandX;
         userSlots[index].rightHandY = player.rightHandY;
         userSlots[index].rightHandZ = player.rightHandZ;
+        userSlots[index].leftHandPitch = player.leftHandPitch;
+        userSlots[index].leftHandYaw = player.leftHandYaw;
+        userSlots[index].leftHandRoll = player.leftHandRoll;
+        userSlots[index].rightHandPitch = player.rightHandPitch;
+        userSlots[index].rightHandYaw = player.rightHandYaw;
+        userSlots[index].rightHandRoll = player.rightHandRoll;
         if(userSlots[i].health <= 0) { // If the user is dead, respawn them.
             userSlots[i].health = 100;
             const respawnvector = config.respawnvectors[Math.floor(Math.random() * config.respawnvectors.length)];
@@ -61,7 +67,7 @@ module.exports = {
             console.log(`[${header}] Respawning ${userSlots[i].username} at ${userSlots[i].teleportX}, ${userSlots[i].teleportY}, ${userSlots[i].teleportZ}.`);
         }
         if(teletime >= config.serverteletimeout) { // If the user was teleported, reset the teleport vectors when applicable
-            if(userSlots[i].teleportX != 0 && userSlots[i].teleportY != 0 && userSlots[i].teleportZ != 0) {
+            if(userSlots[i].teleportX != 0 || userSlots[i].teleportY != 0 || userSlots[i].teleportZ || 0) {
                 userSlots[i].teleportX = 0;
                 userSlots[i].teleportY = 0;
                 userSlots[i].teleportZ = 0;

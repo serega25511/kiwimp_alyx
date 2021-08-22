@@ -16,7 +16,7 @@ const serverpaths = [
 	path.join(serverpathdir, "nametags.lua"),
 	path.join(serverpathdir, "lefthands.lua"),
 	path.join(serverpathdir, "righthands.lua"),
-	path.join(serverpathdir, "gamemodeprops.lua"),
+	//path.join(serverpathdir, "gamemodeprops.lua"),
 ];
 
 /*
@@ -135,7 +135,7 @@ module.exports = {
 			`Msg("");\n`, // Player names.
 			`Msg("");\n`, // Player left hands.
 			`Msg("");\n`, // Player right hands.
-			`Msg("");\n`, // Gamemode properties.
+			//`Msg("");\n`, // Gamemode properties.
 		];
 		for(i = 0; i < userSlots.length; i++) {
 			const user = userSlots[i];
@@ -143,7 +143,7 @@ module.exports = {
 			// Clientside stuff
 			if(user.username == player.username) {
 				// Local player gamemode properties
-				luaStrings[5] += gamemode.getLocalGamemodeProperties(users, i);
+				luaStrings[0] += gamemode.getLocalGamemodeProperties(users, i);
 				if(config.showhud) { // Server has HUD enabled.
 					// Get directional vectors based on the player's angles.
 					const directionX = Math.cos(player.yaw * (Math.PI / 180));
@@ -162,7 +162,7 @@ DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.hud}", 0.0, self,
 					luaStrings[0] += `Entities:GetLocalPlayer():SetHealth(${user.health});\n`;
 				};
 				// Player is teleporting, so we need to update the position.
-				if(user.teleportX != 0 && user.teleportY != 0 && user.teleportZ != 0) {
+				if(user.teleportX != 0 || user.teleportY != 0 || user.teleportZ != 0) {
 					luaStrings[0] += `Entities:GetLocalPlayer():SetOrigin(Vector(${user.teleportX},${user.teleportY},${user.teleportZ}));\n`;
 				};
 			};
@@ -176,7 +176,7 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			// Name tags
 			luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
-DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username} : ${user.health}/100${user.score ? " : "+user.score : ""}", 0.0, self, self);\n`
+DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username} : ${user.health}/100${user.score > 0 ? ` : ${user.score}` : ``}", 0.0, self, self);\n`
 			// Player left hands
 			luaStrings[3] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.leftHandX},${user.leftHandY},${user.leftHandZ}));
 EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
@@ -184,7 +184,7 @@ EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.l
 			luaStrings[4] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.rightHandX},${user.rightHandY},${user.rightHandZ}));
 EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
 			// Gamemode properties
-			luaStrings[5] += gamemode.getGamemodeProperties(users, i);
+			luaStrings[1] += gamemode.getGamemodeProperties(users, i);
 		}
 		if(config.writeserver) {
 			try {
