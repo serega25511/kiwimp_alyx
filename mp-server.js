@@ -57,7 +57,7 @@ module.exports = (config, package, gamemode) => {
 				if(index === false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
 				gamemode.playerDisconnect(data, hub, users, index);
 				if(users.logOut(index)) {
-					console.log('['+header+'] '+username+' has logged out.');
+					console.log('['+header+'] '+username+' has logged out. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
 					hub.publish({
 						version: package.version,
 						username: username,

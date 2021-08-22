@@ -1,73 +1,30 @@
 # kiwimp_alyx
-A work-in-progress customizable multiplayer mod for Half-Life: Alyx.
+A work-in-progress customizable multiplayer mod for Half-Life: Alyx by [KiwifruitDev](https://github.com/TeamPopplio).
 
-## A Word of Warning
-**You are at your own risk if you use this mod!**
-
-**This mod is not supported by Valve!**
+## A word of warning
+**You are at your own risk if you use this mod, this mod is not supported by Valve!**
 
 Both client and server-side functionality can easily be exploited.
 
-Players can noclip beyond your control, they can send bad packets, and they can cause crashes.
+Players can noclip beyond your control, they can send bad packets, and they might cause crashes.
 
-Do not, under any circumstances, use this mod for a public server.
+Do not use this mod for a public server unless you are willing to be responsible for it.
 
 It is recommended to keep it simple and to use it locally or with friends only.
 
-## Support
-As the author to a new mod, I am free to offer help and support.
+## Wiki
+The [GitHub wiki](https://github.com/TeamPopplio/kiwimp_alyx/wiki) for this repository is being updated as the mod is being developed.
 
-Join my [Discord Server](https://discord.gg/3X3teNecWs) and ask me anything!
+You may view installation instructions and other information there.
+
+## Support
+Join my personal [Discord Server](https://discord.gg/3X3teNecWs) to ask me anything!
+
+There is a channel dedicated to `kiwimp_alyx` in the server.
+
+## License
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). Please see the `LICENSE` file for more information.
 
 ## Credits
-- [NoobHub](https://github.com/Overtorment/NoobHub)
-- [alyx-multiplayer](https://github.com/ZacharyTalis/alyx-multiplayer)
-
-## Example Config
-The config file determines both client and server settings.
-
-In the future, there will be more documentation regarding the config file.
-
-The server must set a username and host password. If a player connects with this username, they will be required to use the host password rather than the default password. This is to prevent players from spoofing the host, however this is ignored on listen servers.
-
-The following config file should be saved as ``config.json`` in the root directory of ``kiwimp_alyx``:
-```json
-{
-    "server": "localhost",
-    "dedicated": false,
-    "publicip": "68.108.19.62",
-    "port": 27025,
-    "vconsoleip": "127.0.0.1",
-    "vconsoleport": 29000,
-    "password": "",
-    "maxplayers": 16,
-    "map": "mp_kiwitest",
-    "hostname": "A Half-Life: Alyx server",
-    "username": "Alyx",
-    "hostpassword": "",
-    "gamemode": "base",
-    "gamemodeconfig": {},
-    "verbose": false,
-    "writeserver": false,
-    "printmovesuccess": false,
-    "npccollision": true,
-    "clientdisallowgamemodes": false,
-    "clientdisallowvscripts": false,
-    "showheadsets": true,
-    "clientshowmyheadset": true,
-    "showhud": true,
-    "globalhudscale": 200,
-    "vscripts": [],
-    "respawnvectors": [
-        [0,0,0]
-    ],
-    "servervscriptdir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\",
-    "freemode": false,
-    "pingtimeout": 2000,
-    "pinginterval": 0,
-    "serverinterval": 10,
-    "servertimeout": 5000,
-    "serverteletimeout": 100,
-    "channel": "kiwi"
-}
-```
+- [NoobHub](https://github.com/Overtorment/NoobHub) (Used for TCP networking between servers and clients)
+- [alyx-multiplayer](https://github.com/ZacharyTalis/alyx-multiplayer) (Inspired me to start this project and has been a huge help in the development of this mod)
