@@ -65,6 +65,12 @@ module.exports = {
             userSlots[i].teleportX = respawnvector[0];
             userSlots[i].teleportY = respawnvector[1];
             userSlots[i].teleportZ = respawnvector[2];
+            userSlots[i].x = respawnvector[0];
+            userSlots[i].y = respawnvector[1];
+            userSlots[i].z = respawnvector[2];
+            userSlots[i].headX = respawnvector[0];
+            userSlots[i].headY = respawnvector[1];
+            userSlots[i].headZ = respawnvector[2]+60;
             console.log(`[${header}-${config.channel}] Respawning ${userSlots[i].username} at ${userSlots[i].teleportX}, ${userSlots[i].teleportY}, ${userSlots[i].teleportZ}.`);
         }
         if(teletime >= config.serverteletimeout) { // If the user was teleported, reset the teleport vectors when applicable

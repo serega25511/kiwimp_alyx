@@ -28,6 +28,8 @@ The config file determines both client and server settings.
 
 In the future, there will be more documentation regarding the config file.
 
+The server must set a username and host password. If a player connects with this username, they will be required to use the host password rather than the default password. This is to prevent players from spoofing the host, however this is ignored on listen servers.
+
 The following config file should be saved as ``config.json`` in the root directory of ``kiwimp_alyx``:
 ```json
 {
@@ -42,7 +44,7 @@ The following config file should be saved as ``config.json`` in the root directo
     "map": "mp_kiwitest",
     "hostname": "A Half-Life: Alyx server",
     "username": "Alyx",
-    "dedicatedhostpassword": "",
+    "hostpassword": "",
     "gamemode": "base",
     "gamemodeconfig": {},
     "verbose": false,
@@ -61,10 +63,11 @@ The following config file should be saved as ``config.json`` in the root directo
     ],
     "servervscriptdir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx\\game\\hlvr_addons\\kiwimp_alyx\\scripts\\vscripts\\",
     "freemode": false,
-    "pingtimeout": 1000,
+    "pingtimeout": 2000,
     "pinginterval": 0,
     "serverinterval": 10,
-    "servertimeout": 1000,
+    "servertimeout": 5000,
+    "serverteletimeout": 100,
     "channel": "kiwi"
 }
 ```

@@ -14,10 +14,10 @@ module.exports = (config, package, gamemode) => {
 	const hub = noobhub.new(config);
 	var subconf = {
 		callback: (data) => {
+			if(!data.version && !data.action && !data.from && !data.username && !data.authid && !data.timestamp) return; // Why would you send a message without these?
 			if(data.from == header) return; // Ignore messages from the server.
 			const username = data.username
 			const authid = data.authid
-			if(!username || !authid) return; // Why would you send a message without a username or authid?
 			//if(data.username == "MrRagtime") console.log(data.action);
 			//config.verbose ? console.log('['+header+'] Received data from '+data.from+'.', data) : console.log('['+header+'] Received data from '+data.from+'.');
 			if(data.action == "ping") {
@@ -54,9 +54,9 @@ module.exports = (config, package, gamemode) => {
 				// We don't ignore version information for logging out.
 				// But we'll send it over to the client so they are aware.
 				const index = users.getIndexByUsername(username);
-				if(index !== false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
+				if(index === false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
+				gamemode.playerDisconnect(data, hub, users, index);
 				if(users.logOut(index)) {
-					gamemode.playerDisconnect(data, hub, users, index);
 					console.log('['+header+'] '+username+' has logged out.');
 					hub.publish({
 						version: package.version,
@@ -66,13 +66,13 @@ module.exports = (config, package, gamemode) => {
 						action: "force-logout",
 						timestamp: Date.now(),
 					});
-					const index = users.getIndexByUsername(username);
 					clearInterval(lastmoveintervals[index]);
 					lastmoveintervals.splice(index, 1);
 				};
 			} else if(data.action == "auth") {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const password = data.password
+				if(username == config.username && password != config.hostpassword && config.dedicated) return; // If the username is the owner and the owner password is not the same, ignore the message.
 				if(!password && config.password != "") return; // Skip if the password is incorrect, but only if the password is set.
 				const index = users.getIndexByUsername(username);
 				if(index !== false) {
@@ -100,7 +100,7 @@ module.exports = (config, package, gamemode) => {
 					});
 					return;
 				};
-				if(password == config.password) {
+				if(password == config.password || username == config.username) { // We already know the username is correct, so we don't need to check the host password.
 					console.log('['+header+'] '+username+' is authenticating...');
 					const player = users.newUser(username, authid, data.showmyheadset);
 					if(player !== false) {
@@ -120,10 +120,11 @@ module.exports = (config, package, gamemode) => {
 						if(config.username == username && !config.dedicated)
 							return; // If the username is the same as the owner on a listen server, we don't want to time them out.
 						logintimes[player] = Date.now();
+						lastmoves[player] = Date.now();
 						lastmoveintervals[player] = setInterval(() => {
 							// Check if the player is unresponsive and then force them to log out.
 							// TODO: Why does this work? Could it be better?
-							if((lastmoves[player] || 0) > logintimes[player] && (lastmoves[player] || 0) < Date.now()-config.servertimeout-1000) { // 1 second before the timeout.
+							if(lastmoves[player] > logintimes[player] && lastmoves[player] < Date.now()-config.servertimeout-1000) { // 1 second before the timeout.
 								if(users.logOut(player)) {
 									gamemode.playerDisconnect(data, hub, users, player);
 									console.log('['+header+'] '+username+' has timed out.');

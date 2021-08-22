@@ -17,8 +17,51 @@ module.exports = (config, package, gamemode) => {
 	const hub = noobhub.new(config);
 	var subconf = {
 		callback: (data) => {
-			// You should not recieve any of these messages if:
+			if(!data.version && !data.action && !data.from && !data.username && !data.authid && !data.timestamp) return; // Why would you send a message without these?
 			if(data.from == header) return; // This is a client.
+			// auth-ok is here because we want to show join messages.
+			if(data.action == "auth-ok") {
+				if(data.username == config.username && data.authid != authid) {
+					console.log("["+header+"] Client "+data.username+" has joined your game, but you are already connected? This should not happen! The process can not continue, exiting...");
+					process.exit(1);
+				} else if(data.username != config.username && data.authid != authid) {
+					console.log("["+header+"] Client "+data.username+" has joined your game.");
+				} else {
+					console.log('['+header+'] Authorization OK. Starting client routine...');
+					authorized = true;
+					index = data.index;
+					vscript.initVConsole(hub,package.version,header,config.username,authid);
+					if(config.dedicated) return; // Dedicated servers shouldn't time out.
+					setInterval(() => {
+						// Check if the server is unresponsive.
+						if(lastoutput < Date.now()-config.pingtimeout-10000) { // If the server has not sent any data in 10 seconds, we assume it is unresponsive.
+							console.log('['+header+'] Server is unresponsive. Exiting...');
+							process.exit(1);
+						};
+						const player = vscript.updatePlayer(config.username, authid, index);
+						hub.publish({ // Handles movement, gamemode actions, and damage votes.
+							version: package.version,
+							from: header,
+							username: config.username,
+							authid: authid,
+							action: player.action,
+							player: player,
+							timestamp: Date.now()
+						});
+					}, config.pinginterval);
+				}
+			// force-logout is here because we want to show leave messages.
+			} else if(data.action == "force-logout") {
+				if(data.username == config.username && data.authid != authid) {
+					console.log("["+header+"] Client "+data.username+" has left your game, but you are still connected? This should not happen! The process can not continue, exiting...");
+					process.exit(1);
+				} else if(data.username != config.username && data.authid != authid) {
+					console.log("["+header+"] Client "+data.username+" has left your game.");
+				} else {
+					console.log('['+header+'] The server has requested your client to log out. This most likely means that you timed out, but you might have logged out yourself. Exiting...');
+					process.exit(0);
+				};
+			};
 			if(data.username != config.username) return; // This is not the intended user.
 			if(data.authid != authid) return; // Authid mismatch despite the username match. (malicious use of the username)
 			if(data.version != package.version) { // Version mismatch.
@@ -71,28 +114,6 @@ module.exports = (config, package, gamemode) => {
 						process.exit(1);
 					}
 				}, config.pingtimeout*2);
-            } else if(data.action == "auth-ok") {
-				console.log('['+header+'] Authorization OK. Starting client routine...');
-				authorized = true;
-				index = data.index;
-				vscript.initVConsole(hub,package.version,header,config.username,authid);
-				if(config.dedicated) return; // Dedicated servers shouldn't time out.
-				setInterval(() => {
-					// Check if the server is unresponsive.
-					if(lastoutput < Date.now()-config.pingtimeout-10000) { // If the server has not sent any data in 10 seconds, we assume it is unresponsive.
-						console.log('['+header+'] Server is unresponsive. Exiting...');
-						process.exit(1);
-					};
-					const player = vscript.updatePlayer(config.username, authid, index);
-					hub.publish({ // Handles movement, gamemode actions, and damage votes.
-						version: package.version,
-						from: header,
-						username: config.username,
-						authid: authid,
-						action: player.action,
-						player: player
-					});
-				}, config.pinginterval);
 			} else if(data.action == "auth-fail") {
 				console.log('['+header+'] Authorization failed. The username may be taken, or the password is wrong.');
 				process.exit(1);
@@ -106,9 +127,6 @@ module.exports = (config, package, gamemode) => {
 				//}
 				vscript.updateClient(data.lua);
 				//moveok = true;
-			} else if(authorized && data.action == "force-logout") {
-				console.log('['+header+'] The server has requested your client to log out. If you have sent a log out request, this means it is now safe to leave. Exiting...');
-				process.exit(0);
 			} else {
 				//config.verbose ? console.log('['+header+'] Unknown action "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action, possible client/server mismatch?');
 			}
@@ -151,6 +169,37 @@ module.exports = (config, package, gamemode) => {
 	}
 	vscript.updateConfig(config, true);
 	subconf = Object.assign(subconf, config);
+
+	// Some node.js magic to make sure we can exit cleanly.
+
+	process.stdin.resume();
+
+	var logout = 0;
+
+	function exitHandler(options, exitCode) {
+		if (options.exit || logout >= 3) process.exit();
+		if (options.cleanup && logout < 3) {
+			console.log("["+header+"] Sending a logout request before closing... (Attempt "+(logout+1)+" of 3)");
+			for(i = 0; i <= 5; i++) { // Make sure we send the logout request.
+				hub.publish({
+					version: package.version,
+					action: "logout",
+					from: header,
+					username: config.username,
+					authid: authid,
+					timestamp: Date.now()
+				});
+			};
+			logout++;
+		}
+	}
+
+	process.on('exit', exitHandler.bind(null,{exit:true}));
+	process.on('SIGINT', exitHandler.bind(null, {cleanup:true}));
+	process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+	process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+	process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+
 	hub.subscribe(subconf);
 	return hub;
 };
