@@ -40,4 +40,18 @@ dm.playerKilled = function(data, hub, users, index, damage, attacker) {
         users.updateUser(attackerHud, attacker);
     };
 };
+dm.getGamemodeProperties = function(users, index) {
+    const user = users.getUsers()[index];
+    // If the player is teleporting, they died. Let's play a death sound for everyone else.
+    if(user.teleportX != 0 && user.teleportY != 0 && user.teleportZ != 0)
+        return `\nEntityGroup[${i+1}]:EmitSound("Combat.PlayerKilledNPC");`;
+    return ``;
+};
+dm.getLocalGamemodeProperties = function(users, index) {
+    const user = users.getUsers()[index];
+    // If the local player is teleporting, they died. Let's play a death sound for themselves.
+    if(user.teleportX != 0 && user.teleportY != 0 && user.teleportZ != 0)
+        return `\nEntities:GetLocalPlayer():EmitSound("Combat.PlayerKilledNPC");`
+    return ``;
+};
 module.exports = dm;

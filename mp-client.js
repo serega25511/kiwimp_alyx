@@ -43,13 +43,13 @@ module.exports = (config, package, gamemode) => {
 				if(!config.clientdisallowgamemodes) { // Install gamemode.
 					console.log('['+header+'] Installing gamemode... (Enabled by client.)')
 					const newgamemodelua = data.gamemodelua;
-					fs.writeFileSync(path.join(path.dirname(config.clientvscript), "gamemode.lua"), newgamemodelua, 'utf8');
+					fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "gamemode.lua"), newgamemodelua, 'utf8');
 				}
 				if(!config.clientdisallowvscripts) { // Install custom vscripts.
 					console.log('['+header+'] Installing custom vscripts... (Enabled by client.)')
 					for (let i = 0; i < data.vscripts.length; i++) {
 						const newvscript = fs.readFileSync(data.vscripts[i], 'utf8');
-						fs.writeFileSync(path.join(path.dirname(config.clientvscript), "vscript"+i+".lua"), newvscript, 'utf8');
+						fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "vscript"+i+".lua"), newvscript, 'utf8');
 					}
 				}
 				pinged = true;

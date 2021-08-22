@@ -29,8 +29,16 @@ module.exports = {
     },
     
     // Send lua to the client for the gamemode properties.
-    // This is a great way to make dynamically updating properties.
-    getGamemodeProperties: (user) => {
+    // This allows you to get/set values for every player lua-wise.
+    // Or go through logic to run lua code, such as playing sounds.
+    getGamemodeProperties: (users, index) => {
+        return ``;
+    },
+
+    // Send lua to the client for the gamemode properties, but only for the local player.
+    // This allows you to get/set values for just yourself lua-wise.
+    // Or go through logic to run lua code, such as playing sounds.
+    getLocalGamemodeProperties: (users, index) => {
         return ``;
     },
 

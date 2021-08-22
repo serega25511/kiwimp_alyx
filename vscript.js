@@ -18,7 +18,7 @@ const serverpaths = [
 	path.join(serverpathdir, "righthands.lua"),
 	path.join(serverpathdir, "gamemodeprops.lua"),
 ];
-const clientpath = path.normalize(config.clientvscript)
+
 /*
 if(!fs.existsSync(serverpathdir)) {
 	console.log("["+header+"] One or more vscript files are missing! Double check config.json.");
@@ -31,9 +31,9 @@ module.exports = {
 		if(client) {
 			// Updatable lua files.
 			const newclientlua = fs.readFileSync("./lua/client.lua", 'utf8');
-			fs.writeFileSync(clientpath, newclientlua, 'utf8');
+			fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "client.lua"), newclientlua, 'utf8');
 			const newdamagelua = fs.readFileSync("./lua/damage.lua", 'utf8');
-			fs.writeFileSync(path.join(path.dirname(clientpath), "damage.lua"), newdamagelua, 'utf8');
+			fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "damage.lua"), newdamagelua, 'utf8');
 			const blanklua = fs.readFileSync("./lua/blank.lua", 'utf8');
 			for(i = 0; i < serverpaths.length; i++) {
 				fs.writeFileSync(serverpaths[i], blanklua, 'utf8');
@@ -142,6 +142,8 @@ module.exports = {
 			if(!user) continue; // ???
 			// Clientside stuff
 			if(user.username == player.username) {
+				// Local player gamemode properties
+				luaStrings[5] += gamemode.getLocalGamemodeProperties(users, i);
 				if(config.showhud) { // Server has HUD enabled.
 					// Get directional vectors based on the player's angles.
 					const directionX = Math.cos(player.yaw * (Math.PI / 180));
@@ -174,7 +176,7 @@ EntityGroup[${i+1}]:SetAngles(${user.pitch},${user.yaw},${user.roll});\n`
 			// Name tags
 			luaStrings[2] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.headX},${user.headY},${user.headZ+10}));
 EntityGroup[${i+1}]:SetAngles(0,${user.yaw+90},90);
-DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username} : ${user.health}/100", 0.0, self, self);\n`
+DoEntFire(EntityGroup[${i+1}]:GetName(), "SetMessage", "${user.username} : ${user.health}/100${user.score ? " : "+user.score : ""}", 0.0, self, self);\n`
 			// Player left hands
 			luaStrings[3] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.leftHandX},${user.leftHandY},${user.leftHandZ}));
 EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
@@ -182,7 +184,7 @@ EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.l
 			luaStrings[4] += `EntityGroup[${i+1}]:SetOrigin(Vector(${user.rightHandX},${user.rightHandY},${user.rightHandZ}));
 EntityGroup[${i+1}]:SetAngles(${user.leftHandPitch},${user.leftHandYaw},${user.leftHandRoll});\n`
 			// Gamemode properties
-			luaStrings[5] += gamemode.getGamemodeProperties(user);
+			luaStrings[5] += gamemode.getGamemodeProperties(users, i);
 		}
 		if(config.writeserver) {
 			try {

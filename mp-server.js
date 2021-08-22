@@ -207,7 +207,7 @@ module.exports = (config, package, gamemode) => {
 					} else {
 						gamemode.playerDamage(data, hub, users, data.player.victimIndex-1, actualdamage, index);
 						if(dead)
-							gamemode.playerKilled(data, hub, users, data.player.victimIndex-1, actualDamage, index);
+							gamemode.playerKilled(data, hub, users, data.player.victimIndex-1, actualdamage, index);
 					};
 				};
 			} else if(data.action == "gamemode-action") {
