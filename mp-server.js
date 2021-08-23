@@ -55,6 +55,7 @@ module.exports = (config, package, gamemode) => {
 				// But we'll send it over to the client so they are aware.
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
+				if(users.getUsers()[index].authid != authid) return; // If the authid doesn't match, we ignore the message.
 				gamemode.playerDisconnect(data, hub, users, index);
 				if(users.logOut(index)) {
 					console.log('['+header+'] '+username+' has logged out. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
@@ -171,6 +172,7 @@ module.exports = (config, package, gamemode) => {
 				const player = data.player;
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
+				if(users.getUsers()[index].authid != authid) return; // If the authid doesn't match, we ignore the message.
 				if(users.move(index, player, config)) {
 					lastmoves[index] = Date.now();
 					setTimeout(() => {
@@ -192,6 +194,7 @@ module.exports = (config, package, gamemode) => {
 				if(data.version != package.version) return; // If the version is not the same, ignore the message.
 				const index = users.getIndexByUsername(username);
 				if(index === false) return; // If the index is false, the player is not in the list.
+				if(users.getUsers()[index].authid != authid) return; // If the authid doesn't match, we ignore the message.
 				if(data.player.victimIndex-1 == index) return; // Don't allow the user to vote for themselves.
 				const player = users.getUsers()[index];
 				if(player.teleportX != 0 || player.teleportY != 0 || player.teleportZ || 0) return; // If the player is teleporting, ignore the damage.

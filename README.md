@@ -23,7 +23,9 @@ Join my personal [Discord Server](https://discord.gg/3X3teNecWs) to ask me anyth
 There is a channel dedicated to `kiwimp_alyx` in the server.
 
 ## License
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). Please see the `LICENSE` file for more information.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+Please see the `LICENSE` file for more information.
 
 ## Credits
 - [NoobHub](https://github.com/Overtorment/NoobHub) (Used for TCP networking between servers and clients)
