@@ -88,7 +88,9 @@ module.exports = {
     damage: (victim, damage) => {
         for(i = 0; i < userSlots.length; i++) {
             if(userSlots[i].username == victim) {
-                userSlots[i].health -= damage;
+                // Make sure players aren't teleporting when they're hit.
+                if(userSlots[i].teleportX == 0 && userSlots[i].teleportY == 0 && userSlots[i].teleportZ == 0)
+                    userSlots[i].health -= damage;
                 return true;
             };
         };

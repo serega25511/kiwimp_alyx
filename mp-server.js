@@ -114,10 +114,7 @@ module.exports = (config, package, gamemode) => {
 							action: "auth-ok",
 							timestamp: Date.now()
 						});
-						// Player doesn't exist yet, so we need to time out before we can initialize the gamemode.
-						setTimeout(() => {
-							gamemode.playerAuthorized(data, hub, users, player);
-						}, 1000);
+						gamemode.playerAuthorized(data, hub, users, player);
 						if(config.username == username && !config.dedicated)
 							return; // If the username is the same as the owner on a listen server, we don't want to time them out.
 						logintimes[player] = Date.now();
@@ -209,9 +206,7 @@ module.exports = (config, package, gamemode) => {
 					};
 					if(actualdamage <= 0) return; // If the damage is <= 0, this is worthless.
 					config.verbose ? console.log('['+header+'] Player '+username+' is damaging '+victim.username+' for '+actualdamage+' damage.') : noop();
-					if(!users.damage(victim.username, actualdamage)) {
-						config.verbose ? console.log('['+header+'] !!! Something went SERIOUSLY wrong. The damage was not applied.') : noop();
-					} else {
+					if(users.damage(victim.username, actualdamage)) {
 						gamemode.playerDamage(data, hub, users, data.player.victimIndex-1, actualdamage, index);
 						if(dead)
 							gamemode.playerKilled(data, hub, users, data.player.victimIndex-1, actualdamage, index);

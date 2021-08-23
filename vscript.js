@@ -29,15 +29,19 @@ if(!fs.existsSync(serverpathdir)) {
 module.exports = {
 	updateConfig: (getconfig, client) => {
 		if(client) {
-			// Updatable lua files.
-			const newclientlua = fs.readFileSync("./lua/client.lua", 'utf8');
-			fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "client.lua"), newclientlua, 'utf8');
-			const newdamagelua = fs.readFileSync("./lua/damage.lua", 'utf8');
-			fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "damage.lua"), newdamagelua, 'utf8');
-			const blanklua = fs.readFileSync("./lua/blank.lua", 'utf8');
-			for(i = 0; i < serverpaths.length; i++) {
-				fs.writeFileSync(serverpaths[i], blanklua, 'utf8');
-			}
+			try {
+				// Updatable lua files.
+				const newclientlua = fs.readFileSync("./lua/client.lua", 'utf8');
+				fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "client.lua"), newclientlua, 'utf8');
+				const newdamagelua = fs.readFileSync("./lua/damage.lua", 'utf8');
+				fs.writeFileSync(path.join(path.normalize(config.servervscriptdir), "damage.lua"), newdamagelua, 'utf8');
+				const blanklua = fs.readFileSync("./lua/blank.lua", 'utf8');
+				for(i = 0; i < serverpaths.length; i++) {
+					fs.writeFileSync(serverpaths[i], blanklua, 'utf8');
+				}
+			} catch(e) {
+				// No need.
+			};
 		};
 		config = getconfig;
 	},
