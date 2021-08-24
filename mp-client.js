@@ -28,10 +28,9 @@ module.exports = (config, package, gamemode) => {
 					authorized = true;
 					index = data.index;
 					vscript.initVConsole(hub,package.version,header,config.username,authid);
-					if(config.dedicated) return; // Dedicated servers shouldn't time out.
 					setInterval(() => {
 						// Check if the server is unresponsive.
-						if(lastoutput < Date.now()-config.pingtimeout-10000) { // If the server has not sent any data in 10 seconds, we assume it is unresponsive.
+						if(!config.dedicated && lastoutput < Date.now()-config.pingtimeout-10000) { // If the server has not sent any data in 10 seconds, we assume it is unresponsive.
 							console.log('['+header+'] Server is unresponsive. Exiting...');
 							process.exit(1);
 						};
