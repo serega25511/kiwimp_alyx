@@ -61,7 +61,7 @@ let activeprompts = [];
   */
  function StartConfigSetup() {
     return new Promise((resolve, reject) => {
-        console.log(chalk.magenta.bold("\nWelcome to kiwimp_alyx's config setup! This will guide you through the process of setting up the configuration JSON file."));
+        console.log(chalk.magenta.bold("\nWelcome to kiwimp_alyx's config setup! This will guide you through the process of setting up the config JSON file."));
         console.log(chalk.magenta("Pay attention to the prompts and the types of values you can enter, invalid values will output their default value.\n"));
         for(let key in configtemplate) {
             if(configtemplate.hasOwnProperty(key)) {

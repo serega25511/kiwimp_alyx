@@ -120,4 +120,3 @@ dist
 kiwi_config.json
 *.dev.json
 legacy/
-build/
