@@ -4,6 +4,8 @@
   "description": "Half-Life Alyx Multiplayer",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "build": "nexe index.js -o build/kiwimp_alyx.exe --build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
