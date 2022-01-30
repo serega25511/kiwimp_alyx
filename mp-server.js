@@ -131,7 +131,7 @@ export function StartServer(config) {
                     break;
                 // Movement.
                 case "movement":
-                    if(me.player) {
+                    if(me.player && !me.player.dead) {
                         me.player.position.x = message.localPlayer.position.x;
                         me.player.position.y = message.localPlayer.position.y;
                         me.player.position.z = message.localPlayer.position.z;
@@ -168,11 +168,15 @@ export function StartServer(config) {
                         me.player.hudText.angles.x = message.localPlayer.hudText.angles.x;
                         me.player.hudText.angles.y = message.localPlayer.hudText.angles.y;
                         me.player.hudText.angles.z = message.localPlayer.hudText.angles.z;
-                        me.player.health = message.localPlayer.health;
+                        // If the last damage time was more than 2 seconds ago, we're allowed to heal.
+                        // This is to prevent the client from healing too fast in case they haven't updated health on their end.
+                        if(me.player.lastDamage + 2000 < Date.now() && me.player.health < message.localPlayer.health || me.player.health >= message.localPlayer.health) {
+                            me.player.health = message.localPlayer.health;
+                        }
                     }
                     break;
                 case "damage":
-                    if(me.player) {
+                    if(me.player && !me.player.dead) {
                         const victim = connections[message.victimIndex];
                         if(victim) {
                             victim.player.health -= message.damage; // We trust the client to not send us bad data.

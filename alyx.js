@@ -256,9 +256,7 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                 // If the player is being damaged, don't update the health if it's greater than the previous value.
                 // Otherwise, just set it as-is.
                 if(user.player.health != player.player.health && !user.player.dead) {
-                    // If the last damage time was more than 2 seconds ago, we're allowed to heal.
-                    // This is to prevent the client from healing too fast in case they haven't updated the health.
-                    if(user.player.lastDamage + 2000 < Date.now() && user.player.health > player.player.health || user.player.health < player.player.health) {
+                    if(user.player.health > 0) {
                         vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
                     } else {
                         vconsole_server.WriteCommand(`kill`);
