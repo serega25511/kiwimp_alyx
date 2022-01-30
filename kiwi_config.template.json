@@ -106,12 +106,6 @@
         "default": "",
         "description": "A personal memo for the client.\nThis will be displayed whenever the client connects to the server."
     },
-    "client_install_directory": {
-        "name": "Client Install Directory",
-        "type": "string",
-        "default": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx",
-        "description": "The directory where 'Half-Life: Alyx' is installed.\nMake sure that 'kiwimp_alyx' is installed into the game/hlvr_addons/ directory."
-    },
     "note_setup_complete": {
         "name": "Setup Complete",
         "type": "note",

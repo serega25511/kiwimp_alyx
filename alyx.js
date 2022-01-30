@@ -75,9 +75,10 @@ export function InitVConsole(ws) {
     const c = new Cap();
     const device = "\\Device\\NPF_Loopback"; // Packets are captured from the local machine.
     const filter = `tcp and src port ${vconsole_server.port}`;
-    const bufSize = 10 * 1024 * 1024; // 10 MB
-    const buffer = Buffer.alloc(65535);
+    const bufSize = 64 * 1024 * 1024; // 64MB
+    const buffer = Buffer.alloc(bufSize);
     const linkType = c.open(device, filter, bufSize, buffer);
+    c.setMinBytes(0); // Don't wait, read as fast as possible.
     c.on('packet', (nbytes, trunc) => {
         // Parse packet type while trimming prefixing TCP and loopback data.
         const packet = buffer.slice(43, nbytes).toString('ascii').replace('\0', '').replace('\n', '');
@@ -141,15 +142,15 @@ export function InitVConsole(ws) {
                             localPlayer.head.angles.y = parseFloat(args[4]);
                             localPlayer.head.angles.z = parseFloat(args[5]);
                             // Get directional vectors based on the player's angles.
-                            const directionX = Math.cos(localPlayer.yaw * (Math.PI / 180));
-                            const directionY = Math.sin(localPlayer.yaw * (Math.PI / 180));
-                            const directionZ = Math.cos((localPlayer.pitch + 90) * (Math.PI / 180));
+                            const directionX = Math.cos(localPlayer.y * (Math.PI / 180));
+                            const directionY = Math.sin(localPlayer.y * (Math.PI / 180));
+                            const directionZ = Math.cos((localPlayer.x + 90) * (Math.PI / 180));
                             // Place the HUD in front of the head with offsets that orbit around the player.
                             localPlayer.hudText.position.x = localPlayer.head.position.x + directionX * 48;
                             localPlayer.hudText.position.y = localPlayer.head.position.y + directionY * 48;
                             localPlayer.hudText.position.z = localPlayer.head.position.z + directionZ * 48;
                             localPlayer.hudText.angles.x = 0;
-                            localPlayer.hudText.angles.y = localPlayer.angles.y-90;
+                            localPlayer.hudText.angles.y = localPlayer.angles.y;
                             localPlayer.hudText.angles.z = 90;
                             ws.send(JSON.stringify({
                                 type: "movement",
@@ -184,7 +185,8 @@ export function InitVConsole(ws) {
                             break;
                         // Set targetname prefix
                         case "PRFX":
-                            prefix = args[0];
+                            vconsole_server.prefix = args[0];
+                            console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}.`));
                             break;
                         // Alive
                         case "ALIV":
@@ -192,6 +194,7 @@ export function InitVConsole(ws) {
                             break;
                     }
                 }
+                vconsole_server.alive = Date.now();
             } else if(message.includes("command: keepalive")) {
                 // Even though it's an unknown command, it still received a keepalive.
                 vconsole_server.alive = Date.now();
@@ -217,60 +220,59 @@ export function InitVConsole(ws) {
 }
 
 export async function UpdateVScript(vconsole_server, connectioninfo, config) {
-    if(prefix !== undefined && !vconsole_server.killed) {
+    if(vconsole_server.prefix !== "" && !vconsole_server.killed) {
         for(let i = 0; i < connectioninfo.connections.length; i++) {
             const user = connectioninfo.connections[i];
             const player = players[user.player.id];
-            if(JSON.stringify(user.player) != JSON.stringify(player.player) || user.username == config.client_username) {
+            //if(JSON.stringify(user.player) != JSON.stringify(player.player) || user.username == config.client_username) {
                 // Clientside stuff
                 if(user.username == config.client_username) {
                     // Place the HUD down.
                     if(user.player.hudText != player.player.hudText) {
-                        await vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.hudText.position.x} ${user.player.hudText.position.y} ${user.player.hudText.position.z}`);
-                        await vconsole_server.WriteCommand(`ent_setang ${player.nameTagIndex} ${user.player.hudText.angles.x} ${user.player.hudText.angles.y} ${user.player.hudText.angles.z}`);
+                        //vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.hudText.position.x} ${user.player.hudText.position.y} ${user.player.hudText.position.z}`
+                            //+`;ent_setang ${player.nameTagIndex} ${user.player.hudText.angles.x} ${user.player.hudText.angles.y} ${user.player.hudText.angles.z}`);
                     }
                     // Show the hud.
                     if(user.player.health > 0 && user.player.hud != player.player.hud) {
-                        console.log(user.player.hud);
-                        await vconsole_server.WriteCommand(`ent_fire ${prefix}_kiwi_player_name_${user.player.id} setmessage \"${user.player.hud}\"`);
+                        //vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_kiwi_player_name_${user.player.id} setmessage \"${user.player.hud}\"`);
                     };
                     // Player is teleporting, so we need to update the position.
                     if((user.player.teleport.position.x != 0 || user.player.teleport.position.y != 0 || user.player.teleport.position.z != 0) && user.player.teleport != player.player.teleport) {
-                        await vconsole_server.WriteCommand(`ent_setpos 1 ${user.player.teleport.position.x} ${user.player.teleport.position.y} ${user.player.teleport.position.z}`);
-                        await vconsole_server.WriteCommand(`ent_setang 1 ${user.player.teleport.angles.x} ${user.player.teleport.angles.y} ${user.player.teleport.angles.z}`);
+                        vconsole_server.WriteCommand(`ent_setpos 1 ${user.player.teleport.position.x} ${user.player.teleport.position.y} ${user.player.teleport.position.z}`
+                            +`;ent_setang 1 ${user.player.teleport.angles.x} ${user.player.teleport.angles.y} ${user.player.teleport.angles.z}`, true);
                     };
                     if(user.player.health != player.player.health) {
-                        await vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
+                        vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
                     };
                 } else { // Don't update the player for the client
                     // NPCs
                     if(user.player.npc != player.player.npc) {
-                        await vconsole_server.WriteCommand(`ent_setpos ${player.npcIndex} ${user.player.position.x} ${user.player.position.y} ${user.player.position.z}`);
+                        vconsole_server.WriteCommand(`ent_setpos ${player.npcIndex} ${user.player.position.x} ${user.player.position.y} ${user.player.position.z}`);
                     }
                     // Name tags
                     if(user.player.nameTag != player.player.nameTag) {
-                        await vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.position.x} ${user.player.position.y} ${user.player.position.z+10}`);
-                        await vconsole_server.WriteCommand(`ent_setang ${player.nameTagIndex} ${user.player.angles.x} ${user.player.angles.y} ${user.player.angles.z}`);
-                        await vconsole_server.WriteCommand(`ent_fire ${prefix}_kiwi_player_name_${user.player.id} setmessage\"${user.username} : ${user.health}/100\"`);
+                        vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z+10}`
+                            +`;ent_setang ${player.nameTagIndex} 0 ${user.player.angles.y+90} 90`
+                            +`;ent_fire ${vconsole_server.prefix}_kiwi_player_name_${user.player.id} setmessage\"${user.username} : ${user.health}/100\"`);
                     }
                     // Player left hands
                     if(user.player.leftHand != player.player.leftHand) {
-                        await vconsole_server.WriteCommand(`ent_setpos ${player.leftHandIndex} ${user.player.leftHand.position.x} ${user.player.leftHand.position.y} ${user.player.leftHand.position.z}`);
-                        await vconsole_server.WriteCommand(`ent_setang ${player.leftHandIndex} ${user.player.leftHand.angles.x} ${user.player.leftHand.angles.y} ${user.player.leftHand.angles.z}`);
+                        vconsole_server.WriteCommand(`ent_setpos ${player.leftHandIndex} ${user.player.leftHand.position.x} ${user.player.leftHand.position.y} ${user.player.leftHand.position.z}`
+                            +`;ent_setang ${player.leftHandIndex} ${user.player.leftHand.angles.x} ${user.player.leftHand.angles.y} ${user.player.leftHand.angles.z}`);
                     }
                     // Player right hands
                     if(user.player.rightHand != player.player.rightHand) {
-                        await vconsole_server.WriteCommand(`ent_setpos ${player.rightHandIndex} ${user.player.rightHand.position.x} ${user.player.rightHand.position.y} ${user.player.rightHand.position.z}`);
-                        await vconsole_server.WriteCommand(`ent_setang ${player.rightHandIndex} ${user.player.rightHand.angles.x} ${user.player.rightHand.angles.y} ${user.player.rightHand.angles.z}`);
+                        vconsole_server.WriteCommand(`ent_setpos ${player.rightHandIndex} ${user.player.rightHand.position.x} ${user.player.rightHand.position.y} ${user.player.rightHand.position.z}`
+                            +`;ent_setang ${player.rightHandIndex} ${user.player.rightHand.angles.x} ${user.player.rightHand.angles.y} ${user.player.rightHand.angles.z}`);
                     }
                 }
                 // Heads
-                if(user.player.head != player.player.head) {
-                    await vconsole_server.WriteCommand(`ent_setpos ${player.headsetIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z}`);
-                    await vconsole_server.WriteCommand(`ent_setang ${player.headsetIndex} ${user.player.head.angles.x} ${user.player.head.angles.y} ${user.player.head.angles.z}`);
-                }
+                //if(user.player.head != player.player.head) {
+                    vconsole_server.WriteCommand(`ent_setpos ${player.headsetIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z}`
+                        +`;ent_setang ${player.headsetIndex} ${user.player.head.angles.x} ${user.player.head.angles.y} ${user.player.head.angles.z}`);
+                //}
                 player.player = user.player;
-            }
+            //}
         }
     }
 }

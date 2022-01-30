@@ -126,17 +126,29 @@ export class VConsole {
      */
     interval = null;
 
-    constructor (socket, monitor) {
+    /** 
+     * Queue for urgent commands.
+     * @type {Array}
+     */
+    queue = [];
+
+    /**
+     * Prefix used for the map extension.
+     * @type {string}
+     */
+    prefix = "";
+
+    constructor (socket) {
         this.socket = socket;
-        this.monitor = monitor;
     }
 
     /**
      * Sends a command to the game.
      * @param {string} command The command string to send.
+     * @param {boolean} urgent If the VConsole isn't connected, these commands will be queued and sent when the connection is established. Optional and defaults to false.
      * @param {string} vcmd The game command to send. Optional and defaults to 'CMND'.
      */
-    WriteCommand(command, vcmd = "CMND") {
+    WriteCommand(command, urgent = false, vcmd = "CMND") {
         // The command structure via TCP goes something like this:
         // CMND\00\d3\00\00\00\13\00\00status\00
         // Let's deconstruct it.
@@ -185,6 +197,9 @@ export class VConsole {
                     //console.log(chalk.yellow(`[VC] [${vcmd}] ${command}`));
                     resolve();
                 });
+            } else if(urgent) {
+                this.queue.push(command);
+                resolve();
             } else {
                 resolve();
             }
@@ -200,6 +215,11 @@ export class VConsole {
             this.socket.on('connect', () => {   
                 this.WriteVFCS(false);
                 this.killed = false;
+                // Send urgent commands that were queued.
+                for(let i = 0; i < this.queue.length; i++) {
+                    this.WriteCommand(this.queue[i], true);
+                    this.queue.splice(i, 1);
+                }
                 resolve();
                 //console.log(chalk.yellow('[VC] Connected to VConsole.'));
             });
@@ -213,7 +233,7 @@ export class VConsole {
             });
             clearInterval(this.interval);
             this.interval = setInterval(() => {
-                if(Date.now() - this.alive > 1000 && !this.killed) {
+                if(Date.now() - this.alive > 1500 && !this.killed) {
                     this.killed = true;
                     this.socket.end(() => {
                         // Restart the server.
@@ -221,6 +241,7 @@ export class VConsole {
                     });
                 } else {
                     this.WriteCommand("keepalive");
+                    //if(this.prefix != "") this.WriteCommand(`ent_fire ${this.prefix}_relay trigger`, true);
                 }
             }, 1000);
         });
