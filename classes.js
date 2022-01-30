@@ -64,6 +64,7 @@ export class Player extends Entity {
     nameTag = new Entity();
     hudText = new Entity();
     hud = '';
+    damaged = null;
     constructor (id) {
         super();
         this.id = id;
