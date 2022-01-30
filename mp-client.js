@@ -72,7 +72,7 @@ export function StartClient(config) {
                 break;
             case 'map':
                 // Update map.
-                await vconsole_server.WriteCommand(`changelevel ${message.map}`);
+                //await vconsole_server.WriteCommand(`changelevel ${message.map}`);
                 await vconsole_server.WriteCommand(`addon_play ${message.map}`);
                 await vconsole_server.WriteCommand(`addon_tools_map ${message.map}`);
         }

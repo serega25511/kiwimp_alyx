@@ -208,85 +208,85 @@ export function StartServer(config) {
                             dead: c.player.dead || false,
                             lastDamage: c.player.lastDamage || 0,
                             position: {
-                                x: c.player.position.x || 0,
-                                y: c.player.position.y || 0,
-                                z: c.player.position.z || 0
+                                x: (!c.player.dead ? c.player.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.position.z : 0) || 0
                             },
                             angles: {
-                                x: c.player.angles.x || 0,
-                                y: c.player.angles.y || 0,
-                                z: c.player.angles.z || 0
+                                x: (!c.player.dead ? c.player.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.angles.z : 0) || 0
                             },
                             head: {
                                 position: {
-                                    x: c.player.head.position.x || 0,
-                                    y: c.player.head.position.y || 0,
-                                    z: c.player.head.position.z || 0
+                                    x: (!c.player.dead ? c.player.head.position.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.head.position.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.head.position.z : 0) || 0
                                 },
                                 angles: {
-                                    x: c.player.head.angles.x || 0,
-                                    y: c.player.head.angles.y || 0,
-                                    z: c.player.head.angles.z || 0
+                                    x: (!c.player.dead ? c.player.head.angles.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.head.angles.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.head.angles.z : 0) || 0
                                 }
                             },
                             leftHand: {
                                 position: {
-                                    x: c.player.leftHand.position.x || 0,
-                                    y: c.player.leftHand.position.y || 0,
-                                    z: c.player.leftHand.position.z || 0
+                                    x: (!c.player.dead ? c.player.leftHand.position.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.leftHand.position.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.leftHand.position.z : 0) || 0
                                 },
                                 angles: {
-                                    x: c.player.leftHand.angles.x || 0,
-                                    y: c.player.leftHand.angles.y || 0,
-                                    z: c.player.leftHand.angles.z || 0
+                                    x: (!c.player.dead ? c.player.leftHand.angles.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.leftHand.angles.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.leftHand.angles.z : 0) || 0
                                 }
                             },
                             rightHand: {
                                 position: {
-                                    x: c.player.rightHand.position.x || 0,
-                                    y: c.player.rightHand.position.y || 0,
-                                    z: c.player.rightHand.position.z || 0
+                                    x: (!c.player.dead ? c.player.rightHand.position.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.rightHand.position.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.rightHand.position.z : 0) || 0
                                 },
                                 angles: {
-                                    x: c.player.rightHand.angles.x || 0,
-                                    y: c.player.rightHand.angles.y || 0,
-                                    z: c.player.rightHand.angles.z || 0
+                                    x: (!c.player.dead ? c.player.rightHand.angles.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.rightHand.angles.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.rightHand.angles.z : 0) || 0
                                 }
                             },
                             nameTag: {
                                 position: {
-                                    x: c.player.nameTag.position.x || 0,
-                                    y: c.player.nameTag.position.y || 0,
-                                    z: c.player.nameTag.position.z || 0
+                                    x: (!c.player.dead ? c.player.nameTag.position.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.nameTag.position.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.nameTag.position.z : 0) || 0
                                 },
                                 angles: {
-                                    x: c.player.nameTag.angles.x || 0,
-                                    y: c.player.nameTag.angles.y || 0,
-                                    z: c.player.nameTag.angles.z || 0
+                                    x: (!c.player.dead ? c.player.nameTag.angles.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.nameTag.angles.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.nameTag.angles.z : 0) || 0
                                 }
                             },
                             hudText: {
                                 position: {
-                                    x: c.player.hudText.position.x || 0,
-                                    y: c.player.hudText.position.y || 0,
-                                    z: c.player.hudText.position.z || 0
+                                    x: (!c.player.dead ? c.player.hudText.position.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.hudText.position.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.hudText.position.z : 0) || 0
                                 },
                                 angles: {
-                                    x: c.player.hudText.angles.x || 0,
-                                    y: c.player.hudText.angles.y || 0,
-                                    z: c.player.hudText.angles.z || 0
+                                    x: (!c.player.dead ? c.player.hudText.angles.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.hudText.angles.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.hudText.angles.z : 0) || 0
                                 }
                             },
                             teleport: {
                                 position: {
-                                    x: c.player.teleport.position.x || 0,
-                                    y: c.player.teleport.position.y || 0,
-                                    z: c.player.teleport.position.z || 0
+                                    x: (!c.player.dead ? c.player.teleport.position.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.teleport.position.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.teleport.position.z : 0) || 0
                                 },
                                 angles: {
-                                    x: c.player.teleport.angles.x || 0,
-                                    y: c.player.teleport.angles.y || 0,
-                                    z: c.player.teleport.angles.z || 0
+                                    x: (!c.player.dead ? c.player.teleport.angles.x : 0) || 0,
+                                    y: (!c.player.dead ? c.player.teleport.angles.y : 0) || 0,
+                                    z: (!c.player.dead ? c.player.teleport.angles.z : 0) || 0
                                 }
                             }
                         }
