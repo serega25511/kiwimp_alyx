@@ -178,7 +178,7 @@ export function StartServer(config) {
                 case "damage":
                     if(me.player && !me.player.dead) {
                         const victim = connections[message.victimIndex];
-                        if(victim) {
+                        if(victim && !victim.player.dead) {
                             victim.player.health -= message.damage; // We trust the client to not send us bad data.
                             victim.player.lastDamage = Date.now();
                             victim.player.dead = (victim.player.health <= 0);
