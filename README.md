@@ -1,32 +1,119 @@
 # kiwimp_alyx
-A work-in-progress customizable multiplayer mod for Half-Life: Alyx by [KiwifruitDev](https://github.com/TeamPopplio).
+**Kiwi's Multiplayer Mod for Half-Life: Alyx**
+
+A work-in-progress customizable multiplayer mod for [Half-Life: Alyx](https://store.steampowered.com/app/546560/HalfLife_Alyx/) by [KiwifruitDev](https://github.com/TeamPopplio).
 
 ## A word of warning
-**You are at your own risk if you use this mod, this mod is not supported by Valve!**
+**You are at your own risk if you use this mod!**
 
-Both client and server-side functionality can easily be exploited.
+Both client and server-side functionality can easily be exploited when port forwarding is enabled.
 
-Players can noclip beyond your control, they can send bad packets, and they might cause crashes.
+It is recommended to keep it simple and to use it locally or only over the internet with a password.
 
-Do not use this mod for a public server unless you are willing to be responsible for it.
+## How does this work?
+kiwimp_alyx takes a different approach compared to other multiplayer mods.
 
-It is recommended to keep it simple and to use it locally or with friends only.
+- This mod 'fakes' a VConsole application compatible with Half-Life: Alyx.
+    - You won't be able to open VConsole at the same time.
+    - Half-Life: Alyx needs the ``-console -vconsole`` arguments to be passed through.
+    - This is done using TCP sockets with the node.js ``net.Socket()`` class.
+- Alongside that, as it is improbable to receive output directly from VConsole, this mod also captures network packets from VConsole's port number.
+    - The 'fake' VConsole can send data to the game, but can't receive data.
+    - Both of these actions (sending and receiving) are done using separate modules.
+    - This is done using the node.js [cap](https://github.com/mscdex/cap) library.
+- VConsole is used as there is no way to send data directly to the game.
+    - An addon must be enabled in order for this mod to work, the addon uses VScript to share entity data for up to 16 players.
+    - Output from VScript is proxied through this mod and sent as input using console commands.
+    - Examples of commands include ``ent_setpos``, ``ent_setang``, ``ent_fire``, etc.
+- The output is a seamless and smooth networking environment.
+    - The heads and hands of players will displa for everyone.
+    - You would be able to chat with other players and see their chat messages.
+    - You can also damage other players and see their health.
 
-## Wiki
-The [GitHub wiki](https://github.com/TeamPopplio/kiwimp_alyx/wiki) for this repository is being updated as the mod is being developed.
+## How do I get started?
+First, you'll need to install some prerequisite software, assuming you already have Half-Life: Alyx installed:
 
-You may view installation instructions and other information there.
+1. Install [node.js](https://nodejs.org/) >=16 with native build tools.
+    - Build tools are required for the ``cap`` library.
+2. Install [npcap](https://npcap.org/).
+    - This is required for the ``cap`` library to function.
+3. Install [git](https://git-scm.com/).
+    - This is used to clone the repository to allow for updating but it is not required.
+
+Now that you have the required software installed, you can install the application:
+
+4. Open a `Git Bash` window within the directory you would like to install the application.
+    - It does not nesearily need to be the same directory as the game.
+5. Clone the repository using ``git clone https://github.com/TeamPopplio/kiwimp_alyx.git`` within the Git Bash window.
+    - Alternatively, download the zip file via GitHub and extract it.
+6. Navivate to the folder containing the repository and open the ``install-update.bat`` file (Ignore Git errors if you do not have Git installed).
+    - This will install the required dependencies and compile ``cap`` using [npm](https://www.npmjs.com/) alongside updating via Git if possible.
+
+After the installation is complete, you can now install the addon:
+
+5. Download the [latest release](https://github.com/TeamPopplio/kiwimp_alyx/releases) and extract it into the same directory as the game.
+    - By default, this will be ``C:\Program Files (x86)\Steam\steamapps\common\Half-Life Alyx``.
+6. Inside of Steam, head to launch options and add the parameters ``-console -vconsole`` (Optionally, add ``-novr`` to disable VR support).
+    - This will allow the application to interact with the game.
+7. Launch the game and enable the addon through the menu.
+    - If VR is disabled, launch VConsole using the tilde key (``~``) and use the ``addon_list`` command to click ``(enable)`` on the addon.
+
+Finally, you can now launch the application:
+
+8. Open ``launch.bat`` within the directory containing the application (Make sure VConsole is closed while the game is running).
+    - This will first start the config wizard to guide you through the setup before launching the application.
+9. If you hear a sound coming from Half-Life: Alyx, connection succeeded! (This sound plays whenever a client sends a chat message).
+    - You can use the ``/vc`` command within the command prompt to send commands to the game, alongside sending chat messages.
+10. When you're finished playing, press Ctrl+C within the command prompt to close the connection and shut down gracefully.
+    - This will keep the game running but you will be disconnected from the server.
+
+Have fun!
+
+## How do I update?
+You can update the mod using the following steps:
+
+1. Open the ``install-update.bat`` file within the directory containing the application.
+    - As previously mentioned, this will update via Git and reinstall the dependencies.
+2. Download the [latest release](https://github.com/TeamPopplio/kiwimp_alyx/releases), delete the existing version and extract the new version into the same directory as the game.
+    - This will ensure that there are no conflicts with the existing version.
+3. Open the ``launch.bat`` file within the directory containing the application.
+    - If your config file is outdated, you will be prompted with the config wizard.
+
+This process should be relatively quick, it is recommended to install Git to ensure that updates are seamless.
 
 ## Support
 Join my personal [Discord Server](https://discord.gg/3X3teNecWs) to ask me anything!
 
 There is a channel dedicated to `kiwimp_alyx` in the server.
 
+My username is [Kiwifruit#2003](https://discord.com/users/728082336536854559).
+
 ## License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 Please see the `LICENSE` file for more information.
 
-## Credits
-- [NoobHub](https://github.com/Overtorment/NoobHub) (Used for TCP networking between servers and clients)
-- [alyx-multiplayer](https://github.com/ZacharyTalis/alyx-multiplayer) (Inspired me to start this project and has been a huge help in the development of this mod)
+## Software Used
+- [cap](https://github.com/mscdex/cap)
+    - Used for sniffing VConsole output.
+    - Licensed under the [MIT License](https://github.com/mscdex/cap/blob/master/LICENSE).
+- [chalk](https://github.com/chalk/chalk)
+    - Used to pretty-print output for the command prompt.
+    - Licensed under the [MIT License](https://github.com/chalk/chalk/blob/main/license).
+- [ws](https://github.com/websockets/ws/)
+    - Used as the method of connectivity between clients and servers.
+    - Licensed under the [MIT License](https://github.com/websockets/ws/blob/master/LICENSE).
+- [node.js](https://nodejs.org/)
+    - Used as the application runtime.
+    - Must be installed by the end-user.
+    - Licensed under the [MIT License](https://github.com/nodejs/node/blob/master/LICENSE).
+- [npcap](https://npcap.org/)
+    - Required by the ``cap`` node.js library.
+    - Must be installed by the end-user.
+    - View its license [here](https://github.com/nmap/npcap/blob/master/LICENSE).
+
+## Code References
+- [alyx-multiplayer](https://github.com/ZacharyTalis/alyx-multiplayer)
+    - Inspiration for this project and its initial implementation.
+    - This repository does not contain any code from this project.
+    - Licensed under the [MIT License](https://github.com/ZacharyTalis/alyx-multiplayer/blob/master/LICENSE)
