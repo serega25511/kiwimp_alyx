@@ -176,17 +176,15 @@ export function StartServer(config) {
                         const victim = connections[message.victimIndex];
                         if(victim) {
                             victim.player.health -= message.damage; // We trust the client to not send us bad data.
-                            if(victim.player.health <= 0) {
-                                victim.player.health = 100; // In-game, they will die but when they respawn they should be at full health.
-                            }
-                            if(victim.player.damaged != null) {
-                                clearTimeout(victim.player.damaged);
-                                victim.player.damaged = setTimeout(() => {
-                                    victim.player.damaged = null;
-                                }, 1000);
-                            }
+                            victim.player.dead = (victim.player.health <= 0);
                         }
                     }
+                    break;
+                case "alive":
+                    if(me.player) {
+                        me.player.dead = false;
+                    }
+                    break;
             }
             // Update the clients.
             wss.clients.forEach(function each(client) {
@@ -199,7 +197,7 @@ export function StartServer(config) {
                             id: c.player.id || 0,
                             health: c.player.health || 0,
                             hud: c.player.hud || '',
-                            damaged: c.player.damaged != null ? true : false,
+                            dead: c.player.dead || false,
                             position: {
                                 x: c.player.position.x || 0,
                                 y: c.player.position.y || 0,

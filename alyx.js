@@ -189,6 +189,10 @@ export function InitVConsole(ws) {
                             vconsole_server.prefix = args[0];
                             console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
                             vconsole_server.WriteCommand(`sv_cheats 1`, true);
+                            // We're not dead!
+                            ws.send(JSON.stringify({
+                                type: "alive",
+                            }));
                             break;
                         // Alive
                         case "ALIV":
@@ -251,8 +255,12 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                 };
                 // If the player is being damaged, don't update the health if it's greater than the previous value.
                 // Otherwise, just set it as-is.
-                if((user.player.damaged && (user.player.health < player.player.health)) || (user.player.health != player.player.health)) {
-                    vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
+                if(user.player.health != player.player.health && !user.player.dead) {
+                    if(user.player.health > 0) {
+                        vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
+                    } else {
+                        vconsole_server.WriteCommand(`kill`);
+                    }
                 };
             } else { // Don't update the player for the client
                 // NPCs
