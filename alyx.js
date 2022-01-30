@@ -34,7 +34,8 @@ const valid_packet_types = [
     "HSET",
     "TAGS",
     "NPCS",
-    "PRFX"
+    "PRFX",
+    "ALIV"
 ];
 const localPlayer = new Player();
 const players = [ // 16 players max

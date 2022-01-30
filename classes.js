@@ -213,7 +213,7 @@ export class VConsole {
             });
             clearInterval(this.interval);
             this.interval = setInterval(() => {
-                if(Date.now() - this.alive > 5000 && !this.killed) {
+                if(Date.now() - this.alive > 1000 && !this.killed) {
                     this.killed = true;
                     this.socket.end(() => {
                         // Restart the server.
