@@ -1,0 +1,123 @@
+{
+    "disable_config_setup": {
+        "name": "Disable Config Setup",
+        "type": "boolean",
+        "default": "false",
+        "skip": {
+            "true": "complete_setup"
+        },
+        "description": "If false, this setup process will continue and create or update the config file.\nIf true, the setup will exit and it will be necessary to manually edit the config file from this point on."
+    },
+    "server_enabled": {
+        "name": "Enable Server",
+        "type": "boolean",
+        "default": "false",
+        "skip": {
+            "false": "client_enabled"
+        },
+        "description": "If true, a server will be hosted on the local machine.\nIf you are connecting to a remote server, you should set this to false."
+    },
+    "server_ip": {
+        "name": "Server IP Address",
+        "type": "string",
+        "default": "localhost",
+        "description": "The IP address of the hosted server.\nDo not include the port suffix."
+    },
+    "server_port": {
+        "name": "Server Port",
+        "type": "number",
+        "default": "27025",
+        "description": "The port of the hosted server."
+    },
+    "server_password": {
+        "name": "Server Password",
+        "type": "string",
+        "default": "",
+        "description": "The password of the hosted server.\nClients will be required to provide this password to connect to the server.\nThis field is optional."
+    },
+    "server_max_players": {
+        "name": "Max Players",
+        "type": "number",
+        "default": "16",
+        "description": "The maximum number of players that can be connected to the hosted server."
+    },
+    "server_gamemode": {
+        "name": "Gamemode",
+        "type": "string",
+        "default": "",
+        "description": "The gamemode of the hosted server.\nThis gamemode defines actions that players can transmit or receive."
+    },
+    "server_map": {
+        "name": "Map",
+        "type": "string",
+        "default": "",
+        "description": "The map of the hosted server.\nCurrently unimplemented and subject to change in the future."
+    },
+    "server_memo": {
+        "name": "Server Memo",
+        "type": "string",
+        "default": "",
+        "description": "A memo for the hosted server.\nThis memo will be displayed to players when they connect to the server."
+    },
+    "client_enabled": {
+        "name": "Enable Client",
+        "type": "boolean",
+        "default": "true",
+        "skip": {
+            "false": "complete_setup"
+        },
+        "description": "If true, the client system will be enabled and will connect to a remote server.\nIf you are hosting a server, you should set this to false.\nNote: To create a listen server, enable both the server and client and set both IPs to localhost."
+    },
+    "client_ip": {
+        "name": "Client IP Address",
+        "type": "string",
+        "default": "localhost",
+        "description": "The IP address for the client to connect to.\nDo not include the port suffix."
+    },
+    "client_port": {
+        "name": "Client Port",
+        "type": "number",
+        "default": "27025",
+        "description": "The port for the client to connect to."
+    },
+    "client_password": {
+        "name": "Client Password",
+        "type": "string",
+        "default": "",
+        "description": "The password of the server the client will connect to.\nThe server owner will need to provide this password for the client to connect.\nIf the server does not require a password, this field can be left blank."
+    },
+    "client_username": {
+        "name": "Client Username",
+        "type": "string",
+        "default": "",
+        "nospaces": true,
+        "description": "The username of the client.\nThis is used to identify the client to the server."
+    },
+    "client_authid": {
+        "name": "Client AuthID",
+        "type": "string",
+        "default": "",
+        "nospaces": true,
+        "description": "The AuthID of the client.\nSet this to a random string, this is used to identify persistent clients and reserved usernames.\nFor example, if a server saves data for your client, it will only load data for clients with the same AuthID and username combination.\nThis is NOT a password, do not set this to a password."
+    },
+    "client_memo": {
+        "name": "Client Memo",
+        "type": "string",
+        "default": "",
+        "description": "A personal memo for the client.\nThis will be displayed whenever the client connects to the server."
+    },
+    "client_install_directory": {
+        "name": "Client Install Directory",
+        "type": "string",
+        "default": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Half-Life Alyx",
+        "description": "The directory where 'Half-Life: Alyx' is installed.\nMake sure that 'kiwimp_alyx' is installed into the game/hlvr_addons/ directory."
+    },
+    "note_setup_complete": {
+        "name": "Setup Complete",
+        "type": "note",
+        "description": "The setup process has completed.\nPress enter to save the config file and continue."
+    },
+    "complete_setup": {
+        "name": "Saving changes..."
+    }
+}

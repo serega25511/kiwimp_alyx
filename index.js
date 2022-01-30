@@ -1,19 +1,50 @@
-const fs = require('fs');
-const configloc = "./config.json";
-const packageloc = "./package.json";
-const package = fs.existsSync(packageloc) ? JSON.parse(fs.readFileSync(packageloc)) : {};
-var config = fs.existsSync(configloc) ? JSON.parse(fs.readFileSync(configloc)) : {};
-const gamemode = require("./gamemodes/"+(config.gamemode || "base"));
+/*
+    kiwimp_alyx
+    Copyright (c) 2022 KiwifruitDev
+    All rights reserved.
+    This software is licensed under the MIT License.
+    -----------------------------------------------------------------------------
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+    -----------------------------------------------------------------------------
+*/
 
-const header = "alyx-handler-"+config.channel;
+// Modules
+import * as fs from 'fs';
+import chalk from 'chalk';
+import * as confighandler from './config-handler.js';
+import * as server from './mp-server.js';
+import * as client from './mp-client.js';
 
-// Start the server only if we're not connecting to a remote server
-if(config.server == "localhost" || config.dedicated) {
-	require('./noobhub/server');
-	require("./mp-server")(config, package, gamemode);
-}
+// Variables
+const nodepackage = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
-// Set up client networking only if we aren't a dedicated server
-if(!config.dedicated) {
-	client = require("./mp-client")(config, package, gamemode);
-}
+// Display copyright and version information.
+console.log(chalk.blueBright(
+    `===============================================\n`
+    +`${nodepackage.name} v${nodepackage.version} - ${nodepackage.description}\n`
+    +`Copyright (c) ${nodepackage.author}, all rights reserved\n`
+    +`This software is licensed under the ${nodepackage.license} License\n`
+    +`https://www.github.com/TeamPopplio/kiwimp_alyx/\n`
+    +`===============================================`
+));
+
+// Start the config setup process, or load config if it exists.
+confighandler.LoadConfig().then((config) => {
+    if(config.server_enabled === 'true') {
+        // Start the server.
+        server.StartServer(config);
+    }
+    if(config.client_enabled === 'true') {
+        // Start the client.
+        client.StartClient(config);
+    }
+}).catch((err) => {
+    // Handle errors.
+    console.error(chalk.redBright(`[ERROR] ${err.stack}`));
+});

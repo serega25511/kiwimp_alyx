@@ -1,236 +1,389 @@
-var header = "alyx-server"; // NoobHub header for the server. This is used by clients to know that the server sent the message.
-const users = require("./users");
-const vscript = require("./vscript"); // This is how we can write to the script that will be ran by the game.
-var lastmoves = [];
-var logintimes = [];
-var lastmoveintervals = [];
-const fs = require("fs");
+/*
+    kiwimp_alyx
+    Copyright (c) 2022 KiwifruitDev
+    All rights reserved.
+    This software is licensed under the MIT License.
+    -----------------------------------------------------------------------------
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+    -----------------------------------------------------------------------------
+*/
 
-function noop() {};
+// Modules
+import { WebSocketServer } from 'ws';
+import { createServer, IncomingMessage } from 'http';
+import * as fs from 'fs';
+import chalk from 'chalk';
+import { Client, Player } from './classes.js';
+import { kill } from 'process';
 
-module.exports = (config, package, gamemode) => {
-	header = header+"-"+config.channel;
-	const noobhub = require('./noobhub/client');
-	const hub = noobhub.new(config);
-	var subconf = {
-		callback: (data) => {
-			if(!data.version && !data.action && !data.from && !data.username && !data.authid && !data.timestamp) return; // Why would you send a message without these?
-			if(data.from == header) return; // Ignore messages from the server.
-			const username = data.username
-			const authid = data.authid
-			//if(data.username == "MrRagtime") console.log(data.action);
-			//config.verbose ? console.log('['+header+'] Received data from '+data.from+'.', data) : console.log('['+header+'] Received data from '+data.from+'.');
-			if(data.action == "ping") {
-				// We don't ignore version information for pings.
-				// But we'll send it over to the client so they are aware.
-				//const index = users.getIndexByUsername(username);
-				//if(index !== false) return; // This state should never be reached, but just in case
-				hub.publish({
-					version: package.version,
-					username: username,
-					authid: authid,
-					from: header,
-					map: config.map,
-					maxplayers: config.maxplayers,
-					players: users.getOnlineUsers(),
-					dedicated: config.dedicated,
-					port: config.port,
-					ip: config.publicip,
-					channel: config.channel,
-					owner: config.username,
-					verbose: config.verbose,
-					freemode: config.freemode,
-					hostname: config.hostname,
-					gamemode: gamemode.gamemode || "",
-					gamemodelua: fs.readFileSync("./gamemodes/lua/"+config.gamemode+".lua", "utf8"),
-					gamemodeprint: gamemode.name || "",
-					gamemodeauthor: gamemode.author || "",
-					description: gamemode.description || "",
-					vscripts: config.vscripts,
-					action: "pong",
-					timestamp: Date.now(),
-				});
-			} else if(data.action == "logout") {
-				// We don't ignore version information for logging out.
-				// But we'll send it over to the client so they are aware.
-				const index = users.getIndexByUsername(username);
-				if(index === false) return; // By this point, the user should be logged in. If they aren't, we ignore the message.
-				if(users.getUsers()[index].authid != authid) return; // If the authid doesn't match, we ignore the message.
-				gamemode.playerDisconnect(data, hub, users, index);
-				if(users.logOut(index)) {
-					console.log('['+header+'] '+username+' has logged out. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
-					hub.publish({
-						version: package.version,
-						username: username,
-						authid: authid,
-						from: header,
-						action: "force-logout",
-						timestamp: Date.now(),
-					});
-					clearInterval(lastmoveintervals[index]);
-					lastmoveintervals.splice(index, 1);
-				};
-			} else if(data.action == "auth") {
-				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const password = data.password
-				if(username == config.username && password != config.hostpassword && config.dedicated) return; // If the username is the owner and the owner password is not the same, ignore the message.
-				if(!password && config.password != "") return; // Skip if the password is incorrect, but only if the password is set.
-				const index = users.getIndexByUsername(username);
-				if(index !== false) {
-					//console.log('['+header+'] '+username+' is already logged in.');
-					hub.publish({
-						index: index,
-						version: package.version,
-						username: username,
-						authid: authid,
-						from: header,
-						action: "auth-fail",
-						timestamp: Date.now()
-					});
-					return;
-				}
-				if(users.getOnlineUsers() > config.maxplayers) { // We don't want to add more users than we can handle.
-					hub.publish({
-						index: index,
-						version: package.version,
-						username: username,
-						authid: authid,
-						from: header,
-						action: "auth-fail",
-						timestamp: Date.now()
-					});
-					return;
-				};
-				if(password == config.password || username == config.username) { // We already know the username is correct, so we don't need to check the host password.
-					console.log('['+header+'] '+username+' is authenticating...');
-					const player = users.newUser(username, authid, data.showmyheadset);
-					if(player !== false) {
-						console.log('['+header+'] '+username+' has authenticated. '+users.getOnlineUsers()+'/'+config.maxplayers+' players online.');
-						hub.publish({
-							version: package.version,
-							username: username,
-							authid: authid,
-							from: header,
-							action: "auth-ok",
-							timestamp: Date.now()
-						});
-						gamemode.playerAuthorized(data, hub, users, player);
-						if(config.username == username && !config.dedicated)
-							return; // If the username is the same as the owner on a listen server, we don't want to time them out.
-						logintimes[player] = Date.now();
-						lastmoves[player] = Date.now();
-						lastmoveintervals[player] = setInterval(() => {
-							// Check if the player is unresponsive and then force them to log out.
-							// TODO: Why does this work? Could it be better?
-							if(lastmoves[player] > logintimes[player] && lastmoves[player] < Date.now()-config.servertimeout-1000) { // 1 second before the timeout.
-								if(users.logOut(player)) {
-									gamemode.playerDisconnect(data, hub, users, player);
-									console.log('['+header+'] '+username+' has timed out.');
-									hub.publish({
-										version: package.version,
-										username: username,
-										authid: authid,
-										from: header,
-										action: "force-logout",
-										timestamp: Date.now()
-									});
-									clearInterval(lastmoveintervals[player]);
-									lastmoveintervals.splice(player, 1);
-								};
-							};
-						}, config.servertimeout);
-					} else {
-						console.log('['+header+'] '+username+' failed to create a user.');
-						//users.logOut(index);
-						hub.publish({
-							version: package.version,
-							username: username,
-							authid: authid,
-							from: header,
-							action: "auth-fail",
-							timestamp: Date.now()
-						});
-					};
-				// At this point, this user will not recieve any more messages after this as their slot does not exist.
-				} else {
-					console.log('['+header+'] '+username+' failed to authenticate.');
-					hub.publish({
-						version: package.version,
-						username: username,
-						authid: authid,
-						from: header,
-						action: "auth-fail",
-						timestamp: Date.now()
-					});
-				}
-			// Player movement.
-			} else if(data.action == "move") {
-				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const player = data.player;
-				const index = users.getIndexByUsername(username);
-				if(index === false) return; // If the index is false, the player is not in the list.
-				if(users.getUsers()[index].authid != authid) return; // If the authid doesn't match, we ignore the message.
-				if(users.move(index, player, config)) {
-					lastmoves[index] = Date.now();
-					setTimeout(() => {
-						hub.publish({
-							version: package.version,
-							username: username,
-							authid: authid,
-							from: header,
-							lua: vscript.updateServer(users, player, gamemode),
-							action: "move-success",
-							timestamp: Date.now()
-						});
-					}, config.serverinterval); // This is so that servers can choose not to get overloaded with move messages.
-				};
-			// We don't want to directly deal damage unless the majority of clients agree with the damage amont.
-			// *** This actually worked with only two players but I realized that with more than two players, the client will never be able to tell the server who got damaged other than the user the player is damaging directly.
-			// Therefore, now we are just firing damage callbacks directly.
-			} else if(data.action == "damage") {
-				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const index = users.getIndexByUsername(username);
-				if(index === false) return; // If the index is false, the player is not in the list.
-				if(users.getUsers()[index].authid != authid) return; // If the authid doesn't match, we ignore the message.
-				if(data.player.victimIndex-1 == index) return; // Don't allow the user to vote for themselves.
-				const player = users.getUsers()[index];
-				if(player.teleportX != 0 || player.teleportY != 0 || player.teleportZ || 0) return; // If the player is teleporting, ignore the damage.
-				const victim = users.getUsers()[data.player.victimIndex-1]; // Minus 1 because the index starts at 0.
-				if(victim) {
-					var actualdamage = data.player.victimDamage;
-					var dead = false;
-					// Set damage to exactly enough to kill the user if the damage will make their health out of bounds.
-					if(victim.health-actualdamage <= 0) {
-						actualdamage = victim.health;
-						dead = true;
-					};
-					if(actualdamage <= 0) return; // If the damage is <= 0, this is worthless.
-					config.verbose ? console.log('['+header+'] Player '+username+' is damaging '+victim.username+' for '+actualdamage+' damage.') : noop();
-					if(users.damage(victim.username, actualdamage)) {
-						gamemode.playerDamage(data, hub, users, data.player.victimIndex-1, actualdamage, index);
-						if(dead)
-							gamemode.playerKilled(data, hub, users, data.player.victimIndex-1, actualdamage, index);
-					};
-				};
-			} else if(data.action == "gamemode-action") {
-				if(data.version != package.version) return; // If the version is not the same, ignore the message.
-				const index = users.getIndexByUsername(username);
-				if(index === false) return; // If the index is false, the player is not in the list.
-				gamemode.playerAction(data, hub, users, index);
-			} else {
-				//config.verbose ? console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?', data) : console.log('['+header+'] Unknown action from '+username+': "'+data.action+'", possible client/server mismatch?');
-			};
-		},
-		subscribedCallback: () => {
-			console.log('['+header+'] Subscribed. Waiting for clients...');
-			config = gamemode.initialize(hub, users);
-		},
-		errorCallback: (err) => {
-			config.verbose ? console.log('['+header+'] An error has occured.', err) : console.log('['+header+'] An error has occured.');
-			process.exit(1);
-		}
-	}
-	vscript.updateConfig(config, false);
-	subconf = Object.assign(subconf, config);
-	hub.subscribe(subconf);
-};
+// Variables
+let connections = [];
+let slots = {};
+
+// Exports
+
+/**
+ * Creates a player slot.
+ * @param {Client} me A client object. 
+ * @param {WebSocket} ws A WebSocket object.
+ * @returns 
+ */
+function CreateSlot(me, ws, config) {
+    if(!me.player) {
+        // Find an empty slot.
+        for(let i = 0; i < config.server_max_players; i++) {
+            if(slots[i] == false) {
+                // Create a new player.
+                slots[i] = true;
+                me.player = new Player(i);
+                return i;
+            }
+        }
+        // No slots left? This should never happen.
+        ws.send(JSON.stringify({
+            type: 'status',
+            message: 'You have been kicked as the server ran out of player slots. Please try again later.'
+        }));
+        ws.close();
+    }
+    return 0;
+}
+
+/**
+ * Start the server.
+ * @param {Object} config The configuration object. 
+ */
+export function StartServer(config) {
+    // Populate the slots table.
+    for(let i = 0; i < config.server_max_players; i++) {
+        slots[i] = false;
+    }
+    // Create the server.
+    const server = createServer();
+    const wss = new WebSocketServer({
+        noServer: true
+    });
+    // Handle connections.
+    wss.on('connection', (ws, request, me) => {
+        // Client connected.
+        console.log(chalk.cyan(`[SV] Client connected: ${me.username}`));
+        wss.clients.forEach(function each(client) {
+            client.send(JSON.stringify({
+                type: 'status',
+                message: `${me.username} connected.`
+            }));
+        });
+        CreateSlot(me, ws, config);
+        // Send memo to the client.
+        ws.send(JSON.stringify({
+            type: 'status',
+            message: config.server_memo
+        }));
+        // Tell the client to change map.
+        ws.send(JSON.stringify({
+            type: 'map',
+            map: config.server_map
+        }));
+        ws.isAlive = true;
+        let index = connections.push(me);
+        // Keep the connection alive.
+        ws.on('pong', function() {
+            this.isAlive = true;
+        });
+        // Handle messages.
+        ws.on('message', function message(data) {
+            const message = JSON.parse(data);
+            switch(message.type) {
+                case 'chat':
+                    // Broadcast chat message.
+                    wss.clients.forEach(function each(client) {
+                        client.send(JSON.stringify({
+                            type: 'chat',
+                            username: me.username,
+                            message: message.message
+                        }));
+                    });
+                    console.log(`[CHAT] ${me.username}: ${message.message}`);
+                    break;
+                case 'command':
+                    // Execute command.
+                    switch(message.command) {
+                        case 'vc': // Send a command to VConsole.
+                            if(message.args.length > 0) {
+                                ws.send(JSON.stringify({
+                                    type: 'command',
+                                    command: message.args.join(' '),
+                                }));
+                            }
+                            break;
+                        default:
+                            ws.send(JSON.stringify({
+                                type: 'status',
+                                message: `Unknown command: ${message.command}`
+                            }));
+                    }
+                    break;
+                // Movement.
+                case "movement":
+                    if(me.player) {
+                        me.player.position.x = message.localPlayer.position.x;
+                        me.player.position.y = message.localPlayer.position.y;
+                        me.player.position.z = message.localPlayer.position.z;
+                        me.player.angles.x = message.localPlayer.angles.x;
+                        me.player.angles.y = message.localPlayer.angles.y;
+                        me.player.angles.z = message.localPlayer.angles.z;
+                        me.player.head.position.x = message.localPlayer.head.position.x;
+                        me.player.head.position.y = message.localPlayer.head.position.y;
+                        me.player.head.position.z = message.localPlayer.head.position.z;
+                        me.player.head.angles.x = message.localPlayer.head.angles.x;
+                        me.player.head.angles.y = message.localPlayer.head.angles.y;
+                        me.player.head.angles.z = message.localPlayer.head.angles.z;
+                        me.player.leftHand.position.x = message.localPlayer.leftHand.position.x;
+                        me.player.leftHand.position.y = message.localPlayer.leftHand.position.y;
+                        me.player.leftHand.position.z = message.localPlayer.leftHand.position.z;
+                        me.player.leftHand.angles.x = message.localPlayer.leftHand.angles.x;
+                        me.player.leftHand.angles.y = message.localPlayer.leftHand.angles.y;
+                        me.player.leftHand.angles.z = message.localPlayer.leftHand.angles.z;
+                        me.player.rightHand.position.x = message.localPlayer.rightHand.position.x;
+                        me.player.rightHand.position.y = message.localPlayer.rightHand.position.y;
+                        me.player.rightHand.position.z = message.localPlayer.rightHand.position.z;
+                        me.player.rightHand.angles.x = message.localPlayer.rightHand.angles.x;
+                        me.player.rightHand.angles.y = message.localPlayer.rightHand.angles.y;
+                        me.player.rightHand.angles.z = message.localPlayer.rightHand.angles.z;
+                        me.player.nameTag.position.x = message.localPlayer.nameTag.position.x;
+                        me.player.nameTag.position.y = message.localPlayer.nameTag.position.y;
+                        me.player.nameTag.position.z = message.localPlayer.nameTag.position.z;
+                        me.player.nameTag.angles.x = message.localPlayer.nameTag.angles.x;
+                        me.player.nameTag.angles.y = message.localPlayer.nameTag.angles.y;
+                        me.player.nameTag.angles.z = message.localPlayer.nameTag.angles.z;
+                        me.player.hudText.position.x = message.localPlayer.hudText.position.x;
+                        me.player.hudText.position.y = message.localPlayer.hudText.position.y;
+                        me.player.hudText.position.z = message.localPlayer.hudText.position.z;
+                        me.player.hudText.angles.x = message.localPlayer.hudText.angles.x;
+                        me.player.hudText.angles.y = message.localPlayer.hudText.angles.y;
+                        me.player.hudText.angles.z = message.localPlayer.hudText.angles.z;
+                        me.player.health = message.localPlayer.health;
+                    }
+                    break;
+            }
+            // Update the clients.
+            wss.clients.forEach(function each(client) {
+                let connectioninfo_json = [];
+                for(let i = 0; i < connections.length; i++) {
+                    const c = connections[i];
+                    connectioninfo_json.push({
+                        username: c.username,
+                        player: {
+                            id: c.player.id || 0,
+                            health: c.player.health || 0,
+                            hud: c.player.hud || '',
+                            position: {
+                                x: c.player.position.x || 0,
+                                y: c.player.position.y || 0,
+                                z: c.player.position.z || 0
+                            },
+                            angles: {
+                                x: c.player.angles.x || 0,
+                                y: c.player.angles.y || 0,
+                                z: c.player.angles.z || 0
+                            },
+                            head: {
+                                position: {
+                                    x: c.player.head.position.x || 0,
+                                    y: c.player.head.position.y || 0,
+                                    z: c.player.head.position.z || 0
+                                },
+                                angles: {
+                                    x: c.player.head.angles.x || 0,
+                                    y: c.player.head.angles.y || 0,
+                                    z: c.player.head.angles.z || 0
+                                }
+                            },
+                            leftHand: {
+                                position: {
+                                    x: c.player.leftHand.position.x || 0,
+                                    y: c.player.leftHand.position.y || 0,
+                                    z: c.player.leftHand.position.z || 0
+                                },
+                                angles: {
+                                    x: c.player.leftHand.angles.x || 0,
+                                    y: c.player.leftHand.angles.y || 0,
+                                    z: c.player.leftHand.angles.z || 0
+                                }
+                            },
+                            rightHand: {
+                                position: {
+                                    x: c.player.rightHand.position.x || 0,
+                                    y: c.player.rightHand.position.y || 0,
+                                    z: c.player.rightHand.position.z || 0
+                                },
+                                angles: {
+                                    x: c.player.rightHand.angles.x || 0,
+                                    y: c.player.rightHand.angles.y || 0,
+                                    z: c.player.rightHand.angles.z || 0
+                                }
+                            },
+                            nameTag: {
+                                position: {
+                                    x: c.player.nameTag.position.x || 0,
+                                    y: c.player.nameTag.position.y || 0,
+                                    z: c.player.nameTag.position.z || 0
+                                },
+                                angles: {
+                                    x: c.player.nameTag.angles.x || 0,
+                                    y: c.player.nameTag.angles.y || 0,
+                                    z: c.player.nameTag.angles.z || 0
+                                }
+                            },
+                            hudText: {
+                                position: {
+                                    x: c.player.hudText.position.x || 0,
+                                    y: c.player.hudText.position.y || 0,
+                                    z: c.player.hudText.position.z || 0
+                                },
+                                angles: {
+                                    x: c.player.hudText.angles.x || 0,
+                                    y: c.player.hudText.angles.y || 0,
+                                    z: c.player.hudText.angles.z || 0
+                                }
+                            },
+                            teleport: {
+                                position: {
+                                    x: c.player.teleport.position.x || 0,
+                                    y: c.player.teleport.position.y || 0,
+                                    z: c.player.teleport.position.z || 0
+                                },
+                                angles: {
+                                    x: c.player.teleport.angles.x || 0,
+                                    y: c.player.teleport.angles.y || 0,
+                                    z: c.player.teleport.angles.z || 0
+                                }
+                            }
+                        }
+                    });
+                };
+                client.send(JSON.stringify({
+                    type: 'update',
+                    connectioninfo: {
+                        connections: connectioninfo_json,
+                        hud: "Test Hud"
+                    }
+                }));
+            });
+        });
+        // Client disconnected.
+        ws.on('close', function close() {
+            // Remove the client from the connections array.
+            connections.splice(index, 1);
+            // Remove the player from the slots array.
+            if(me.player) {
+                slots[me.player.id] = false;
+            }
+            console.log(chalk.cyan(`[SV] Client disconnected: ${me.username}`));
+            wss.clients.forEach(function each(client) {
+                client.send(JSON.stringify({
+                    type: 'status',
+                    message: `${me.username} has disconnected.`
+                }));
+            });
+        });
+    });
+    // Handle server closure.
+    wss.on('close', function close() {
+        clearInterval(interval);
+    });
+    // Handle errors.
+    wss.on('error', function error(error) {
+        console.log(chalk.red(`[ERROR] [SV] ${error.stack}`));
+    });
+    // Authenticate clients.
+    server.on('upgrade', (request, socket, head) => {
+        AuthenticateClient(config, request, (err, client) => {
+            if (err) {
+                socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+                socket.destroy();
+                return;
+            }
+            wss.handleUpgrade(request, socket, head, (ws) => {
+                wss.emit('connection', ws, request, client);
+            });
+        });
+    });
+    // Ping intervals.
+    const interval = setInterval(function ping() {
+        wss.clients.forEach(function each(ws) {
+            if (ws.isAlive === false) return ws.terminate();
+            ws.isAlive = false;
+            ws.ping();
+        });
+    }, 30000);
+    // Close the server when the process closes.
+    process.on('exit', () => {
+        wss.clients.forEach(function each(ws) {
+            ws.terminate();
+        });
+        server.close();
+    });
+    // Close the server when CTRL+C is pressed.
+    process.on('SIGINT', () => {
+        wss.clients.forEach(function each(ws) {
+            ws.terminate();
+        });
+        server.close();
+        process.exit();
+    });
+    // Listen on the specified port.
+    server.listen(config.server_port, () => {
+        console.log(chalk.cyan(`[SV] Server listening on port ${config.server_port}.`));
+    });
+}
+
+/**
+ * 
+ * @param {IncomingMessage} client
+ * @param {Function} callback
+ */
+function AuthenticateClient(config, request, callback) {
+    // Check password.
+    if(config.server_password !== undefined && config.server_password !== "") {
+        const password = request.headers.password;
+        if (password !== config.server_password) {
+            return callback(new Error('Invalid password.'));
+        }
+    }
+    // Authenticate the client.
+    const auth = request.headers.authorization;
+    if (!auth) {
+        return callback(new Error('No Authorization header.'));
+    }
+    const parts = auth.split(' ');
+    if (parts.length !== 3) {
+        return callback(new Error('Authorization header is not valid.'));
+    }
+    const scheme = parts[0];
+    const username = parts[1];
+    const authid = parts[2];
+    if (scheme !== 'AuthID') {
+        return callback(new Error('Authorization header is not of AuthID scheme.'));
+    }
+    if(username === undefined || authid === undefined || username === '' || authid === '') {
+        return callback(new Error('Authorization header contains an invalid username or AuthID.'));
+    }
+    // Check if a client with the same username already exists.
+    for (let i = 0; i < connections.length; i++) {
+        if (connections[i].username === username && connections[i].authid === authid) {
+            // Client reconnected.
+            return callback(null, connections[i]);
+        }
+        if (connections[i].username === username) {
+            return callback(new Error('A client with the same username already exists.'));
+        }
+    }
+    return callback(null, new Client(username, authid));
+}

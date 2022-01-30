@@ -1,7 +1,7 @@
 {
   "name": "kiwimp_alyx",
   "version": "1.0.0",
-  "description": "A work-in-progress customizable multiplayer mod for Half-Life: Alyx.",
+  "description": "Half-Life Alyx Multiplayer",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/TeamPopplio/kiwimp_alyx/issues"
   },
-  "homepage": "https://github.com/TeamPopplio/kiwimp_alyx#readme"
+  "homepage": "https://github.com/TeamPopplio/kiwimp_alyx#readme",
+  "dependencies": {
+    "cap": "^0.2.1",
+    "chalk": "^5.0.0",
+    "ws": "^8.4.2"
+  },
+  "type": "module"
 }
