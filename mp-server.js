@@ -181,7 +181,10 @@ export function StartServer(config) {
                         if(victim && !victim.player.dead) {
                             victim.player.health -= message.damage; // We trust the client to not send us bad data.
                             victim.player.lastDamage = Date.now();
-                            victim.player.dead = (victim.player.health <= 0);
+                            if(victim.player.health <= 0) {
+                                victim.player.dead = true;
+                                victim.player.health = 0;
+                            }
                         }
                     }
                     break;

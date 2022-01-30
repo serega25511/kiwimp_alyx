@@ -256,7 +256,7 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                 // If the player is being damaged, don't update the health if it's greater than the previous value.
                 // Otherwise, just set it as-is.
                 if(user.player.health != player.player.health) {
-                    if(user.player.health > 0) {
+                    if(!user.player.dead && user.player.health >= 0) {
                         vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
                     } else {
                         vconsole_server.WriteCommand(`kill`);
