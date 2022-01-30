@@ -245,7 +245,7 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                         +`;ent_setang ${player.nameTagIndex} ${user.player.hudText.angles.x} ${user.player.hudText.angles.y} ${user.player.hudText.angles.z}`);
                 }
                 // Show the hud.
-                if(user.player.health > 0 && user.player.hud != player.player.hud) {
+                if(!user.player.dead && user.player.hud != player.player.hud) {
                     vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_kiwi_player_name_${user.player.id} setmessage \"${user.player.hud}\"`);
                 };
                 // Player is teleporting, so we need to update the position.
@@ -256,7 +256,9 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                 // If the player is being damaged, don't update the health if it's greater than the previous value.
                 // Otherwise, just set it as-is.
                 if(user.player.health != player.player.health && !user.player.dead) {
-                    if(user.player.health > 0) {
+                    // If the last damage time was more than 2 seconds ago, we're allowed to heal.
+                    // This is to prevent the client from healing too fast in case they haven't updated the health.
+                    if(user.player.lastDamage + 2000 < Date.now() && user.player.health > player.player.health || user.player.health < player.player.health) {
                         vconsole_server.WriteCommand(`ent_fire player sethealth ${user.player.health}`);
                     } else {
                         vconsole_server.WriteCommand(`kill`);

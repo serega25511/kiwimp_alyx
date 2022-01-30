@@ -65,6 +65,7 @@ export class Player extends Entity {
     hudText = new Entity();
     hud = '';
     dead = false;
+    lastDamage = 0;
     constructor (id) {
         super();
         this.id = id;

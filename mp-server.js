@@ -176,6 +176,7 @@ export function StartServer(config) {
                         const victim = connections[message.victimIndex];
                         if(victim) {
                             victim.player.health -= message.damage; // We trust the client to not send us bad data.
+                            victim.player.lastDamage = Date.now();
                             victim.player.dead = (victim.player.health <= 0);
                         }
                     }
@@ -198,6 +199,7 @@ export function StartServer(config) {
                             health: c.player.health || 0,
                             hud: c.player.hud || '',
                             dead: c.player.dead || false,
+                            lastDamage: c.player.lastDamage || 0,
                             position: {
                                 x: c.player.position.x || 0,
                                 y: c.player.position.y || 0,
