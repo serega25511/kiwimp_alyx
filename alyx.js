@@ -303,7 +303,7 @@ export function InitVConsole(ws) {
                     }
                 }
             } else if(message.includes("Command buffer full")) {
-                vconsole_server.alive = 0; // We killed it.
+                vconsole_server.alive -= 2500; // It might be dead.
             } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
                 console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
