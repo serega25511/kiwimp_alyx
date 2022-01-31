@@ -270,9 +270,18 @@ export function InitVConsole(ws) {
             } else if(message.includes("keepalive")) {
                 // Even though it's an unknown command, it still received a keepalive.
                 vconsole_server.alive = Date.now();
-            } else if(message.includes("Command buffer full")) {
-                // This seems to be a non-issue now as the class continuously clears the buffer.
-            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("npc_metropolice")) {
+            } else if(message.includes(": no entity")) {
+                // A physics object dissapeared from us, remove it by entity index.
+                const index = message.split(" no entity ")[1]
+                if(index) {
+                    for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                        if(vconsole_server.physicsObjects[i].index == parseInt(index)) {
+                            vconsole_server.physicsObjects.splice(i, 1);
+                            break;  
+                        }
+                    }
+                }
+            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("npc_metropolice") && !message.includes("Command buffer full")) {
                 console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
         }
