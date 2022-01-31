@@ -230,10 +230,12 @@ export function InitVConsole(ws) {
                                     vconsole_server.physicsObjects[i].movingLocally = true;
                                     if(vconsole_server.physicsObjects[i].localInterval === null) {
                                         vconsole_server.physicsObjects[i].localInterval = setInterval(() => {
-                                            if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
-                                                vconsole_server.physicsObjects[i].movingLocally = false;
-                                                clearInterval(vconsole_server.physicsObjects[i].localInterval);
-                                                vconsole_server.physicsObjects[i].localInterval = null;
+                                            if(vconsole_server.physicsObjects[i] !== null) {
+                                                if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
+                                                    vconsole_server.physicsObjects[i].movingLocally = false;
+                                                    clearInterval(vconsole_server.physicsObjects[i].localInterval);
+                                                    vconsole_server.physicsObjects[i].localInterval = null;
+                                                }
                                             }
                                         }, 1000);
                                     }
