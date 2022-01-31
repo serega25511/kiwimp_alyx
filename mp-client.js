@@ -84,24 +84,26 @@ export function StartClient(config) {
                     if(physicsObject.startLocation.x + margin >= message.startLocation.x && physicsObject.startLocation.x - margin <= message.startLocation.x
                         && physicsObject.startLocation.y + margin >= message.startLocation.y && physicsObject.startLocation.y - margin <= message.startLocation.y
                         && physicsObject.startLocation.z + margin >= message.startLocation.z && physicsObject.startLocation.z - margin <= message.startLocation.z) {
-                        // Name is arbitrary, startLocation is unique.
-                        if(!physicsObject.motionDisabled) {
-                            await vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} disablemotion;ent_fire ${physicsObject.name} disableinteraction`);
-                            physicsObject.motionDisabled = true;
-                        }
-                        // Update location.
-                        physicsObject.updateTime = Date.now();
-                        await vconsole_server.WriteCommand((physicsObject.door ? `` : `ent_setpos ${physicsObject.index} ${message.position.x} ${message.position.y} ${message.position.z};`)+`ent_setang ${physicsObject.index} ${message.angles.x} ${message.angles.y} ${message.angles.z}`);
-                        // Enable motion after inactivity for a while.
-                        if(physicsObject.interval === null) {
-                            physicsObject.interval = setInterval(() => {
-                                if(Date.now() - physicsObject.updateTime > 5000) {
-                                    clearInterval(physicsObject.interval);
-                                    physicsObject.interval = null;
-                                    physicsObject.motionDisabled = false;
-                                    vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} enablemotion;ent_fire ${physicsObject.name} enableinteraction`);
-                                }
-                            }, 1000);
+                        if(!physicsObject.movingLocally) {
+                            // Name is arbitrary, startLocation is unique.
+                            if(!physicsObject.motionDisabled) {
+                                await vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} disablemotion;ent_fire ${physicsObject.name} disableinteraction`);
+                                physicsObject.motionDisabled = true;
+                            }
+                            // Update location.
+                            physicsObject.updateTime = Date.now();
+                            await vconsole_server.WriteCommand((physicsObject.door ? `` : `ent_setpos ${physicsObject.index} ${message.position.x} ${message.position.y} ${message.position.z};`)+`ent_setang ${physicsObject.index} ${message.angles.x} ${message.angles.y} ${message.angles.z}`);
+                            // Enable motion after inactivity for a while.
+                            if(physicsObject.interval === null) {
+                                physicsObject.interval = setInterval(() => {
+                                    if(Date.now() - physicsObject.updateTime > 5000) {
+                                        clearInterval(physicsObject.interval);
+                                        physicsObject.interval = null;
+                                        physicsObject.motionDisabled = false;
+                                        vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} enablemotion;ent_fire ${physicsObject.name} enableinteraction`);
+                                    }
+                                }, 1000);
+                            }
                         }
                         done = true;
                         break;

@@ -66,6 +66,8 @@ export class PhysicsObject extends Entity {
     motionDisabled = false;
     updateTime = Date.now();
     interval = null;
+    localInterval = null;
+    movingLocally = false;
     constructor (index, name) {
         super();
         this.index = index;

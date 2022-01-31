@@ -198,14 +198,12 @@ export function StartServer(config) {
                         wss.clients.forEach(function each(client) {
                             // We don't want to send this to the client that sent the message.
                             // Otherwise it will stop moving.
-                            if(client !== ws) {
-                                client.send(JSON.stringify({
-                                    type: 'physicsobject',
-                                    position: message.position,
-                                    angles: message.angles,
-                                    startLocation: message.startLocation,
-                                }));
-                            }
+                            client.send(JSON.stringify({
+                                type: 'physicsobject',
+                                position: message.position,
+                                angles: message.angles,
+                                startLocation: message.startLocation
+                            }));
                         });
                     }
             }
