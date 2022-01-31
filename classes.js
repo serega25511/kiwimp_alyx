@@ -190,6 +190,12 @@ export class VConsole {
      */
     buttons = [];
 
+    /**
+     * Current map name.
+     * @type {string}
+     */
+    mapName = "";
+
     constructor (socket) {
         this.socket = socket;
     }

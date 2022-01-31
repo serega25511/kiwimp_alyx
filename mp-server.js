@@ -88,7 +88,8 @@ export function StartServer(config) {
         // Tell the client to change map.
         ws.send(JSON.stringify({
             type: 'map',
-            map: config.server_map
+            map: config.server_map,
+            changelevel: false
         }));
         ws.isAlive = true;
         let index = connections.push(me);
@@ -219,6 +220,17 @@ export function StartServer(config) {
                         });
                     }
                     break;
+                case 'changelevel': // We trust in the client way too much, but we will oblige.
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            // Tell the client to change map.
+                            ws.send(JSON.stringify({
+                                type: 'map',
+                                map: config.server_map,
+                                changelevel: true
+                            }));
+                        });
+                    }
             }
             // Update the clients.
             wss.clients.forEach(function each(client) {
@@ -367,7 +379,13 @@ export function StartServer(config) {
     // Ping intervals.
     const interval = setInterval(function ping() {
         wss.clients.forEach(function each(ws) {
-            if (ws.isAlive === false) return ws.terminate();
+            if (ws.isAlive === false) {
+                ws.send(JSON.stringify({
+                    type: 'status',
+                    message: 'Your connection has timed out.'
+                }));
+                return ws.terminate();
+            }
             ws.isAlive = false;
             ws.ping();
         });

@@ -39,7 +39,8 @@ const valid_packet_types = [
     "MAPN", // Map name
     "BUTN", // Button index and start position
     "BPRS", // Button index press
-    "DOOR"  // Door index and start position
+    "DOOR", // Door index and start position
+    "BRAK"  // Broken prop index
 ];
 const localPlayer = new Player();
 const players = [ // 16 players max
@@ -246,7 +247,8 @@ export function InitVConsole(ws) {
                             }
                             break;
                         case "MAPN":
-                            // We're not dead!
+                            vconsole_server.mapName = args[0];
+                            // Also, we're not dead!
                             ws.send(JSON.stringify({
                                 type: "alive",
                             }));
@@ -284,6 +286,15 @@ export function InitVConsole(ws) {
                             vconsole_server.physicsObjects.push(door);
                             // A side effect of setting the angles of a door is that it can never latch, otherwise you can't move it.
                             vconsole_server.WriteCommand(`ent_fire ${door.name} disablelatch`, true);
+                            break;
+                        // Broken props
+                        case "BRAK":
+                            for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                                if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
+                                    vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} break`, true);
+                                    break;
+                                }
+                            }
                             break;
                     }
                 }
