@@ -251,7 +251,7 @@ export function InitVConsole(ws) {
                                 type: "alive",
                             }));
                             break;
-                        // Buttons
+                        // Buttons (untested)
                         case "BUTN":
                             const button = new Button(parseInt(args[0]), args[1]);
                             button.startLocation.x = Math.floor(parseFloat(args[2]));
@@ -262,11 +262,13 @@ export function InitVConsole(ws) {
                         case "BPRS":
                             for(let i = 0; i < vconsole_server.buttons.length; i++) {
                                 if(vconsole_server.buttons[i].index == parseInt(args[0])) {
-                                    if(buttonByIndex) {
-                                        ws.send(JSON.stringify({
-                                            type: "buttonpress",
-                                            startLocation: vconsole_server.buttons[i].startLocation
-                                        }));
+                                    if(!vconsole_server.physicsObjects[i].interval) {
+                                        if(buttonByIndex) {
+                                            ws.send(JSON.stringify({
+                                                type: "buttonpress",
+                                                startLocation: vconsole_server.buttons[i].startLocation
+                                            }));
+                                        }
                                     }
                                     break;
                                 }

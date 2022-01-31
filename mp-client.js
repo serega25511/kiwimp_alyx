@@ -77,7 +77,6 @@ export function StartClient(config) {
             case 'physicsobject':
                 // Someone else has moved a physics object.
                 // This should not fire if we move the object ourselves.
-                let done = false;
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
                     const physicsObject = vconsole_server.physicsObjects[i];
                     const margin = 2; // margin of error
@@ -105,11 +104,33 @@ export function StartClient(config) {
                                 }, 1000);
                             }
                         }
-                        done = true;
                         break;
                     }
                 }
                 break;
+            case 'button':
+                // Someone has pressed a button.
+                // This should not fire if we press a button ourselves.
+                for(let i = 0; i < vconsole_server.buttons.length; i++) {
+                    const button = vconsole_server.buttons[i];
+                    const margin = 2; // margin of error
+                    if(button.startLocation.x + margin >= message.startLocation.x && button.startLocation.x - margin <= message.startLocation.x
+                        && button.startLocation.y + margin >= message.startLocation.y && button.startLocation.y - margin <= message.startLocation.y
+                        && button.startLocation.z + margin >= message.startLocation.z && button.startLocation.z - margin <= message.startLocation.z) {
+                        button.updateTime = Date.now();
+                        if(!button.interval) {
+                            await vconsole_server.WriteCommand(`ent_fire ${button.name} press`);
+                            button.interval = setInterval(() => {
+                                if(Date.now() - button.updateTime > 5000) {
+                                    clearInterval(button.interval);
+                                    button.interval = null;
+                                    vconsole_server.WriteCommand(`ent_fire ${button.name} release`);
+                                }
+                            }, 1000);
+                        }
+                        break;
+                    }
+                }
         }
     });
     // Handle errors.

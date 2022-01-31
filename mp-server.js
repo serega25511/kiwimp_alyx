@@ -206,6 +206,19 @@ export function StartServer(config) {
                             }));
                         });
                     }
+                    break;
+                case 'buttonpress':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            // We don't want to send this to the client that sent the message.
+                            // Otherwise it will press twice.
+                            client.send(JSON.stringify({
+                                type: 'button',
+                                startLocation: message.startLocation
+                            }));
+                        });
+                    }
+                    break;
             }
             // Update the clients.
             wss.clients.forEach(function each(client) {

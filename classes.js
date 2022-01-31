@@ -83,6 +83,8 @@ export class Button extends Entity {
         y: 0,
         z: 0
     }
+    interval = null;
+    localInterval = null;
     constructor (index, name) {
         super();
         this.index = index;
