@@ -302,7 +302,9 @@ export function InitVConsole(ws) {
                         }
                     }
                 }
-            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("npc_metropolice") && !message.includes("Command buffer full")) {
+            } else if(message.includes("Command buffer full")) {
+                vconsole_server.alive = 0; // We killed it.
+            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("npc_metropolice")) {
                 console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
         }
