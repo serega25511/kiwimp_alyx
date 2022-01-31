@@ -20,6 +20,9 @@ import * as fs from 'fs';
 import chalk from 'chalk';
 import * as alyx from './alyx.js';
 
+// Variables
+const margin = 2; // margin of error
+
 // Exports
 
 /**
@@ -82,7 +85,6 @@ export function StartClient(config) {
                 // This should not fire if we move the object ourselves.
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
                     const physicsObject = vconsole_server.physicsObjects[i];
-                    const margin = 2; // margin of error
                     if(physicsObject.startLocation.x + margin >= message.startLocation.x && physicsObject.startLocation.x - margin <= message.startLocation.x
                         && physicsObject.startLocation.y + margin >= message.startLocation.y && physicsObject.startLocation.y - margin <= message.startLocation.y
                         && physicsObject.startLocation.z + margin >= message.startLocation.z && physicsObject.startLocation.z - margin <= message.startLocation.z) {
@@ -116,7 +118,6 @@ export function StartClient(config) {
                 // This should not fire if we press a button ourselves.
                 for(let i = 0; i < vconsole_server.buttons.length; i++) {
                     const button = vconsole_server.buttons[i];
-                    const margin = 2; // margin of error
                     if(button.startLocation.x + margin >= message.startLocation.x && button.startLocation.x - margin <= message.startLocation.x
                         && button.startLocation.y + margin >= message.startLocation.y && button.startLocation.y - margin <= message.startLocation.y
                         && button.startLocation.z + margin >= message.startLocation.z && button.startLocation.z - margin <= message.startLocation.z) {
@@ -131,6 +132,17 @@ export function StartClient(config) {
                                 }
                             }, 1000);
                         }
+                        break;
+                    }
+                }
+            case 'breakphys':
+                // Someone has broken a physics object.
+                for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                    const physicsObject = vconsole_server.physicsObjects[i];
+                    if(physicsObject.startLocation.x + margin >= message.startLocation.x && physicsObject.startLocation.x - margin <= message.startLocation.x
+                        && physicsObject.startLocation.y + margin >= message.startLocation.y && physicsObject.startLocation.y - margin <= message.startLocation.y
+                        && physicsObject.startLocation.z + margin >= message.startLocation.z && physicsObject.startLocation.z - margin <= message.startLocation.z) {
+                        vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} break`, true);
                         break;
                     }
                 }

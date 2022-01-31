@@ -291,7 +291,10 @@ export function InitVConsole(ws) {
                         case "BRAK":
                             for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
                                 if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
-                                    vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} break`, true);
+                                    ws.send(JSON.stringify({
+                                        type: "break",
+                                        startLocation: vconsole_server.physicsObjects[i].startLocation
+                                    }));
                                     break;
                                 }
                             }

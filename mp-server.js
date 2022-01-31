@@ -231,6 +231,16 @@ export function StartServer(config) {
                             }));
                         });
                     }
+                case 'break':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            client.send(JSON.stringify({
+                                type: 'breakphys',
+                                startLocation: message.startLocation
+                            }));
+                        });
+                    }
+                    break;
             }
             // Update the clients.
             wss.clients.forEach(function each(client) {
