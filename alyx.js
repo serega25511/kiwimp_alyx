@@ -304,7 +304,7 @@ export function InitVConsole(ws) {
                 }
             } else if(message.includes("Command buffer full")) {
                 vconsole_server.alive = 0; // We killed it.
-            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("npc_metropolice")) {
+            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
                 console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
         }
@@ -355,7 +355,7 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                 };
             } else { // Don't update the player for the client
                 // NPCs
-                if(user.player.position != player.player.position) {
+                if(user.player.position != player.player.position && config.client_player_collision.toLowerCase() == "true") {
                     vconsole_server.WriteCommand(`ent_setpos ${player.npcIndex} ${user.player.position.x} ${user.player.position.y} ${user.player.position.z}`);
                 }
                 // Name tags
