@@ -77,11 +77,9 @@ export function StartClient(config) {
             case 'physicsobject':
                 // Someone else has moved a physics object.
                 // This should not fire if we move the object ourselves.
-                console.log(`[PHYS] START ${message.startLocation}`);
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
                     const physicsObject = vconsole_server.physicsObjects[i];
-                    if(physicsObject.startLocation === message.startLocation) {
-                        console.log(`[PHYS] END ${message.startLocation} == ${physicsObject.startLocation}`);
+                    if(JSON.stringify(physicsObject.startLocation) === JSON.stringify(message.startLocation)) {
                         // Name is arbitrary, startLocation is unique.
                         if(!physicsObject.motionDisabled) {
                             await vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} disablemotion;ent_fire ${physicsObject.name} disableinteraction`);
