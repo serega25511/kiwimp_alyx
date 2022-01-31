@@ -77,9 +77,13 @@ export function StartClient(config) {
             case 'physicsobject':
                 // Someone else has moved a physics object.
                 // This should not fire if we move the object ourselves.
+                let done = false;
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
                     const physicsObject = vconsole_server.physicsObjects[i];
-                    if(physicsObject.startLocation.x == message.position.x && physicsObject.startLocation.y == message.position.y && physicsObject.startLocation.z == message.position.z) {
+                    const margin = 2; // margin of error
+                    if(physicsObject.startLocation.x + margin >= message.startLocation.x && physicsObject.startLocation.x - margin <= message.startLocation.x
+                        && physicsObject.startLocation.y + margin >= message.startLocation.y && physicsObject.startLocation.y - margin <= message.startLocation.y
+                        && physicsObject.startLocation.z + margin >= message.startLocation.z && physicsObject.startLocation.z - margin <= message.startLocation.z) {
                         // Name is arbitrary, startLocation is unique.
                         if(!physicsObject.motionDisabled) {
                             await vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} disablemotion;ent_fire ${physicsObject.name} disableinteraction`);
@@ -99,6 +103,7 @@ export function StartClient(config) {
                                 }
                             }, 1000);
                         }
+                        done = true;
                         break;
                     }
                 }

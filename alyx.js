@@ -212,25 +212,25 @@ export function InitVConsole(ws) {
                             vconsole_server.physicsObjects.push(physProp);
                             break;
                         case "PHYS":
-                            const physPropByIndex = vconsole_server.physicsObjects[parseInt(args[0])];
-                            if(physPropByIndex) {
-                                physPropByIndex.position.x = parseFloat(args[1]);
-                                physPropByIndex.position.y = parseFloat(args[2]);
-                                physPropByIndex.position.z = parseFloat(args[3]);
-                                physPropByIndex.angles.x = parseFloat(args[4]);
-                                physPropByIndex.angles.y = parseFloat(args[5]);
-                                physPropByIndex.angles.z = parseFloat(args[6]);
-                                ws.send(JSON.stringify({
-                                    type: "movephysics",
-                                    position: physPropByIndex.position,
-                                    angles: physPropByIndex.angles,
-                                    startLocation: physPropByIndex.startLocation
-                                }));
+                            for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                                if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
+                                    vconsole_server.physicsObjects[i].position.x = parseFloat(args[1]);
+                                    vconsole_server.physicsObjects[i].position.y = parseFloat(args[2]);
+                                    vconsole_server.physicsObjects[i].position.z = parseFloat(args[3]);
+                                    vconsole_server.physicsObjects[i].angles.x = parseFloat(args[4]);
+                                    vconsole_server.physicsObjects[i].angles.y = parseFloat(args[5]);
+                                    vconsole_server.physicsObjects[i].angles.z = parseFloat(args[6]);
+                                    ws.send(JSON.stringify({
+                                        type: "movephysics",
+                                        position: vconsole_server.physicsObjects[i].position,
+                                        angles: vconsole_server.physicsObjects[i].angles,
+                                        startLocation: vconsole_server.physicsObjects[i].startLocation
+                                    }));
+                                    break;
+                                }
                             }
                             break;
                         case "MAPN":
-                            console.log(chalk.yellow(`[VC] ${vconsole_server.physicsObjects.length} physics objects loaded.`));
-                            console.log(chalk.yellow(`[VC] ${vconsole_server.buttons.length} buttons loaded.`));
                             // We're not dead!
                             ws.send(JSON.stringify({
                                 type: "alive",
@@ -245,12 +245,16 @@ export function InitVConsole(ws) {
                             vconsole_server.buttons.push(button);
                             break;
                         case "BPRS":
-                            const buttonByIndex = vconsole_server.buttons[parseInt(args[0])];
-                            if(buttonByIndex) {
-                                ws.send(JSON.stringify({
-                                    type: "buttonpress",
-                                    startLocation: physPropByIndex.startLocation
-                                }));
+                            for(let i = 0; i < vconsole_server.buttons.length; i++) {
+                                if(vconsole_server.buttons[i].index == parseInt(args[0])) {
+                                    if(buttonByIndex) {
+                                        ws.send(JSON.stringify({
+                                            type: "buttonpress",
+                                            startLocation: vconsole_server.buttons[i].startLocation
+                                        }));
+                                    }
+                                    break;
+                                }
                             }
                             break;
                         // Doors
