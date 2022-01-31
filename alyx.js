@@ -237,8 +237,8 @@ export function InitVConsole(ws) {
                                             }
                                         }, 1000);
                                     }
+                                    break;
                                 }
-                                break;
                             }
                             break;
                         case "MAPN":
