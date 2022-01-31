@@ -214,30 +214,32 @@ export function InitVConsole(ws) {
                         case "PHYS":
                             for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
                                 if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
-                                    vconsole_server.physicsObjects[i].position.x = parseFloat(args[1]);
-                                    vconsole_server.physicsObjects[i].position.y = parseFloat(args[2]);
-                                    vconsole_server.physicsObjects[i].position.z = parseFloat(args[3]);
-                                    vconsole_server.physicsObjects[i].angles.x = parseFloat(args[4]);
-                                    vconsole_server.physicsObjects[i].angles.y = parseFloat(args[5]);
-                                    vconsole_server.physicsObjects[i].angles.z = parseFloat(args[6]);
-                                    ws.send(JSON.stringify({
-                                        type: "movephysics",
-                                        position: vconsole_server.physicsObjects[i].position,
-                                        angles: vconsole_server.physicsObjects[i].angles,
-                                        startLocation: vconsole_server.physicsObjects[i].startLocation
-                                    }));
-                                    vconsole_server.physicsObjects[i].updateTime = Date.now();
-                                    vconsole_server.physicsObjects[i].movingLocally = true;
-                                    if(vconsole_server.physicsObjects[i].localInterval === null) {
-                                        vconsole_server.physicsObjects[i].localInterval = setInterval(() => {
-                                            if(vconsole_server.physicsObjects[i] !== null) {
-                                                if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
-                                                    vconsole_server.physicsObjects[i].movingLocally = false;
-                                                    clearInterval(vconsole_server.physicsObjects[i].localInterval);
-                                                    vconsole_server.physicsObjects[i].localInterval = null;
+                                    if(!vconsole_server.physicsObjects[i].motionDisabled) {
+                                        vconsole_server.physicsObjects[i].position.x = parseFloat(args[1]);
+                                        vconsole_server.physicsObjects[i].position.y = parseFloat(args[2]);
+                                        vconsole_server.physicsObjects[i].position.z = parseFloat(args[3]);
+                                        vconsole_server.physicsObjects[i].angles.x = parseFloat(args[4]);
+                                        vconsole_server.physicsObjects[i].angles.y = parseFloat(args[5]);
+                                        vconsole_server.physicsObjects[i].angles.z = parseFloat(args[6]);
+                                        ws.send(JSON.stringify({
+                                            type: "movephysics",
+                                            position: vconsole_server.physicsObjects[i].position,
+                                            angles: vconsole_server.physicsObjects[i].angles,
+                                            startLocation: vconsole_server.physicsObjects[i].startLocation
+                                        }));
+                                        vconsole_server.physicsObjects[i].updateTime = Date.now();
+                                        vconsole_server.physicsObjects[i].movingLocally = true;
+                                        if(vconsole_server.physicsObjects[i].localInterval === null) {
+                                            vconsole_server.physicsObjects[i].localInterval = setInterval(() => {
+                                                if(vconsole_server.physicsObjects[i] !== null) {
+                                                    if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
+                                                        vconsole_server.physicsObjects[i].movingLocally = false;
+                                                        clearInterval(vconsole_server.physicsObjects[i].localInterval);
+                                                        vconsole_server.physicsObjects[i].localInterval = null;
+                                                    }
                                                 }
-                                            }
-                                        }, 1000);
+                                            }, 1000);
+                                        }
                                     }
                                     break;
                                 }
