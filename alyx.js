@@ -214,22 +214,18 @@ export function InitVConsole(ws) {
                         case "PHYS":
                             const physPropByIndex = vconsole_server.physicsObjects[parseInt(args[0])];
                             if(physPropByIndex) {
-                                const oldProp = physPropByIndex;
                                 physPropByIndex.position.x = parseFloat(args[1]);
                                 physPropByIndex.position.y = parseFloat(args[2]);
                                 physPropByIndex.position.z = parseFloat(args[3]);
                                 physPropByIndex.angles.x = parseFloat(args[4]);
                                 physPropByIndex.angles.y = parseFloat(args[5]);
                                 physPropByIndex.angles.z = parseFloat(args[6]);
-                                // Only send update packets if the prop has moved.
-                                if(JSON.stringify(oldProp) !== JSON.stringify(physPropByIndex)) {
-                                    ws.send(JSON.stringify({
-                                        type: "movephysics",
-                                        position: physPropByIndex.position,
-                                        angles: physPropByIndex.angles,
-                                        startLocation: physPropByIndex.startLocation
-                                    }));
-                                }
+                                ws.send(JSON.stringify({
+                                    type: "movephysics",
+                                    position: physPropByIndex.position,
+                                    angles: physPropByIndex.angles,
+                                    startLocation: physPropByIndex.startLocation
+                                }));
                             }
                             break;
                         case "MAPN":
