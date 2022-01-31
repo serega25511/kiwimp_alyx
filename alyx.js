@@ -19,24 +19,27 @@ import chalk from 'chalk';
 import * as net from 'net';
 import pkg from 'cap';
 const { Cap, decoders } = pkg;
-import { VConsole } from './classes.js';
-import * as path from 'path';
-import * as fs from 'fs';
-import { Player, LocalPlayer } from './classes.js';
+import { Button, PhysicsObject, VConsole, Player, LocalPlayer } from './classes.js';
 
 // Variables
 const valid_packet_types = [
-    "PLYR",
-    "HEAD",
-    "HAND",
-    "RHND",
-    "LHND",
-    "HSET",
-    "TAGS",
-    "NPCS",
-    "PRFX",
-    "ALIV",
-    "DMGE"
+    "PLYR", // Player positioning
+    "HEAD", // Head position
+    "HAND", // Left and right hand positions
+    "RHND", // Virtual right hand indexes
+    "LHND", // Virtual left hand indexes
+    "HSET", // Virtual headset indexes
+    "TAGS", // Text indexes
+    "NPCS", // Virtual collider indexes
+    "PRFX", // Entity targetname prefix
+    "ALIV", // Console is still receiving data
+    "DMGE", // Collider (victim) index and damage
+    "PROP", // Physics object index and start position
+    "PHYS", // Physics object position
+    "MAPN", // Map name
+    "BUTN", // Button index and start position
+    "BPRS", // Button index press
+    "DOOR"  // Door index and start position
 ];
 const localPlayer = new Player();
 const players = [ // 16 players max
@@ -57,7 +60,6 @@ const players = [ // 16 players max
     new LocalPlayer(),
     new LocalPlayer()
 ];
-let prefix;
 
 // Exports
 
@@ -189,10 +191,6 @@ export function InitVConsole(ws) {
                             vconsole_server.prefix = args[0];
                             console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
                             vconsole_server.WriteCommand(`sv_cheats 1`, true);
-                            // We're not dead!
-                            ws.send(JSON.stringify({
-                                type: "alive",
-                            }));
                             break;
                         // Alive
                         case "ALIV":
@@ -205,6 +203,71 @@ export function InitVConsole(ws) {
                                 damage: parseInt(args[0]),
                                 victimIndex: parseInt(args[1]-1),
                             }));
+                        // Physics objects
+                        case "PROP": // Indexing is done using the start origin as names and indexes are not unique.
+                            const physProp = new PhysicsObject(parseInt(args[0]), args[1]);
+                            physProp.startLocation.x = Math.floor(parseFloat(args[2]));
+                            physProp.startLocation.y = Math.floor(parseFloat(args[3]));
+                            physProp.startLocation.z = Math.floor(parseFloat(args[4]));
+                            vconsole_server.physicsObjects.push(physProp);
+                            break;
+                        case "PHYS":
+                            const physPropByIndex = vconsole_server.physicsObjects[parseInt(args[0])];
+                            if(physPropByIndex) {
+                                const oldProp = physPropByIndex;
+                                physPropByIndex.position.x = parseFloat(args[1]);
+                                physPropByIndex.position.y = parseFloat(args[2]);
+                                physPropByIndex.position.z = parseFloat(args[3]);
+                                physPropByIndex.angles.x = parseFloat(args[4]);
+                                physPropByIndex.angles.y = parseFloat(args[5]);
+                                physPropByIndex.angles.z = parseFloat(args[6]);
+                                // Only send update packets if the prop has moved.
+                                if(JSON.stringify(oldProp) !== JSON.stringify(physPropByIndex)) {
+                                    ws.send(JSON.stringify({
+                                        type: "movephysics",
+                                        position: physPropByIndex.position,
+                                        angles: physPropByIndex.angles,
+                                        startLocation: physPropByIndex.startLocation
+                                    }));
+                                }
+                            }
+                            break;
+                        case "MAPN":
+                            console.log(chalk.yellow(`[VC] ${vconsole_server.physicsObjects.length} physics objects loaded.`));
+                            console.log(chalk.yellow(`[VC] ${vconsole_server.buttons.length} buttons loaded.`));
+                            // We're not dead!
+                            ws.send(JSON.stringify({
+                                type: "alive",
+                            }));
+                            break;
+                        // Buttons
+                        case "BUTN":
+                            const button = new Button(parseInt(args[0]), args[1]);
+                            button.startLocation.x = Math.floor(parseFloat(args[2]));
+                            button.startLocation.y = Math.floor(parseFloat(args[3]));
+                            button.startLocation.z = Math.floor(parseFloat(args[4]));
+                            vconsole_server.buttons.push(button);
+                            break;
+                        case "BPRS":
+                            const buttonByIndex = vconsole_server.buttons[parseInt(args[0])];
+                            if(buttonByIndex) {
+                                ws.send(JSON.stringify({
+                                    type: "buttonpress",
+                                    startLocation: physPropByIndex.startLocation
+                                }));
+                            }
+                            break;
+                        // Doors
+                        case "DOOR":
+                            const door = new PhysicsObject(parseInt(args[0]), args[1]);
+                            door.door = true;
+                            door.startLocation.x = Math.floor(parseFloat(args[2]));
+                            door.startLocation.y = Math.floor(parseFloat(args[3]));
+                            door.startLocation.z = Math.floor(parseFloat(args[4]));
+                            vconsole_server.physicsObjects.push(door);
+                            // A side effect of setting the angles of a door is that it can never latch, otherwise you can't move it.
+                            vconsole_server.WriteCommand(`ent_fire ${door.name} disablelatch`, true);
+                            break;
                     }
                 }
                 vconsole_server.alive = Date.now();
@@ -213,7 +276,7 @@ export function InitVConsole(ws) {
                 vconsole_server.alive = Date.now();
             } else if(message.includes("Command buffer full")) {
                 // This seems to be a non-issue now as the class continuously clears the buffer.
-            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.")) {
+            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("npc_metropolice")) {
                 console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
         }

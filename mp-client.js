@@ -73,8 +73,36 @@ export function StartClient(config) {
             case 'map':
                 // Update map.
                 //await vconsole_server.WriteCommand(`changelevel ${message.map}`);
-                await vconsole_server.WriteCommand(`addon_play ${message.map}`);
-                await vconsole_server.WriteCommand(`addon_tools_map ${message.map}`);
+                await vconsole_server.WriteCommand(`addon_play ${message.map};addon_tools_map ${message.map}`);
+            case 'physicsobject':
+                // Someone else has moved a physics object.
+                // This should not fire if we move the object ourselves.
+                for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                    const physicsObject = vconsole_server.physicsObjects[i];
+                    if(physicsObject.startLocation === message.startLocation) {
+                        // Name is arbitrary, startLocation is unique.
+                        if(!physicsObject.motionDisabled) {
+                            await vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} disablemotion;ent_fire ${physicsObject.name} disableinteraction`);
+                            physicsObject.motionDisabled = true;
+                        }
+                        // Update location.
+                        physicsObject.updateTime = Date.now();
+                        await vconsole_server.WriteCommand((physicsObject.door ? `` : `ent_setpos ${physicsObject.index} ${message.position.x} ${message.position.y} ${message.position.z};`)+`ent_setang ${physicsObject.index} ${message.angles.x} ${message.angles.y} ${message.angles.z}`);
+                        // Enable motion after inactivity for a while.
+                        if(physicsObject.interval === null) {
+                            physicsObject.interval = setInterval(() => {
+                                if(Date.now() - physicsObject.updateTime > 5000) {
+                                    clearInterval(physicsObject.interval);
+                                    physicsObject.interval = null;
+                                    physicsObject.motionDisabled = false;
+                                    vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} enablemotion;ent_fire ${physicsObject.name} enableinteraction`);
+                                }
+                            }, 1000);
+                        }
+                        break;
+                    }
+                }
+                break;
         }
     });
     // Handle errors.

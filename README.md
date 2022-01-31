@@ -46,25 +46,25 @@ Now that you have the required software installed, you can install the applicati
     - It does not nesearily need to be the same directory as the game.
 5. Clone the repository using ``git clone https://github.com/TeamPopplio/kiwimp_alyx.git`` within the Git Bash window.
     - Alternatively, download the zip file via GitHub and extract it.
-6. Navivate to the folder containing the repository and open the ``install-update.bat`` file (Ignore Git errors if you do not have Git installed).
+6. Navigate to the folder containing the repository and open the ``install-update.bat`` file (Ignore Git errors if you do not have Git installed).
     - This will install the required dependencies and compile ``cap`` using [npm](https://www.npmjs.com/) alongside updating via Git if possible.
 
 After the installation is complete, you can now install the addon:
 
-5. Download the [latest release](https://github.com/TeamPopplio/kiwimp_alyx/releases) and extract it into the same directory as the game.
+7. Download the [latest release](https://github.com/TeamPopplio/kiwimp_alyx/releases) and extract it into the same directory as the game.
     - By default, this will be ``C:\Program Files (x86)\Steam\steamapps\common\Half-Life Alyx``.
-6. Inside of Steam, head to launch options and add the parameters ``-console -vconsole`` (Optionally, add ``-novr`` to disable VR support).
+8. Inside of Steam, head to launch options and add the parameters ``-console -vconsole`` (Optionally, add ``-novr`` to disable VR support).
     - This will allow the application to interact with the game.
-7. Launch the game and enable the addon through the menu.
+9. Launch the game and enable the addon through the menu.
     - If VR is disabled, launch VConsole using the tilde key (``~``) and use the ``addon_list`` command to click ``(enable)`` on the addon.
 
 Finally, you can now launch the application:
 
-8. Open ``launch.bat`` within the directory containing the application (Make sure VConsole is closed while the game is running).
+10. Open ``launch.bat`` within the directory containing the application (Make sure VConsole is closed while the game is running).
     - This will first start the config wizard to guide you through the setup before launching the application.
-9. If you hear a sound coming from Half-Life: Alyx, connection succeeded! (This sound plays whenever a client sends a chat message).
+11. If you hear a sound coming from Half-Life: Alyx, connection succeeded (This sound plays whenever a client sends a chat message).
     - You can use the ``/vc`` command within the command prompt to send commands to the game, alongside sending chat messages.
-10. When you're finished playing, press Ctrl+C within the command prompt to close the connection and shut down gracefully.
+12. When you're finished playing, press Ctrl+C within the command prompt to close the connection and shut down gracefully.
     - This will keep the game running but you will be disconnected from the server.
 
 Have fun!

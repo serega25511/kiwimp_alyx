@@ -54,6 +54,40 @@ export class Entity {
     }
 }
 
+export class PhysicsObject extends Entity {
+    index = 0;
+    name = '';
+    startLocation = {
+        x: 0,
+        y: 0,
+        z: 0
+    }
+    door = false;
+    motionDisabled = false;
+    updateTime = Date.now();
+    interval = null;
+    constructor (index, name) {
+        super();
+        this.index = index;
+        this.name = name;
+    }
+}
+
+export class Button extends Entity {
+    index = 0;
+    name = '';
+    startLocation = {
+        x: 0,
+        y: 0,
+        z: 0
+    }
+    constructor (index, name) {
+        super();
+        this.index = index;
+        this.name = name;
+    }
+}
+
 export class Player extends Entity {
     id = 0;
     health = 100;
@@ -139,6 +173,18 @@ export class VConsole {
      * @type {string}
      */
     prefix = "";
+
+    /**
+     * List of physics objects known to us.
+     * @type {Array}
+     */
+    physicsObjects = [];
+
+    /**
+     * List of buttons known to us.
+     * @type {Array}
+     */
+    buttons = [];
 
     constructor (socket) {
         this.socket = socket;

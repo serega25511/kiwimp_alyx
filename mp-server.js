@@ -193,6 +193,21 @@ export function StartServer(config) {
                         me.player.dead = false;
                     }
                     break;
+                case 'movephysics':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            // We don't want to send this to the client that sent the message.
+                            // Otherwise it will stop moving.
+                            if(client !== ws) {
+                                client.send(JSON.stringify({
+                                    type: 'physicsobject',
+                                    position: message.position,
+                                    angles: message.angles,
+                                    startLocation: message.startLocation,
+                                }));
+                            }
+                        });
+                    }
             }
             // Update the clients.
             wss.clients.forEach(function each(client) {
@@ -295,8 +310,7 @@ export function StartServer(config) {
                 client.send(JSON.stringify({
                     type: 'update',
                     connectioninfo: {
-                        connections: connectioninfo_json,
-                        hud: "Test Hud"
+                        connections: connectioninfo_json
                     }
                 }));
             });
