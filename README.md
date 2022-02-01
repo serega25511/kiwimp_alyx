@@ -1,7 +1,6 @@
-# kiwimp_alyx
-**Kiwi's Multiplayer Mod for Half-Life: Alyx**
+# Kiwi's Co-Op Mod for Half-Life: Alyx (KCOM)
 
-A work-in-progress customizable multiplayer mod for [Half-Life: Alyx](https://store.steampowered.com/app/546560/HalfLife_Alyx/) by [KiwifruitDev](https://github.com/TeamPopplio).
+A work-in-progress customizable multiplayer and co-op mod for [Half-Life: Alyx](https://store.steampowered.com/app/546560/HalfLife_Alyx/) by [KiwifruitDev](https://github.com/TeamPopplio).
 
 ## A word of warning
 **You are at your own risk if you use this mod!**
@@ -11,7 +10,7 @@ Both client and server-side functionality can easily be exploited when port forw
 It is recommended to keep it simple and to use it locally or only over the internet with a password.
 
 ## How does this work?
-kiwimp_alyx takes a different approach compared to other multiplayer mods.
+KCOM takes a different approach compared to other multiplayer mods.
 
 - This mod 'fakes' a VConsole application compatible with Half-Life: Alyx.
     - You won't be able to open VConsole at the same time.
@@ -26,9 +25,9 @@ kiwimp_alyx takes a different approach compared to other multiplayer mods.
     - Output from VScript is proxied through this mod and sent as input using console commands.
     - Examples of commands include ``ent_setpos``, ``ent_setang``, ``ent_fire``, etc.
 - The output is a seamless and smooth networking environment.
-    - The heads and hands of players will displa for everyone.
-    - You would be able to chat with other players and see their chat messages.
-    - You can also damage other players and see their health.
+    - The heads and hands of players will display for everyone.
+    - Triggering events and moving props will do the same for everyone else.
+    - You can also damage other players if enabled, alongside seeing their health.
 
 ## How do I get started?
 First, you'll need to install some prerequisite software, assuming you already have Half-Life: Alyx installed:
@@ -88,10 +87,10 @@ If you experience network lag, severe input delay, invisible players, or sudden 
 
 **If you are using a cloud gaming PC, you CAN NOT host a server. A VPS is required as you must open a port for the game to connect to.**
 
-- Updating kiwimp_alyx to the latest version.
+- Updating KCOM to the latest version.
 - Restarting Half-Life: Alyx.
 - Disabling VConsole logging via config.
-- Restarting kiwimp_alyx.
+- Restarting KCOM.
 - Using non-vr mode (``-novr``) if playing in VR. (Ideally, both methods should work but this is not guaranteed.)
 - Restarting your computer.
 - Using a different port number.
@@ -110,7 +109,7 @@ If the problem persists, please contact me on my Discord linked below.
 ## Support
 Join my personal [Discord Server](https://discord.gg/3X3teNecWs) to ask me anything!
 
-There is a channel dedicated to `kiwimp_alyx` in the server.
+There is a channel dedicated to `kiwis-co-op-mod` in the server.
 
 My username is [Kiwifruit#2003](https://discord.com/users/728082336536854559).
 

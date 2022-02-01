@@ -1,5 +1,5 @@
 /*
-    kiwimp_alyx
+    Kiwi's Co-Op Mod for Half-Life: Alyx
     Copyright (c) 2022 KiwifruitDev
     All rights reserved.
     This software is licensed under the MIT License.
@@ -102,13 +102,13 @@ export function InitVConsole(ws, config) {
                     // Packet data is loosely formatted, so we need to parse it.
                     trimmed_message = message.toString().split(packet_type)[1].slice(1, -1);
                 }
-                // Remove everything after "EKED"
-                let command = trimmed_message.split(" ")[0].split("EKED")[0];
+                // Remove everything after "KCOM"
+                let command = trimmed_message.split(" ")[0].split("KCOM")[0];
                 if(IsPacketTypeValid(command.replace(/.*!k!/, ""))) {
                     command = command.replace(/.*!k!/, "");
                     const args = trimmed_message.split(" ").splice(1);
                     if(args.length > 0) {
-                        // Remove last argument (EKED)
+                        // Remove last argument (KCOM)
                         args.pop();
                         switch(command) {
                             // Positional data
@@ -388,7 +388,7 @@ export function InitVConsole(ws, config) {
                 } else if(config.client_print_vconsole.toLowerCase() == "true"
                     && !message.includes("conversion")
                     && !message.includes("Script not found")
-                    && !message.includes("EKED")
+                    && !message.includes("KCOM")
                     && !message.includes("===============")
                     && !message.includes("Connected.")
                     && !message.includes("metropolice")) {
