@@ -20,6 +20,7 @@ import * as net from 'net';
 import pkg from 'cap';
 const { Cap, decoders } = pkg;
 import { Button, PhysicsObject, VConsole, Player, LocalPlayer, Trigger } from './classes.js';
+import { config } from 'process';
 
 // Variables
 const valid_packet_types = [
@@ -168,36 +169,42 @@ export function InitVConsole(ws) {
                             for(let i = 0; i < args.length; i++) {
                                 players[i].leftHandIndex = parseInt(args[i]);
                             }
-                            console.log(chalk.yellow(`[VC] Left hand indexes updated.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] Left hand indexes updated.`));
                             break;
                         case "RHND":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].rightHandIndex = parseInt(args[i]);
                             }
-                            console.log(chalk.yellow(`[VC] Right hand indexes updated.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] Right hand indexes updated.`));
                             break;
                         case "HSET":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].headsetIndex = parseInt(args[i]);
                             }
-                            console.log(chalk.yellow(`[VC] Headset indexes updated.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] Headset indexes updated.`));
                             break;
                         case "NPCS":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].npcIndex = parseInt(args[i]);
                             }
-                            console.log(chalk.yellow(`[VC] NPC indexes updated.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] NPC indexes updated.`));
                             break;
                         case "TAGS":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].nameTagIndex = parseInt(args[i]);
                             }
-                            console.log(chalk.yellow(`[VC] Name tag indexes updated.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] Name tag indexes updated.`));
                             break;
                         // Set targetname prefix
                         case "PRFX":
                             vconsole_server.prefix = args[0];
-                            console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
                             vconsole_server.WriteCommand(`sv_cheats 1`, true);
                             break;
                         // Alive
@@ -254,7 +261,8 @@ export function InitVConsole(ws) {
                             }
                             break;
                         case "MAPN":
-                            console.log(chalk.yellow(`[VC] Map name set to ${args[0]}.`));
+                            if(config.client_print_vconsole)
+                                console.log(chalk.yellow(`[VC] Map name set to ${args[0]}.`));
                             vconsole_server.mapName = args[0];
                             // Also, we're not dead!
                             ws.send(JSON.stringify({
@@ -346,7 +354,7 @@ export function InitVConsole(ws) {
                 }
             } else if(message.includes("Command buffer full")) {
                 vconsole_server.alive -= 2500; // It might be dead.
-            } else if(!message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
+            } else if(config.client_print_vconsole & !message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
                 console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
         }
