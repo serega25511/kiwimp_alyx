@@ -319,6 +319,7 @@ export function InitVConsole(ws) {
                                     break;  
                                 }
                             }
+                            break;
                     }
                 }
                 vconsole_server.alive = Date.now();
@@ -365,8 +366,9 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
             // Clientside stuff
             if(user.username == config.client_username) {
                 // Place the HUD down.
-                if(user.player.hudText.position.x != player.player.hudText.position.x || user.player.hudText.position.y != player.player.hudText.position.y || user.player.hudText.position.z != player.player.hudText.position.z
-                    || user.player.hudText.angles.x != player.player.hudText.angles.x || user.player.hudText.angles.y != player.player.hudText.angles.y || user.player.hudText.angles.z != player.player.hudText.angles.z) {
+                if((user.player.hudText.position.x != player.player.hudText.position.x || user.player.hudText.position.y != player.player.hudText.position.y || user.player.hudText.position.z != player.player.hudText.position.z
+                    || user.player.hudText.angles.x != player.player.hudText.angles.x || user.player.hudText.angles.y != player.player.hudText.angles.y || user.player.hudText.angles.z != player.player.hudText.angles.z)
+                    && player.nameTagIndex != 0) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.hudText.position.x} ${user.player.hudText.position.y} ${user.player.hudText.position.z}`
                         +`;ent_setang ${player.nameTagIndex} ${user.player.hudText.angles.x} ${user.player.hudText.angles.y} ${user.player.hudText.angles.z}`);
                 }
@@ -375,8 +377,8 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                     vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_kiwi_player_name_${user.player.id} setmessage \"${user.player.hud}\"`);
                 };
                 // Player is teleporting, so we need to update the position.
-                if((user.player.teleport.position.x != 0 || user.player.teleport.position.y != 0 || user.player.teleport.position.z != 0) && user.player.teleport != player.player.teleport
-                    || user.player.teleport.angles.x != 0 || user.player.teleport.angles.y != 0 || user.player.teleport.angles.z != 0 && user.player.teleport != player.player.teleport) {
+                if(user.player.teleport.position.x != 0 || user.player.teleport.position.y != 0 || user.player.teleport.position.z != 0
+                    || user.player.teleport.angles.x != 0 || user.player.teleport.angles.y != 0 || user.player.teleport.angles.z != 0) {
                     vconsole_server.WriteCommand(`ent_setpos 1 ${user.player.teleport.position.x} ${user.player.teleport.position.y} ${user.player.teleport.position.z}`
                         +`;ent_setang 1 ${user.player.teleport.angles.x} ${user.player.teleport.angles.y} ${user.player.teleport.angles.z}`, true);
                 };
@@ -397,28 +399,32 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.npcIndex} ${user.player.position.x} ${user.player.position.y} ${user.player.position.z}`);
                 }
                 // Name tags
-                if(user.player.nameTag.position.x != player.player.nameTag.position.x || user.player.nameTag.position.y != player.player.nameTag.position.y || user.player.nameTag.z != player.player.nameTag.position.z
+                if((user.player.nameTag.position.x != player.player.nameTag.position.x || user.player.nameTag.position.y != player.player.nameTag.position.y || user.player.nameTag.z != player.player.nameTag.position.z
                     || user.player.nameTag.angles.x != player.player.nameTag.angles.x || user.player.nameTag.angles.y != player.player.nameTag.angles.y || user.player.nameTag.angles.z != player.player.nameTag.angles.z
-                    || user.player.health != player.player.health) {
+                    || user.player.health != player.player.health)
+                    && player.nameTagIndex != 0) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z+10}`
                         +`;ent_setang ${player.nameTagIndex} 0 ${user.player.angles.y+90} 90`
                         +`;ent_fire ${vconsole_server.prefix}_kiwi_player_name_${user.player.id} setmessage \"${user.username} : ${user.player.health}/100\"`);
                 }
                 // Player left hands
-                if(user.player.leftHand.position.x != player.player.leftHand.position.x || user.player.leftHand.position.y != player.player.leftHand.position.y || user.player.leftHand.position.z != player.player.leftHand.position.z
-                    || user.player.leftHand.angles.x != player.player.leftHand.angles.x || user.player.leftHand.angles.y != player.player.leftHand.angles.y || user.player.leftHand.angles.z != player.player.leftHand.angles.z) {
+                if((user.player.leftHand.position.x != player.player.leftHand.position.x || user.player.leftHand.position.y != player.player.leftHand.position.y || user.player.leftHand.position.z != player.player.leftHand.position.z
+                    || user.player.leftHand.angles.x != player.player.leftHand.angles.x || user.player.leftHand.angles.y != player.player.leftHand.angles.y || user.player.leftHand.angles.z != player.player.leftHand.angles.z)
+                    && player.leftHandIndex != 0) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.leftHandIndex} ${user.player.leftHand.position.x} ${user.player.leftHand.position.y} ${user.player.leftHand.position.z}`
                         +`;ent_setang ${player.leftHandIndex} ${user.player.leftHand.angles.x} ${user.player.leftHand.angles.y} ${user.player.leftHand.angles.z}`);
                 }
                 // Player right hands
-                if(user.player.rightHand.position.x != player.player.rightHand.position.x || user.player.rightHand.position.y != player.player.rightHand.position.y || user.player.rightHand.position.z != player.player.rightHand.position.z
-                    || user.player.rightHand.angles.x != player.player.rightHand.angles.x || user.player.rightHand.angles.y != player.player.rightHand.angles.y || user.player.rightHand.angles.z != player.player.rightHand.angles.z) {
+                if((user.player.rightHand.position.x != player.player.rightHand.position.x || user.player.rightHand.position.y != player.player.rightHand.position.y || user.player.rightHand.position.z != player.player.rightHand.position.z
+                    || user.player.rightHand.angles.x != player.player.rightHand.angles.x || user.player.rightHand.angles.y != player.player.rightHand.angles.y || user.player.rightHand.angles.z != player.player.rightHand.angles.z)
+                    && player.rightHandIndex != 0) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.rightHandIndex} ${user.player.rightHand.position.x} ${user.player.rightHand.position.y} ${user.player.rightHand.position.z}`
                         +`;ent_setang ${player.rightHandIndex} ${user.player.rightHand.angles.x} ${user.player.rightHand.angles.y} ${user.player.rightHand.angles.z}`);
                 }
                 // Heads
-                if(user.player.head.position.x != player.player.head.position.x || user.player.head.position.y != player.player.head.position.y || user.player.head.position.z != player.player.head.position.z
-                    || user.player.head.angles.x != player.player.head.angles.x || user.player.head.angles.y != player.player.head.angles.y || user.player.head.angles.z != player.player.head.angles.z) {
+                if((user.player.head.position.x != player.player.head.position.x || user.player.head.position.y != player.player.head.position.y || user.player.head.position.z != player.player.head.position.z
+                    || user.player.head.angles.x != player.player.head.angles.x || user.player.head.angles.y != player.player.head.angles.y || user.player.head.angles.z != player.player.head.angles.z)
+                    && player.headsetIndex != 0) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.headsetIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z}`
                         +`;ent_setang ${player.headsetIndex} ${user.player.head.angles.x} ${user.player.head.angles.y} ${user.player.head.angles.z}`);
                 }

@@ -78,6 +78,7 @@ export function StartClient(config) {
                 if(vconsole_server.mapName !== message.map && message.changelevel === true || message.changelevel === false) {
                     await vconsole_server.WriteCommand(`addon_play ${message.map};addon_tools_map ${message.map}`);
                 }
+                break;
             case 'physicsobject':
                 // Someone else has moved a physics object.
                 // This should not fire if we move the object ourselves.
