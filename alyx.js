@@ -357,7 +357,13 @@ export function InitVConsole(ws, config) {
                     }
                 } else if(message.includes("Command buffer full")) {
                     vconsole_server.alive -= 2500; // It might be dead.
-                } else if(config.client_print_vconsole.toLowerCase() == "true" && !message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
+                } else if(config.client_print_vconsole.toLowerCase() == "true"
+                    && !message.includes("conversion")
+                    && !message.includes("Script not found")
+                    && !message.includes("EKED")
+                    && !message.includes("===============")
+                    && !message.includes("Connected.")
+                    && !message.includes("metropolice")) {
                     console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
                 }
             }
