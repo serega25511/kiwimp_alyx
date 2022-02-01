@@ -81,6 +81,32 @@ You can update the mod using the following steps:
 
 This process should be relatively quick, it is recommended to install Git to ensure that updates are seamless.
 
+## How do I fix lag?
+If you experience network lag, severe input delay, invisible players, or sudden disconnections, you can try the following procedures in any order:
+
+**Make sure VConsole is closed while the game is running, this is the most common cause of issues.**
+
+**If you are using a cloud gaming PC, you CAN NOT host a server. A VPS is required as you must open a port for the game to connect to.**
+
+- Updating kiwimp_alyx to the latest version.
+- Restarting Half-Life: Alyx.
+- Disabling VConsole logging via config.
+- Restarting kiwimp_alyx.
+- Using non-vr mode (``-novr``) if playing in VR. (Ideally, both methods should work but this is not guaranteed.)
+- Restarting your computer.
+- Using a different port number.
+- Changing usernames and AuthIDs.
+- Tabbing into the game as soon as possible.
+- Disabling other addons.
+- Using a different map name.
+- Using port forwarding if hosting a server using the internet with UPNP mapping.
+- Disabling VPNs or proxy servers, this includes LAN applications such as Hamachi and ZeroTier.
+- Allowing node.js and hlvr.exe (Half-Life: Alyx) through the firewall.
+- Reinstalling npcap with a different configuration, keep note of the last good configuration for future use.
+- Try waiting up to a minute when all clients are connected before moving excessively in-game. You can check the latency by sending a chat message.
+
+If the problem persists, please contact me on my Discord linked below.
+
 ## Support
 Join my personal [Discord Server](https://discord.gg/3X3teNecWs) to ask me anything!
 

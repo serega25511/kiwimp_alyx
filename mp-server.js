@@ -254,111 +254,6 @@ export function StartServer(config) {
                     }
                     break;
             }
-            // Update the clients.
-            wss.clients.forEach(function each(client) {
-                let connectioninfo_json = [];
-                for(let i = 0; i < connections.length; i++) {
-                    const c = connections[i];
-                    connectioninfo_json.push({
-                        username: c.username,
-                        player: {
-                            id: c.player.id || 0,
-                            health: c.player.health || 0,
-                            hud: c.player.hud || '',
-                            dead: c.player.dead || false,
-                            lastDamage: c.player.lastDamage || 0,
-                            position: {
-                                x: (!c.player.dead ? c.player.position.x : 0) || 0,
-                                y: (!c.player.dead ? c.player.position.y : 0) || 0,
-                                z: (!c.player.dead ? c.player.position.z : 0) || 0
-                            },
-                            angles: {
-                                x: (!c.player.dead ? c.player.angles.x : 0) || 0,
-                                y: (!c.player.dead ? c.player.angles.y : 0) || 0,
-                                z: (!c.player.dead ? c.player.angles.z : 0) || 0
-                            },
-                            head: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.head.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.head.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.head.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.head.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.head.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.head.angles.z : 0) || 0
-                                }
-                            },
-                            leftHand: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.leftHand.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.leftHand.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.leftHand.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.leftHand.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.leftHand.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.leftHand.angles.z : 0) || 0
-                                }
-                            },
-                            rightHand: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.rightHand.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.rightHand.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.rightHand.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.rightHand.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.rightHand.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.rightHand.angles.z : 0) || 0
-                                }
-                            },
-                            nameTag: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.nameTag.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.nameTag.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.nameTag.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.nameTag.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.nameTag.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.nameTag.angles.z : 0) || 0
-                                }
-                            },
-                            hudText: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.hudText.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.hudText.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.hudText.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.hudText.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.hudText.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.hudText.angles.z : 0) || 0
-                                }
-                            },
-                            teleport: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.teleport.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.teleport.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.teleport.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.teleport.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.teleport.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.teleport.angles.z : 0) || 0
-                                }
-                            }
-                        }
-                    });
-                };
-                client.send(JSON.stringify({
-                    type: 'update',
-                    connectioninfo: {
-                        connections: connectioninfo_json
-                    }
-                }));
-            });
         });
         // Client disconnected.
         ws.on('close', function close() {
@@ -367,6 +262,9 @@ export function StartServer(config) {
             // Remove the player from the slots array.
             if(me.player) {
                 slots[me.player.id] = false;
+                if(!me.player.interval) {
+                    clearInterval(me.player.interval);
+                }
             }
             console.log(chalk.cyan(`[SV] Client disconnected: ${me.username}`));
             wss.clients.forEach(function each(client) {
@@ -376,10 +274,115 @@ export function StartServer(config) {
                 }));
             });
         });
+        me.interval = setInterval(function() {
+            let connectioninfo_json = [];
+            for(let i = 0; i < connections.length; i++) {
+                const c = connections[i];
+                connectioninfo_json.push({
+                    username: c.username,
+                    player: {
+                        id: c.player.id || 0,
+                        health: c.player.health || 0,
+                        hud: c.player.hud || '',
+                        dead: c.player.dead || false,
+                        lastDamage: c.player.lastDamage || 0,
+                        position: {
+                            x: (!c.player.dead ? c.player.position.x : 0) || 0,
+                            y: (!c.player.dead ? c.player.position.y : 0) || 0,
+                            z: (!c.player.dead ? c.player.position.z : 0) || 0
+                        },
+                        angles: {
+                            x: (!c.player.dead ? c.player.angles.x : 0) || 0,
+                            y: (!c.player.dead ? c.player.angles.y : 0) || 0,
+                            z: (!c.player.dead ? c.player.angles.z : 0) || 0
+                        },
+                        head: {
+                            position: {
+                                x: (!c.player.dead ? c.player.head.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.head.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.head.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.head.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.head.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.head.angles.z : 0) || 0
+                            }
+                        },
+                        leftHand: {
+                            position: {
+                                x: (!c.player.dead ? c.player.leftHand.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.leftHand.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.leftHand.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.leftHand.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.leftHand.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.leftHand.angles.z : 0) || 0
+                            }
+                        },
+                        rightHand: {
+                            position: {
+                                x: (!c.player.dead ? c.player.rightHand.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.rightHand.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.rightHand.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.rightHand.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.rightHand.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.rightHand.angles.z : 0) || 0
+                            }
+                        },
+                        nameTag: {
+                            position: {
+                                x: (!c.player.dead ? c.player.nameTag.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.nameTag.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.nameTag.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.nameTag.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.nameTag.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.nameTag.angles.z : 0) || 0
+                            }
+                        },
+                        hudText: {
+                            position: {
+                                x: (!c.player.dead ? c.player.hudText.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.hudText.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.hudText.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.hudText.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.hudText.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.hudText.angles.z : 0) || 0
+                            }
+                        },
+                        teleport: {
+                            position: {
+                                x: (!c.player.dead ? c.player.teleport.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.teleport.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.teleport.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.teleport.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.teleport.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.teleport.angles.z : 0) || 0
+                            }
+                        }
+                    }
+                });
+            };
+            ws.send(JSON.stringify({
+                type: 'update',
+                connectioninfo: {
+                    connections: connectioninfo_json
+                }
+            }));
+        }, 0);
     });
     // Handle server closure.
     wss.on('close', function close() {
-        clearInterval(interval);
+        console.log(chalk.cyan(`[SV] Server closed, process exiting.`));
+        process.exit(0);
     });
     // Handle errors.
     wss.on('error', function error(error) {

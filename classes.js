@@ -30,6 +30,7 @@ export class Client {
     username = '';
     authid = '';
     memo = '';
+    interval = null;
     /**
      * Player entity linked to the client.
      * @type {Player}
