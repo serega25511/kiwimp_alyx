@@ -36,10 +36,12 @@ The best way to install all necessary dependencies automatically is by using the
 2. Click the *"Raw"* button.
 3. Right click within your browser and select *"Save as"* or similar.
 4. Save the file to your computer as ``installer.bat``.
+    - Please ensure that file name extensions are visible witihin File Explorer before saving.
     - Make sure that the *"Save as type"* is set to *"All files (\*.\*)"* and remove the ``.txt`` extension if you have to.
 5. Open the installer file by double-clicking it within File Explorer.
 6. Follow the instructions, then install [npcap](https://npcap.com/) and subscribe to the [Steam Workshop addon](https://steamcommunity.com/sharedfiles/filedetails/?id=2739356543) when prompted.
     - The installer will automatically open the npcap installer and the Steam Community page for the addon within Steam.
+    - If something goes wrong during the installation process (i.e ``git`` or ``npm`` errors), try running the installer again.
 7. Inside of Steam, open the settings menu for Half-Life: Alyx and type ``-console -vconsole`` into the launch options.
     - Optionally, add ``-novr`` to disable VR mode.
 8. Open the game within Steam and enable the addon.
