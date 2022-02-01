@@ -193,7 +193,7 @@ export function InitVConsole(ws) {
                         case "PRFX":
                             vconsole_server.prefix = args[0];
                             console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
-                            vconsole_server.WriteCommand(`sv_cheats 1`, true);
+                            vconsole_server.WriteCommand(`sv_cheats 1;ent_fire ${args[0]}_script_nametags runscriptfile nametags.lua;ent_fire ${args[0]}_script_npcs runscriptfile npcs.lua;ent_fire ${args[0]}_script_hand_l runscriptfile lefthands.lua;ent_fire ${args[0]}_script_hand_r runscriptfile righthands.lua`, true);
                             break;
                         // Alive
                         case "ALIV":
@@ -249,6 +249,7 @@ export function InitVConsole(ws) {
                             }
                             break;
                         case "MAPN":
+                            console.log(chalk.yellow(`[VC] Map name set to ${args[0]}.`));
                             vconsole_server.mapName = args[0];
                             // Also, we're not dead!
                             ws.send(JSON.stringify({
