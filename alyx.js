@@ -76,7 +76,7 @@ export function IsPacketTypeValid(packet_type) {
  * @param {WebSocket} ws The WebSocket connection.
  * @returns {VConsole} The VConsole connection.
  */
-export function InitVConsole(ws) {
+export function InitVConsole(ws, config) {
     let vconsole_server = new VConsole(net.Socket());
     // Capturing network packets from VConsole.
     const c = new Cap();
@@ -88,276 +88,280 @@ export function InitVConsole(ws) {
     c.setMinBytes(0); // Don't wait, read as fast as possible.
     c.on('packet', (nbytes, trunc) => {
         // Parse packet type while trimming prefixing TCP and loopback data.
-        const packet = buffer.slice(43, nbytes).toString('ascii').replace('\0', '').replace('\n', '');
-        const packet_type = packet.slice(0, 4);
-        const packet_data = packet.slice(4);
-        // Print packet.
-        if(packet_type.includes("PRNT")) {
-            const message = packet_data.slice(36);
-            let trimmed_message = message.toString();
-            // Check if the message is a command.
-            if(trimmed_message.split(packet_type)[1] !== undefined) {
-                // Packet data is loosely formatted, so we need to parse it.
-                trimmed_message = message.toString().split(packet_type)[1].slice(1, -1);
-            }
-            // Remove everything after "EKED"
-            let command = trimmed_message.split(" ")[0].split("EKED")[0];
-            if(IsPacketTypeValid(command.replace(/.*!k!/, ""))) {
-                command = command.replace(/.*!k!/, "");
-                const args = trimmed_message.split(" ").splice(1);
-                if(args.length > 0) {
-                    // Remove last argument (EKED)
-                    args.pop();
-                    switch(command) {
-                        // Positional data
-                        case "HAND":
-                            localPlayer.leftHand.position.x = parseFloat(args[0]);
-                            localPlayer.leftHand.position.y = parseFloat(args[1]);
-                            localPlayer.leftHand.position.z = parseFloat(args[2]);
-                            localPlayer.leftHand.angles.x = parseFloat(args[3]);
-                            localPlayer.leftHand.angles.y = parseFloat(args[4]);
-                            localPlayer.leftHand.angles.z = parseFloat(args[5]);
-                            localPlayer.rightHand.position.x = parseFloat(args[6]);
-                            localPlayer.rightHand.position.y = parseFloat(args[7]);
-                            localPlayer.rightHand.position.z = parseFloat(args[8]);
-                            localPlayer.rightHand.angles.x = parseFloat(args[9]);
-                            localPlayer.rightHand.angles.y = parseFloat(args[10]);
-                            localPlayer.rightHand.angles.z = parseFloat(args[11]);
-                            ws.send(JSON.stringify({
-                                type: "movement",
-                                localPlayer: localPlayer
-                            }));
-                            break;
-                        case "PLYR":
-                            localPlayer.position.x = parseFloat(args[0]);
-                            localPlayer.position.y = parseFloat(args[1]);
-                            localPlayer.position.z = parseFloat(args[2]);
-                            localPlayer.angles.x = parseFloat(args[3]);
-                            localPlayer.angles.y = parseFloat(args[4]);
-                            localPlayer.angles.z = parseFloat(args[5]);
-                            localPlayer.health = parseFloat(args[6]);
-                            ws.send(JSON.stringify({
-                                type: "movement",
-                                localPlayer: localPlayer
-                            }));
-                            break;
-                        case "HEAD":
-                            localPlayer.head.position.x = parseFloat(args[0]);
-                            localPlayer.head.position.y = parseFloat(args[1]);
-                            localPlayer.head.position.z = parseFloat(args[2]);
-                            localPlayer.head.angles.x = parseFloat(args[3]);
-                            localPlayer.head.angles.y = parseFloat(args[4]);
-                            localPlayer.head.angles.z = parseFloat(args[5]);
-                            // Get directional vectors based on the player's angles.
-                            const directionX = Math.cos(localPlayer.y * (Math.PI / 180));
-                            const directionY = Math.sin(localPlayer.y * (Math.PI / 180));
-                            const directionZ = Math.cos((localPlayer.x + 90) * (Math.PI / 180));
-                            // Place the HUD in front of the head with offsets that orbit around the player.
-                            localPlayer.hudText.position.x = localPlayer.head.position.x + directionX * 48;
-                            localPlayer.hudText.position.y = localPlayer.head.position.y + directionY * 48;
-                            localPlayer.hudText.position.z = localPlayer.head.position.z + directionZ * 48;
-                            localPlayer.hudText.angles.x = 0;
-                            localPlayer.hudText.angles.y = localPlayer.angles.y;
-                            localPlayer.hudText.angles.z = 90;
-                            ws.send(JSON.stringify({
-                                type: "movement",
-                                localPlayer: localPlayer
-                            }));
-                            break;
-                        // Entity indexes
-                        case "LHND":
-                            for(let i = 0; i < args.length; i++) {
-                                players[i].leftHandIndex = parseInt(args[i]);
-                            }
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] Left hand indexes updated.`));
-                            break;
-                        case "RHND":
-                            for(let i = 0; i < args.length; i++) {
-                                players[i].rightHandIndex = parseInt(args[i]);
-                            }
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] Right hand indexes updated.`));
-                            break;
-                        case "HSET":
-                            for(let i = 0; i < args.length; i++) {
-                                players[i].headsetIndex = parseInt(args[i]);
-                            }
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] Headset indexes updated.`));
-                            break;
-                        case "NPCS":
-                            for(let i = 0; i < args.length; i++) {
-                                players[i].npcIndex = parseInt(args[i]);
-                            }
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] NPC indexes updated.`));
-                            break;
-                        case "TAGS":
-                            for(let i = 0; i < args.length; i++) {
-                                players[i].nameTagIndex = parseInt(args[i]);
-                            }
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] Name tag indexes updated.`));
-                            break;
-                        // Set targetname prefix
-                        case "PRFX":
-                            vconsole_server.prefix = args[0];
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
-                            vconsole_server.WriteCommand(`sv_cheats 1`, true);
-                            break;
-                        // Alive
-                        case "ALIV":
-                            vconsole_server.alive = Date.now();
-                            break;
-                        // Damage
-                        case "DMGE":
-                            ws.send(JSON.stringify({
-                                type: "damage",
-                                damage: parseInt(args[0]),
-                                victimIndex: parseInt(args[1]-1),
-                            }));
-                        // Physics objects
-                        case "PROP": // Indexing is done using the start origin as names and indexes are not unique.
-                            const physProp = new PhysicsObject(parseInt(args[0]), args[1]);
-                            physProp.startLocation.x = Math.floor(parseFloat(args[2]));
-                            physProp.startLocation.y = Math.floor(parseFloat(args[3]));
-                            physProp.startLocation.z = Math.floor(parseFloat(args[4]));
-                            vconsole_server.physicsObjects.push(physProp);
-                            break;
-                        case "PHYS":
-                            for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
-                                if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
-                                    if(!vconsole_server.physicsObjects[i].motionDisabled) {
-                                        vconsole_server.physicsObjects[i].position.x = parseFloat(args[1]);
-                                        vconsole_server.physicsObjects[i].position.y = parseFloat(args[2]);
-                                        vconsole_server.physicsObjects[i].position.z = parseFloat(args[3]);
-                                        vconsole_server.physicsObjects[i].angles.x = parseFloat(args[4]);
-                                        vconsole_server.physicsObjects[i].angles.y = parseFloat(args[5]);
-                                        vconsole_server.physicsObjects[i].angles.z = parseFloat(args[6]);
+        const packet = buffer.slice(43, nbytes).toString('ascii').replace('\0', '');
+        const packet_split = packet.split('\n'); // Used for truncated data.
+        packet_split.forEach(line => {
+            const packet_type = packet.slice(0, 4);
+            const packet_data = packet.slice(4);
+            // Print packet.
+            if(packet_type.includes("PRNT")) {
+                const message = packet_data.slice(36);
+                let trimmed_message = message.toString();
+                // Check if the message is a command.
+                if(trimmed_message.split(packet_type)[1] !== undefined) {
+                    // Packet data is loosely formatted, so we need to parse it.
+                    trimmed_message = message.toString().split(packet_type)[1].slice(1, -1);
+                }
+                // Remove everything after "EKED"
+                let command = trimmed_message.split(" ")[0].split("EKED")[0];
+                if(IsPacketTypeValid(command.replace(/.*!k!/, ""))) {
+                    command = command.replace(/.*!k!/, "");
+                    const args = trimmed_message.split(" ").splice(1);
+                    if(args.length > 0) {
+                        // Remove last argument (EKED)
+                        args.pop();
+                        switch(command) {
+                            // Positional data
+                            case "HAND":
+                                localPlayer.leftHand.position.x = parseFloat(args[0]);
+                                localPlayer.leftHand.position.y = parseFloat(args[1]);
+                                localPlayer.leftHand.position.z = parseFloat(args[2]);
+                                localPlayer.leftHand.angles.x = parseFloat(args[3]);
+                                localPlayer.leftHand.angles.y = parseFloat(args[4]);
+                                localPlayer.leftHand.angles.z = parseFloat(args[5]);
+                                localPlayer.rightHand.position.x = parseFloat(args[6]);
+                                localPlayer.rightHand.position.y = parseFloat(args[7]);
+                                localPlayer.rightHand.position.z = parseFloat(args[8]);
+                                localPlayer.rightHand.angles.x = parseFloat(args[9]);
+                                localPlayer.rightHand.angles.y = parseFloat(args[10]);
+                                localPlayer.rightHand.angles.z = parseFloat(args[11]);
+                                ws.send(JSON.stringify({
+                                    type: "movement",
+                                    localPlayer: localPlayer
+                                }));
+                                break;
+                            case "PLYR":
+                                localPlayer.position.x = parseFloat(args[0]);
+                                localPlayer.position.y = parseFloat(args[1]);
+                                localPlayer.position.z = parseFloat(args[2]);
+                                localPlayer.angles.x = parseFloat(args[3]);
+                                localPlayer.angles.y = parseFloat(args[4]);
+                                localPlayer.angles.z = parseFloat(args[5]);
+                                localPlayer.health = parseFloat(args[6]);
+                                ws.send(JSON.stringify({
+                                    type: "movement",
+                                    localPlayer: localPlayer
+                                }));
+                                break;
+                            case "HEAD":
+                                localPlayer.head.position.x = parseFloat(args[0]);
+                                localPlayer.head.position.y = parseFloat(args[1]);
+                                localPlayer.head.position.z = parseFloat(args[2]);
+                                localPlayer.head.angles.x = parseFloat(args[3]);
+                                localPlayer.head.angles.y = parseFloat(args[4]);
+                                localPlayer.head.angles.z = parseFloat(args[5]);
+                                // Get directional vectors based on the player's angles.
+                                const directionX = Math.cos(localPlayer.y * (Math.PI / 180));
+                                const directionY = Math.sin(localPlayer.y * (Math.PI / 180));
+                                const directionZ = Math.cos((localPlayer.x + 90) * (Math.PI / 180));
+                                // Place the HUD in front of the head with offsets that orbit around the player.
+                                localPlayer.hudText.position.x = localPlayer.head.position.x + directionX * 48;
+                                localPlayer.hudText.position.y = localPlayer.head.position.y + directionY * 48;
+                                localPlayer.hudText.position.z = localPlayer.head.position.z + directionZ * 48;
+                                localPlayer.hudText.angles.x = 0;
+                                localPlayer.hudText.angles.y = localPlayer.angles.y;
+                                localPlayer.hudText.angles.z = 90;
+                                ws.send(JSON.stringify({
+                                    type: "movement",
+                                    localPlayer: localPlayer
+                                }));
+                                break;
+                            // Entity indexes
+                            case "LHND":
+                                for(let i = 0; i < args.length; i++) {
+                                    players[i].leftHandIndex = parseInt(args[i]);
+                                }
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] Left hand indexes updated.`));
+                                break;
+                            case "RHND":
+                                for(let i = 0; i < args.length; i++) {
+                                    players[i].rightHandIndex = parseInt(args[i]);
+                                }
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] Right hand indexes updated.`));
+                                break;
+                            case "HSET":
+                                for(let i = 0; i < args.length; i++) {
+                                    players[i].headsetIndex = parseInt(args[i]);
+                                }
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] Headset indexes updated.`));
+                                break;
+                            case "NPCS":
+                                for(let i = 0; i < args.length; i++) {
+                                    players[i].npcIndex = parseInt(args[i]);
+                                }
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] NPC indexes updated.`));
+                                break;
+                            case "TAGS":
+                                for(let i = 0; i < args.length; i++) {
+                                    players[i].nameTagIndex = parseInt(args[i]);
+                                }
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] Name tag indexes updated.`));
+                                break;
+                            // Set targetname prefix
+                            case "PRFX":
+                                vconsole_server.prefix = args[0];
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
+                                vconsole_server.WriteCommand(`sv_cheats 1`, true);
+                                break;
+                            // Alive
+                            case "ALIV":
+                                vconsole_server.alive = Date.now();
+                                break;
+                            // Damage
+                            case "DMGE":
+                                ws.send(JSON.stringify({
+                                    type: "damage",
+                                    damage: parseInt(args[0]),
+                                    victimIndex: parseInt(args[1]-1),
+                                }));
+                            // Physics objects
+                            case "PROP": // Indexing is done using the start origin as names and indexes are not unique.
+                                const physProp = new PhysicsObject(parseInt(args[0]), args[1]);
+                                physProp.startLocation.x = Math.floor(parseFloat(args[2]));
+                                physProp.startLocation.y = Math.floor(parseFloat(args[3]));
+                                physProp.startLocation.z = Math.floor(parseFloat(args[4]));
+                                vconsole_server.physicsObjects.push(physProp);
+                                break;
+                            case "PHYS":
+                                for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                                    if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
+                                        if(!vconsole_server.physicsObjects[i].motionDisabled) {
+                                            vconsole_server.physicsObjects[i].position.x = parseFloat(args[1]);
+                                            vconsole_server.physicsObjects[i].position.y = parseFloat(args[2]);
+                                            vconsole_server.physicsObjects[i].position.z = parseFloat(args[3]);
+                                            vconsole_server.physicsObjects[i].angles.x = parseFloat(args[4]);
+                                            vconsole_server.physicsObjects[i].angles.y = parseFloat(args[5]);
+                                            vconsole_server.physicsObjects[i].angles.z = parseFloat(args[6]);
+                                            ws.send(JSON.stringify({
+                                                type: "movephysics",
+                                                position: vconsole_server.physicsObjects[i].position,
+                                                angles: vconsole_server.physicsObjects[i].angles,
+                                                startLocation: vconsole_server.physicsObjects[i].startLocation
+                                            }));
+                                            vconsole_server.physicsObjects[i].updateTime = Date.now();
+                                            vconsole_server.physicsObjects[i].movingLocally = true;
+                                            if(vconsole_server.physicsObjects[i].localInterval === null) {
+                                                vconsole_server.physicsObjects[i].localInterval = setInterval(() => {
+                                                    if(vconsole_server.physicsObjects[i] !== undefined) {
+                                                        if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
+                                                            vconsole_server.physicsObjects[i].movingLocally = false;
+                                                            clearInterval(vconsole_server.physicsObjects[i].localInterval);
+                                                            vconsole_server.physicsObjects[i].localInterval = null;
+                                                        }
+                                                    }
+                                                }, 1000);
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            case "MAPN":
+                                if(config.client_print_vconsole.toLowerCase() == "true")
+                                    console.log(chalk.yellow(`[VC] Map name set to ${args[0]}.`));
+                                vconsole_server.mapName = args[0];
+                                // Also, we're not dead!
+                                ws.send(JSON.stringify({
+                                    type: "alive",
+                                }));
+                                vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_script_server runscriptfile physics.lua`, true);
+                                vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_script_server runscriptfile triggers.lua`, true);
+                                break;
+                            // Buttons (untested)
+                            case "BUTN":
+                                const button = new Button(parseInt(args[0]), args[1]);
+                                button.startLocation.x = Math.floor(parseFloat(args[2]));
+                                button.startLocation.y = Math.floor(parseFloat(args[3]));
+                                button.startLocation.z = Math.floor(parseFloat(args[4]));
+                                vconsole_server.buttons.push(button);
+                                break;
+                            case "BPRS":
+                                for(let i = 0; i < vconsole_server.buttons.length; i++) {
+                                    if(vconsole_server.buttons[i].index == parseInt(args[0])) {
+                                        if(!vconsole_server.physicsObjects[i].interval) {
+                                            if(buttonByIndex) {
+                                                ws.send(JSON.stringify({
+                                                    type: "buttonpress",
+                                                    startLocation: vconsole_server.buttons[i].startLocation
+                                                }));
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            // Doors
+                            case "DOOR":
+                                const door = new PhysicsObject(parseInt(args[0]), args[1]);
+                                door.door = true;
+                                door.startLocation.x = Math.floor(parseFloat(args[2]));
+                                door.startLocation.y = Math.floor(parseFloat(args[3]));
+                                door.startLocation.z = Math.floor(parseFloat(args[4]));
+                                vconsole_server.physicsObjects.push(door);
+                                // A side effect of setting the angles of a door is that it can never latch, otherwise you can't move it.
+                                vconsole_server.WriteCommand(`ent_fire ${door.name} disablelatch`, true);
+                                break;
+                            // Broken props
+                            case "BRAK":
+                                for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                                    if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
                                         ws.send(JSON.stringify({
-                                            type: "movephysics",
-                                            position: vconsole_server.physicsObjects[i].position,
-                                            angles: vconsole_server.physicsObjects[i].angles,
+                                            type: "break",
                                             startLocation: vconsole_server.physicsObjects[i].startLocation
                                         }));
-                                        vconsole_server.physicsObjects[i].updateTime = Date.now();
-                                        vconsole_server.physicsObjects[i].movingLocally = true;
-                                        if(vconsole_server.physicsObjects[i].localInterval === null) {
-                                            vconsole_server.physicsObjects[i].localInterval = setInterval(() => {
-                                                if(vconsole_server.physicsObjects[i] !== undefined) {
-                                                    if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
-                                                        vconsole_server.physicsObjects[i].movingLocally = false;
-                                                        clearInterval(vconsole_server.physicsObjects[i].localInterval);
-                                                        vconsole_server.physicsObjects[i].localInterval = null;
-                                                    }
-                                                }
-                                            }, 1000);
-                                        }
+                                        break;
                                     }
-                                    break;
                                 }
-                            }
-                            break;
-                        case "MAPN":
-                            if(config.client_print_vconsole)
-                                console.log(chalk.yellow(`[VC] Map name set to ${args[0]}.`));
-                            vconsole_server.mapName = args[0];
-                            // Also, we're not dead!
-                            ws.send(JSON.stringify({
-                                type: "alive",
-                            }));
-                            vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_script_server runscriptfile physics.lua`, true);
-                            break;
-                        // Buttons (untested)
-                        case "BUTN":
-                            const button = new Button(parseInt(args[0]), args[1]);
-                            button.startLocation.x = Math.floor(parseFloat(args[2]));
-                            button.startLocation.y = Math.floor(parseFloat(args[3]));
-                            button.startLocation.z = Math.floor(parseFloat(args[4]));
-                            vconsole_server.buttons.push(button);
-                            break;
-                        case "BPRS":
-                            for(let i = 0; i < vconsole_server.buttons.length; i++) {
-                                if(vconsole_server.buttons[i].index == parseInt(args[0])) {
-                                    if(!vconsole_server.physicsObjects[i].interval) {
-                                        if(buttonByIndex) {
-                                            ws.send(JSON.stringify({
-                                                type: "buttonpress",
-                                                startLocation: vconsole_server.buttons[i].startLocation
-                                            }));
-                                        }
+                                break;
+                            // Triggers
+                            case "TRIG":
+                                const trigger = new Trigger(parseInt(args[0]));
+                                trigger.startLocation.x = Math.floor(parseFloat(args[1]));
+                                trigger.startLocation.y = Math.floor(parseFloat(args[2]));
+                                trigger.startLocation.z = Math.floor(parseFloat(args[3]));
+                                vconsole_server.triggers.push(trigger);
+                                break;
+                            case "TRGD":
+                                for(let i = 0; i < vconsole_server.triggers.length; i++) {
+                                    if(vconsole_server.triggers[i].index == parseInt(args[0])) {
+                                        ws.send(JSON.stringify({
+                                            type: "trigger",
+                                            startLocation: vconsole_server.triggers[i].startLocation
+                                        }));
+                                        break;
                                     }
-                                    break;
                                 }
-                            }
-                            break;
-                        // Doors
-                        case "DOOR":
-                            const door = new PhysicsObject(parseInt(args[0]), args[1]);
-                            door.door = true;
-                            door.startLocation.x = Math.floor(parseFloat(args[2]));
-                            door.startLocation.y = Math.floor(parseFloat(args[3]));
-                            door.startLocation.z = Math.floor(parseFloat(args[4]));
-                            vconsole_server.physicsObjects.push(door);
-                            // A side effect of setting the angles of a door is that it can never latch, otherwise you can't move it.
-                            vconsole_server.WriteCommand(`ent_fire ${door.name} disablelatch`, true);
-                            break;
-                        // Broken props
-                        case "BRAK":
-                            for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
-                                if(vconsole_server.physicsObjects[i].index == parseInt(args[0])) {
-                                    ws.send(JSON.stringify({
-                                        type: "break",
-                                        startLocation: vconsole_server.physicsObjects[i].startLocation
-                                    }));
-                                    break;
-                                }
-                            }
-                            break;
-                        // Triggers
-                        case "TRIG":
-                            const trigger = new Trigger(parseInt(args[0]));
-                            trigger.startLocation.x = Math.floor(parseFloat(args[1]));
-                            trigger.startLocation.y = Math.floor(parseFloat(args[2]));
-                            trigger.startLocation.z = Math.floor(parseFloat(args[3]));
-                            vconsole_server.triggers.push(trigger);
-                            break;
-                        case "TRGD":
-                            for(let i = 0; i < vconsole_server.triggers.length; i++) {
-                                if(vconsole_server.triggers[i].index == parseInt(args[0])) {
-                                    ws.send(JSON.stringify({
-                                        type: "trigger",
-                                        startLocation: vconsole_server.triggers[i].startLocation
-                                    }));
-                                    break;  
-                                }
-                            }
-                            break;
-                    }
-                }
-                vconsole_server.alive = Date.now();
-            } else if(message.includes("keepalive")) {
-                // Even though it's an unknown command, it still received a keepalive.
-                vconsole_server.alive = Date.now();
-            } else if(message.includes(": no entity")) {
-                // A physics object dissapeared from us, remove it by entity index.
-                const index = message.split(" no entity ")[1]
-                if(index) {
-                    for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
-                        if(vconsole_server.physicsObjects[i].index == parseInt(index)) {
-                            vconsole_server.physicsObjects.splice(i, 1);
-                            break;  
+                                break;
                         }
                     }
+                    vconsole_server.alive = Date.now();
+                } else if(message.includes("keepalive")) {
+                    // Even though it's an unknown command, it still received a keepalive.
+                    vconsole_server.alive = Date.now();
+                } else if(message.includes(": no entity")) {
+                    // A physics object dissapeared from us, remove it by entity index.
+                    const index = message.split(" no entity ")[1]
+                    if(index) {
+                        for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
+                            if(vconsole_server.physicsObjects[i].index == parseInt(index)) {
+                                vconsole_server.physicsObjects.splice(i, 1);
+                                break;
+                            }
+                        }
+                    }
+                } else if(message.includes("Command buffer full")) {
+                    vconsole_server.alive -= 2500; // It might be dead.
+                } else if(config.client_print_vconsole.toLowerCase() == "true" && !message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
+                    console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
                 }
-            } else if(message.includes("Command buffer full")) {
-                vconsole_server.alive -= 2500; // It might be dead.
-            } else if(config.client_print_vconsole & !message.includes("Script not found") && !message.includes("EKED") && !message.includes("===============") && !message.includes("Connected.") && !message.includes("metropolice")) {
-                console.log(chalk.yellow(`[VC] [PRNT] ${message}`));
             }
-        }
+        });
     });
     vconsole_server.ConnectToVConsole(vconsole_server);
     // Close the connection when the process exits.

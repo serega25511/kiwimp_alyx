@@ -46,7 +46,7 @@ export function StartClient(config) {
             message: `(Memo) ${config.client_memo}`
         }));
         // Connect to VConsole.
-        vconsole_server = alyx.InitVConsole(ws);
+        vconsole_server = alyx.InitVConsole(ws, config);
     });
     // Handle messages.
     ws.on('message', async (data) => {
