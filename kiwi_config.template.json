@@ -118,6 +118,12 @@
         "default": "false",
         "description": "Recommended for debugging purposes.\nIf true, text printed to the VConsole will be displayed in the window.\nIf false, text printed to the VConsole will be ignored and may improve performance."
     },
+    "client_grace_period": {
+        "name": "Interactive Grace Period",
+        "type": "number",
+        "default": "5000",
+        "description": "This is the period of time where interactive objects are disabled on your end during a time where other players are using them.\nThis is to prevent players from accidentally interacting with objects that are in use by other players.\nThe default value is 5 seconds, which means you must wait 5 seconds after a player touches something before you can interact with it again.\nIdeally, all clients should use the same value for this option.\nThis is in milliseconds."
+    },
     "note_setup_complete": {
         "name": "Setup Complete",
         "type": "note",

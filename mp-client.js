@@ -99,7 +99,7 @@ export function StartClient(config) {
                             // Enable motion after inactivity for a while.
                             if(physicsObject.interval === null) {
                                 physicsObject.interval = setInterval(() => {
-                                    if(Date.now() - physicsObject.updateTime > 5000) {
+                                    if(Date.now() - physicsObject.updateTime > config.client_grace_period) {
                                         clearInterval(physicsObject.interval);
                                         physicsObject.interval = null;
                                         physicsObject.motionDisabled = false;
@@ -120,15 +120,23 @@ export function StartClient(config) {
                     if(button.startLocation.x + margin >= message.startLocation.x && button.startLocation.x - margin <= message.startLocation.x
                         && button.startLocation.y + margin >= message.startLocation.y && button.startLocation.y - margin <= message.startLocation.y
                         && button.startLocation.z + margin >= message.startLocation.z && button.startLocation.z - margin <= message.startLocation.z) {
-                        button.updateTime = Date.now();
-                        if(!button.interval) {
+                        if(!button.pressingLocally) {
+                            if(!button.pressing) {
+                                await vconsole_server.WriteCommand(`ent_fire ${button.name} lock`);
+                                button.pressing = true;
+                            }
+                            button.updateTime = Date.now();
                             await vconsole_server.WriteCommand(`ent_fire ${button.name} press`);
-                            button.interval = setInterval(() => {
-                                if(Date.now() - button.updateTime > 5000) {
-                                    clearInterval(button.interval);
-                                    button.interval = null;
-                                }
-                            }, 1000);
+                            if(button.interval === null) {
+                                button.interval = setInterval(() => {
+                                    if(Date.now() - button.updateTime > 5000) {
+                                        clearInterval(button.interval);
+                                        button.interval = null;
+                                        button.pressing = false;
+                                        vconsole_server.WriteCommand(`ent_fire ${button.name} unlock`);
+                                    }
+                                }, 1000);
+                            }
                         }
                         break;
                     }
@@ -153,7 +161,25 @@ export function StartClient(config) {
                     if(triggerBrush.startLocation.x + margin >= message.startLocation.x && triggerBrush.startLocation.x - margin <= message.startLocation.x
                         && triggerBrush.startLocation.y + margin >= message.startLocation.y && triggerBrush.startLocation.y - margin <= message.startLocation.y
                         && triggerBrush.startLocation.z + margin >= message.startLocation.z && triggerBrush.startLocation.z - margin <= message.startLocation.z) {
-                        vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index} ${message.output}`, true);
+                        if(!triggerBrush.triggeringLocally) {
+                            if(!triggerBrush.triggering) {
+                                await vconsole_server.WriteCommand(`ent_fire ${triggerBrush.name} disable`);
+                                triggerBrush.triggering = true;
+                            }
+                            triggerBrush.updateTime = Date.now();
+                            // Yes, you can still 'touch' triggers even if they're disabled.
+                            await vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index} ${message.output}`, true);
+                            if(triggerBrush.interval === null) {
+                                triggerBrush.interval = setInterval(() => {
+                                    if(Date.now() - triggerBrush.updateTime > config.client_grace_period) {
+                                        clearInterval(triggerBrush.interval);
+                                        triggerBrush.interval = null;
+                                        triggerBrush.triggering = false;
+                                        vconsole_server.WriteCommand(`ent_fire ${triggerBrush.name} enable`);
+                                    }
+                                }, 1000);
+                            }
+                        }
                         break;
                     }
                 }

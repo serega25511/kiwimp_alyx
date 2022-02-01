@@ -83,8 +83,11 @@ export class Button extends Entity {
         y: 0,
         z: 0
     }
+    pressing = false;
+    updateTime = Date.now();
     interval = null;
     localInterval = null;
+    pressingLocally = false;
     constructor (index, name) {
         super();
         this.index = index;
@@ -94,14 +97,21 @@ export class Button extends Entity {
 
 export class Trigger extends Entity {
     index = 0;
+    name = '';
     startLocation = {
         x: 0,
         y: 0,
         z: 0
     }
-    constructor (index) {
+    triggering = false;
+    updateTime = Date.now();
+    interval = null;
+    localInterval = null;
+    triggeringLocally = false;
+    constructor (index, name) {
         super();
         this.index = index;
+        this.name = name;
     }
 }
 
@@ -151,7 +161,7 @@ export class VConsole {
 
     /**
      * The game version-based protocol to use.
-     * This can be found within VConsole.
+     * This can be found within VConsole's about box.
      * @type {number}
      */
     protocol = 211;

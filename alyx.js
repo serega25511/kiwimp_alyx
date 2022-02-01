@@ -249,7 +249,7 @@ export function InitVConsole(ws, config) {
                                             if(vconsole_server.physicsObjects[i].localInterval === null) {
                                                 vconsole_server.physicsObjects[i].localInterval = setInterval(() => {
                                                     if(vconsole_server.physicsObjects[i] !== undefined) {
-                                                        if(Date.now() - vconsole_server.physicsObjects[i].updateTime > 5000) {
+                                                        if(Date.now() - vconsole_server.physicsObjects[i].updateTime > config.client_grace_period) {
                                                             vconsole_server.physicsObjects[i].movingLocally = false;
                                                             clearInterval(vconsole_server.physicsObjects[i].localInterval);
                                                             vconsole_server.physicsObjects[i].localInterval = null;
@@ -284,12 +284,23 @@ export function InitVConsole(ws, config) {
                             case "BPRS":
                                 for(let i = 0; i < vconsole_server.buttons.length; i++) {
                                     if(vconsole_server.buttons[i].index == parseInt(args[0])) {
-                                        if(!vconsole_server.physicsObjects[i].interval) {
-                                            if(buttonByIndex) {
-                                                ws.send(JSON.stringify({
-                                                    type: "buttonpress",
-                                                    startLocation: vconsole_server.buttons[i].startLocation
-                                                }));
+                                        if(!vconsole_server.buttons[i].pressing) {
+                                            ws.send(JSON.stringify({
+                                                type: "buttonpress",
+                                                startLocation: vconsole_server.buttons[i].startLocation
+                                            }));
+                                            vconsole_server.buttons[i].updateTime = Date.now();
+                                            vconsole_server.buttons[i].pressingLocally = true;
+                                            if(vconsole_server.buttons[i].localInterval === null) {
+                                                vconsole_server.buttons[i].localInterval = setInterval(() => {
+                                                    if(vconsole_server.buttons[i] !== undefined) {
+                                                        if(Date.now() - vconsole_server.buttons[i].updateTime > config.client_grace_period) {
+                                                            vconsole_server.buttons[i].pressingLocally = false;
+                                                            clearInterval(vconsole_server.buttons[i].localInterval);
+                                                            vconsole_server.buttons[i].localInterval = null;
+                                                        }
+                                                    }
+                                                }, 1000);
                                             }
                                         }
                                         break;
@@ -321,20 +332,35 @@ export function InitVConsole(ws, config) {
                                 break;
                             // Triggers
                             case "TRIG":
-                                const trigger = new Trigger(parseInt(args[0]));
-                                trigger.startLocation.x = Math.floor(parseFloat(args[1]));
-                                trigger.startLocation.y = Math.floor(parseFloat(args[2]));
-                                trigger.startLocation.z = Math.floor(parseFloat(args[3]));
+                                const trigger = new Trigger(parseInt(args[0]), args[1]);
+                                trigger.startLocation.x = Math.floor(parseFloat(args[2]));
+                                trigger.startLocation.y = Math.floor(parseFloat(args[3]));
+                                trigger.startLocation.z = Math.floor(parseFloat(args[4]));
                                 vconsole_server.triggers.push(trigger);
                                 break;
                             case "TRGD":
                                 for(let i = 0; i < vconsole_server.triggers.length; i++) {
                                     if(vconsole_server.triggers[i].index == parseInt(args[0])) {
-                                        ws.send(JSON.stringify({
-                                            type: "trigger",
-                                            startLocation: vconsole_server.triggers[i].startLocation,
-                                            output: args[1]
-                                        }));
+                                        if(!vconsole_server.buttons[i].triggering) {
+                                            ws.send(JSON.stringify({
+                                                type: "trigger",
+                                                startLocation: vconsole_server.triggers[i].startLocation,
+                                                output: args[1]
+                                            }));
+                                            vconsole_server.triggers[i].updateTime = Date.now();
+                                            vconsole_server.triggers[i].triggeringLocally = true;
+                                            if(vconsole_server.triggers[i].localInterval === null) {
+                                                vconsole_server.triggers[i].localInterval = setInterval(() => {
+                                                    if(vconsole_server.triggers[i] !== undefined) {
+                                                        if(Date.now() - vconsole_server.triggers[i].updateTime > config.client_grace_period) {
+                                                            vconsole_server.triggers[i].triggeringLocally = false;
+                                                            clearInterval(vconsole_server.triggers[i].localInterval);
+                                                            vconsole_server.triggers[i].localInterval = null;
+                                                        }
+                                                    }
+                                                }, 1000);
+                                            }
+                                        }
                                         break;
                                     }
                                 }
