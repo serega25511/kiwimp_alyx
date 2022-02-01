@@ -303,10 +303,10 @@ export function InitVConsole(ws) {
                             break;
                         // Triggers
                         case "TRIG":
-                            const trigger = new Trigger(parseInt(args[0]), args[1]);
-                            trigger.startLocation.x = Math.floor(parseFloat(args[2]));
-                            trigger.startLocation.y = Math.floor(parseFloat(args[3]));
-                            trigger.startLocation.z = Math.floor(parseFloat(args[4]));
+                            const trigger = new Trigger(parseInt(args[0]));
+                            trigger.startLocation.x = Math.floor(parseFloat(args[1]));
+                            trigger.startLocation.y = Math.floor(parseFloat(args[2]));
+                            trigger.startLocation.z = Math.floor(parseFloat(args[3]));
                             vconsole_server.triggers.push(trigger);
                             break;
                         case "TRGD":

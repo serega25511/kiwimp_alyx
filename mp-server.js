@@ -231,11 +231,22 @@ export function StartServer(config) {
                             }));
                         });
                     }
+                    break;
                 case 'break':
                     if(me.player && !me.player.dead) {
                         wss.clients.forEach(function each(client) {
                             client.send(JSON.stringify({
                                 type: 'breakphys',
+                                startLocation: message.startLocation
+                            }));
+                        });
+                    }
+                    break;
+                case 'trigger':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            client.send(JSON.stringify({
+                                type: 'triggerbrush',
                                 startLocation: message.startLocation
                             }));
                         });

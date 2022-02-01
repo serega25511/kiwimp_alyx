@@ -94,16 +94,14 @@ export class Button extends Entity {
 
 export class Trigger extends Entity {
     index = 0;
-    name = '';
     startLocation = {
         x: 0,
         y: 0,
         z: 0
     }
-    constructor (index, name) {
+    constructor (index) {
         super();
         this.index = index;
-        this.name = name;
     }
 }
 

@@ -128,13 +128,13 @@ export function StartClient(config) {
                                 if(Date.now() - button.updateTime > 5000) {
                                     clearInterval(button.interval);
                                     button.interval = null;
-                                    vconsole_server.WriteCommand(`ent_fire ${button.name} release`);
                                 }
                             }, 1000);
                         }
                         break;
                     }
                 }
+                break;
             case 'breakphys':
                 // Someone has broken a physics object.
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
@@ -146,6 +146,19 @@ export function StartClient(config) {
                         break;
                     }
                 }
+                break;
+            case 'triggerbrush':
+                // Someone has triggered something.
+                for(let i = 0; i < vconsole_server.triggerBrushes.length; i++) {
+                    const triggerBrush = vconsole_server.triggerBrushes[i];
+                    if(triggerBrush.startLocation.x + margin >= message.startLocation.x && triggerBrush.startLocation.x - margin <= message.startLocation.x
+                        && triggerBrush.startLocation.y + margin >= message.startLocation.y && triggerBrush.startLocation.y - margin <= message.startLocation.y
+                        && triggerBrush.startLocation.z + margin >= message.startLocation.z && triggerBrush.startLocation.z - margin <= message.startLocation.z) {
+                        vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index}`, true);
+                        break;
+                    }
+                }
+                break;
         }
     });
     // Handle errors.
