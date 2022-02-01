@@ -248,7 +248,8 @@ export function StartServer(config) {
                             client.send(JSON.stringify({
                                 type: 'triggerbrush',
                                 startLocation: message.startLocation,
-                                output: message.output
+                                output: message.output,
+                                once: message.once
                             }));
                         });
                     }

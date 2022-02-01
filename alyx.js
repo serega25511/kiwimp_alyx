@@ -345,7 +345,8 @@ export function InitVConsole(ws, config) {
                                             ws.send(JSON.stringify({
                                                 type: "trigger",
                                                 startLocation: vconsole_server.triggers[i].startLocation,
-                                                output: args[1]
+                                                output: args[1],
+                                                once: args[2] == "true"
                                             }));
                                             vconsole_server.triggers[i].updateTime = Date.now();
                                             vconsole_server.triggers[i].triggeringLocally = true;
