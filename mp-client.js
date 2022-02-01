@@ -83,27 +83,26 @@ export function StartClient(config) {
                 // Someone else has moved a physics object.
                 // This should not fire if we move the object ourselves.
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
-                    const physicsObject = vconsole_server.physicsObjects[i];
-                    if(physicsObject.startLocation.x + margin >= message.startLocation.x && physicsObject.startLocation.x - margin <= message.startLocation.x
-                        && physicsObject.startLocation.y + margin >= message.startLocation.y && physicsObject.startLocation.y - margin <= message.startLocation.y
-                        && physicsObject.startLocation.z + margin >= message.startLocation.z && physicsObject.startLocation.z - margin <= message.startLocation.z) {
-                        if(!physicsObject.movingLocally) {
+                    if(vconsole_server.physicsObjects[i].startLocation.x + margin >= message.startLocation.x && vconsole_server.physicsObjects[i].startLocation.x - margin <= message.startLocation.x
+                        && vconsole_server.physicsObjects[i].startLocation.y + margin >= message.startLocation.y && vconsole_server.physicsObjects[i].startLocation.y - margin <= message.startLocation.y
+                        && vconsole_server.physicsObjects[i].startLocation.z + margin >= message.startLocation.z && vconsole_server.physicsObjects[i].startLocation.z - margin <= message.startLocation.z) {
+                        if(!vconsole_server.physicsObjects[i].movingLocally) {
                             // Name is arbitrary, startLocation is unique.
-                            if(!physicsObject.motionDisabled) {
-                                await vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} disablemotion;ent_fire ${physicsObject.name} disableinteraction`);
-                                physicsObject.motionDisabled = true;
+                            if(!vconsole_server.physicsObjects[i].motionDisabled) {
+                                await vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} disablemotion;ent_fire ${vconsole_server.physicsObjects[i].name} disableinteraction`);
+                                vconsole_server.physicsObjects[i].motionDisabled = true;
                             }
                             // Update location.
-                            physicsObject.updateTime = Date.now();
-                            await vconsole_server.WriteCommand((physicsObject.door ? `` : `ent_setpos ${physicsObject.index} ${message.position.x} ${message.position.y} ${message.position.z};`)+`ent_setang ${physicsObject.index} ${message.angles.x} ${message.angles.y} ${message.angles.z}`);
+                            vconsole_server.physicsObjects[i].updateTime = Date.now();
+                            await vconsole_server.WriteCommand((vconsole_server.physicsObjects[i].door ? `` : `ent_setpos ${vconsole_server.physicsObjects[i].index} ${message.position.x} ${message.position.y} ${message.position.z};`)+`ent_setang ${vconsole_server.physicsObjects[i].index} ${message.angles.x} ${message.angles.y} ${message.angles.z}`);
                             // Enable motion after inactivity for a while.
-                            if(physicsObject.interval === null) {
-                                physicsObject.interval = setInterval(() => {
-                                    if(Date.now() - physicsObject.updateTime > config.client_grace_period) {
-                                        clearInterval(physicsObject.interval);
-                                        physicsObject.interval = null;
-                                        physicsObject.motionDisabled = false;
-                                        vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} enablemotion;ent_fire ${physicsObject.name} enableinteraction`);
+                            if(vconsole_server.physicsObjects[i].interval === null) {
+                                vconsole_server.physicsObjects[i].interval = setInterval(() => {
+                                    if(Date.now() - vconsole_server.physicsObjects[i].updateTime > config.client_grace_period) {
+                                        clearInterval(vconsole_server.physicsObjects[i].interval);
+                                        vconsole_server.physicsObjects[i].interval = null;
+                                        vconsole_server.physicsObjects[i].motionDisabled = false;
+                                        vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} enablemotion;ent_fire ${vconsole_server.physicsObjects[i].name} enableinteraction`);
                                     }
                                 }, 1000);
                             }
@@ -116,24 +115,23 @@ export function StartClient(config) {
                 // Someone has pressed a button.
                 // This should not fire if we press a button ourselves.
                 for(let i = 0; i < vconsole_server.buttons.length; i++) {
-                    const button = vconsole_server.buttons[i];
-                    if(button.startLocation.x + margin >= message.startLocation.x && button.startLocation.x - margin <= message.startLocation.x
-                        && button.startLocation.y + margin >= message.startLocation.y && button.startLocation.y - margin <= message.startLocation.y
-                        && button.startLocation.z + margin >= message.startLocation.z && button.startLocation.z - margin <= message.startLocation.z) {
-                        if(!button.pressingLocally) {
-                            if(!button.pressing) {
-                                await vconsole_server.WriteCommand(`ent_fire ${button.name} lock`);
-                                button.pressing = true;
+                    if(vconsole_server.buttons[i].startLocation.x + margin >= message.startLocation.x && vconsole_server.buttons[i].startLocation.x - margin <= message.startLocation.x
+                        && vconsole_server.buttons[i].startLocation.y + margin >= message.startLocation.y && vconsole_server.buttons[i].startLocation.y - margin <= message.startLocation.y
+                        && vconsole_server.buttons[i].startLocation.z + margin >= message.startLocation.z && vconsole_server.buttons[i].startLocation.z - margin <= message.startLocation.z) {
+                        if(!vconsole_server.buttons[i].pressingLocally) {
+                            if(!vconsole_server.buttons[i].pressing) {
+                                await vconsole_server.WriteCommand(`ent_fire ${vconsole_server.buttons[i].name} lock`);
+                                vconsole_server.buttons[i].pressing = true;
                             }
-                            button.updateTime = Date.now();
-                            await vconsole_server.WriteCommand(`ent_fire ${button.name} press`);
-                            if(button.interval === null) {
-                                button.interval = setInterval(() => {
-                                    if(Date.now() - button.updateTime > 5000) {
-                                        clearInterval(button.interval);
-                                        button.interval = null;
-                                        button.pressing = false;
-                                        vconsole_server.WriteCommand(`ent_fire ${button.name} unlock`);
+                            vconsole_server.buttons[i].updateTime = Date.now();
+                            await vconsole_server.WriteCommand(`ent_fire ${vconsole_server.buttons[i].name} press`);
+                            if(vconsole_server.buttons[i].interval === null) {
+                                vconsole_server.buttons[i].interval = setInterval(() => {
+                                    if(Date.now() - vconsole_server.buttons[i].updateTime > 5000) {
+                                        clearInterval(vconsole_server.buttons[i].interval);
+                                        vconsole_server.buttons[i].interval = null;
+                                        vconsole_server.buttons[i].pressing = false;
+                                        vconsole_server.WriteCommand(`ent_fire ${vconsole_server.buttons[i].name} unlock`);
                                     }
                                 }, 1000);
                             }
@@ -145,11 +143,10 @@ export function StartClient(config) {
             case 'breakphys':
                 // Someone has broken a physics object.
                 for(let i = 0; i < vconsole_server.physicsObjects.length; i++) {
-                    const physicsObject = vconsole_server.physicsObjects[i];
-                    if(physicsObject.startLocation.x + margin >= message.startLocation.x && physicsObject.startLocation.x - margin <= message.startLocation.x
-                        && physicsObject.startLocation.y + margin >= message.startLocation.y && physicsObject.startLocation.y - margin <= message.startLocation.y
-                        && physicsObject.startLocation.z + margin >= message.startLocation.z && physicsObject.startLocation.z - margin <= message.startLocation.z) {
-                        vconsole_server.WriteCommand(`ent_fire ${physicsObject.name} break`, true);
+                    if(vconsole_server.physicsObjects[i].startLocation.x + margin >= message.startLocation.x && vconsole_server.physicsObjects[i].startLocation.x - margin <= message.startLocation.x
+                        && vconsole_server.physicsObjects[i].startLocation.y + margin >= message.startLocation.y && vconsole_server.physicsObjects[i].startLocation.y - margin <= message.startLocation.y
+                        && vconsole_server.physicsObjects[i].startLocation.z + margin >= message.startLocation.z && vconsole_server.physicsObjects[i].startLocation.z - margin <= message.startLocation.z) {
+                        vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} break`, true);
                         break;
                     }
                 }
@@ -157,27 +154,27 @@ export function StartClient(config) {
             case 'triggerbrush':
                 // Someone has triggered something.
                 for(let i = 0; i < vconsole_server.triggers.length; i++) {
-                    const triggerBrush = vconsole_server.triggers[i];
-                    if(triggerBrush.startLocation.x + margin >= message.startLocation.x && triggerBrush.startLocation.x - margin <= message.startLocation.x
-                        && triggerBrush.startLocation.y + margin >= message.startLocation.y && triggerBrush.startLocation.y - margin <= message.startLocation.y
-                        && triggerBrush.startLocation.z + margin >= message.startLocation.z && triggerBrush.startLocation.z - margin <= message.startLocation.z) {
-                        if(!triggerBrush.triggeringLocally) {
-                            if(!triggerBrush.triggering) {
-                                await vconsole_server.WriteCommand(`ent_fire ${triggerBrush.name} disable`);
-                                triggerBrush.triggering = true;
+                    if(vconsole_server.triggers[i].startLocation.x + margin >= message.startLocation.x && vconsole_server.triggers[i].startLocation.x - margin <= message.startLocation.x
+                        && vconsole_server.triggers[i].startLocation.y + margin >= message.startLocation.y && vconsole_server.triggers[i].startLocation.y - margin <= message.startLocation.y
+                        && vconsole_server.triggers[i].startLocation.z + margin >= message.startLocation.z && vconsole_server.triggers[i].startLocation.z - margin <= message.startLocation.z) {
+                        if(!vconsole_server.triggers[i].triggeringLocally) {
+                            if(!vconsole_server.triggers[i].triggering) {
+                                await vconsole_server.WriteCommand(`ent_fire ${vconsole_server.triggers[i].name} disable`);
+                                vconsole_server.triggers[i].triggering = true;
                             }
-                            triggerBrush.updateTime = Date.now();
-                            if(triggerBrush.once && !triggerBrush.triggeredOnce || !triggerBrush.once) {
+                            vconsole_server.triggers[i].updateTime = Date.now();
+                            if(message.once && !vconsole_server.triggers[i].triggeredOnce || !message.once) {
+                                console.log(`${message.once} ${vconsole_server.triggers[i].index} ${message.output}`);
+                                vconsole_server.triggers[i].triggeredOnce = message.once;
                                 // Yes, you can still 'touch' triggers even if they're disabled.
-                                await vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index} ${message.output}`, true);
-                                triggerBrush.triggeredOnce = triggerBrush.once;
-                                if(triggerBrush.interval === null && !triggerBrush.once) { // Only re-enable if it's not a trigger_once.
-                                    triggerBrush.interval = setInterval(() => {
-                                        if(Date.now() - triggerBrush.updateTime > config.client_grace_period) {
-                                            clearInterval(triggerBrush.interval);
-                                            triggerBrush.interval = null;
-                                            triggerBrush.triggering = false;
-                                            vconsole_server.WriteCommand(`ent_fire ${triggerBrush.name} enable`);
+                                await vconsole_server.WriteCommand(`trigger_touch ${vconsole_server.triggers[i].index} ${message.output}`, true);
+                                if(vconsole_server.triggers[i].interval === null && !vconsole_server.triggers[i].once) { // Only re-enable if it's not a trigger_once.
+                                    vconsole_server.triggers[i].interval = setInterval(() => {
+                                        if(Date.now() - vconsole_server.triggers[i].updateTime > config.client_grace_period) {
+                                            clearInterval(vconsole_server.triggers[i].interval);
+                                            vconsole_server.triggers[i].interval = null;
+                                            vconsole_server.triggers[i].triggering = false;
+                                            vconsole_server.WriteCommand(`ent_fire ${vconsole_server.triggers[i].name} enable`);
                                         }
                                     }, 1000);
                                 }
