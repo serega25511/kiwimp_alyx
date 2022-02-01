@@ -45,7 +45,7 @@
         "name": "Map",
         "type": "string",
         "default": "",
-        "description": "The map of the hosted server.\nCurrently unimplemented and subject to change in the future."
+        "description": "The map of the hosted server.\nClients will change to this map once connected to the server."
     },
     "server_memo": {
         "name": "Server Memo",

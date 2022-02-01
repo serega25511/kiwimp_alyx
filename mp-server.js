@@ -17,14 +17,13 @@
 // Modules
 import { WebSocketServer } from 'ws';
 import { createServer, IncomingMessage } from 'http';
-import * as fs from 'fs';
 import chalk from 'chalk';
 import { Client, Player } from './classes.js';
-import { kill } from 'process';
 
 // Variables
 let connections = [];
 let slots = {};
+let map;
 
 // Exports
 
@@ -88,7 +87,7 @@ export function StartServer(config) {
         // Tell the client to change map.
         ws.send(JSON.stringify({
             type: 'map',
-            map: config.server_map,
+            map: map,
             changelevel: false
         }));
         ws.isAlive = true;
@@ -222,11 +221,12 @@ export function StartServer(config) {
                     break;
                 case 'changelevel': // We trust in the client way too much, but we will oblige.
                     if(me.player && !me.player.dead) {
+                        map = message.map; // Change the map for future clients.
                         wss.clients.forEach(function each(client) {
                             // Tell the client to change map.
                             ws.send(JSON.stringify({
                                 type: 'map',
-                                map: config.server_map,
+                                map: message.map,
                                 changelevel: true
                             }));
                         });
@@ -435,6 +435,8 @@ export function StartServer(config) {
     server.listen(config.server_port, () => {
         console.log(chalk.cyan(`[SV] Server listening on port ${config.server_port}.`));
     });
+    // Set default map.
+    map = config.server_map;
 }
 
 /**

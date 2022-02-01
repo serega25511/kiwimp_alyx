@@ -126,4 +126,4 @@ Please see the `LICENSE` file for more information.
 - [alyx-multiplayer](https://github.com/ZacharyTalis/alyx-multiplayer)
     - Inspiration for this project and its initial implementation.
     - This repository does not contain any code from this project.
-    - Licensed under the [MIT License](https://github.com/ZacharyTalis/alyx-multiplayer/blob/master/LICENSE)
+    - Licensed under the [MIT License](https://github.com/ZacharyTalis/alyx-multiplayer/blob/master/LICENSE).
