@@ -167,17 +167,20 @@ export function StartClient(config) {
                                 triggerBrush.triggering = true;
                             }
                             triggerBrush.updateTime = Date.now();
-                            // Yes, you can still 'touch' triggers even if they're disabled.
-                            await vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index} ${message.output}`, true);
-                            if(triggerBrush.interval === null && !triggerBrush.once) { // Only re-enable if it's not a trigger_once.
-                                triggerBrush.interval = setInterval(() => {
-                                    if(Date.now() - triggerBrush.updateTime > config.client_grace_period) {
-                                        clearInterval(triggerBrush.interval);
-                                        triggerBrush.interval = null;
-                                        triggerBrush.triggering = false;
-                                        vconsole_server.WriteCommand(`ent_fire ${triggerBrush.name} enable`);
-                                    }
-                                }, 1000);
+                            if(triggerBrush.once && !triggerBrush.triggeredOnce || !triggerBrush.once) {
+                                // Yes, you can still 'touch' triggers even if they're disabled.
+                                await vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index} ${message.output}`, true);
+                                triggerBrush.triggeredOnce = triggerBrush.once;
+                                if(triggerBrush.interval === null && !triggerBrush.once) { // Only re-enable if it's not a trigger_once.
+                                    triggerBrush.interval = setInterval(() => {
+                                        if(Date.now() - triggerBrush.updateTime > config.client_grace_period) {
+                                            clearInterval(triggerBrush.interval);
+                                            triggerBrush.interval = null;
+                                            triggerBrush.triggering = false;
+                                            vconsole_server.WriteCommand(`ent_fire ${triggerBrush.name} enable`);
+                                        }
+                                    }, 1000);
+                                }
                             }
                         }
                         break;

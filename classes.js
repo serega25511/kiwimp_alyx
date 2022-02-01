@@ -104,6 +104,8 @@ export class Trigger extends Entity {
         y: 0,
         z: 0
     }
+    once = false;
+    triggeredOnce = false;
     triggering = false;
     updateTime = Date.now();
     interval = null;
