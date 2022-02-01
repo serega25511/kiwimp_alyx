@@ -96,16 +96,15 @@ export function StartClient(config) {
                             vconsole_server.physicsObjects[i].updateTime = Date.now();
                             await vconsole_server.WriteCommand((vconsole_server.physicsObjects[i].door ? `` : `ent_setpos ${vconsole_server.physicsObjects[i].index} ${message.position.x} ${message.position.y} ${message.position.z};`)+`ent_setang ${vconsole_server.physicsObjects[i].index} ${message.angles.x} ${message.angles.y} ${message.angles.z}`);
                             // Enable motion after inactivity for a while.
-                            if(vconsole_server.physicsObjects[i].interval === null) {
-                                vconsole_server.physicsObjects[i].interval = setInterval(() => {
-                                    if(Date.now() - vconsole_server.physicsObjects[i].updateTime > config.client_grace_period) {
-                                        clearInterval(vconsole_server.physicsObjects[i].interval);
-                                        vconsole_server.physicsObjects[i].interval = null;
-                                        vconsole_server.physicsObjects[i].motionDisabled = false;
-                                        vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} enablemotion;ent_fire ${vconsole_server.physicsObjects[i].name} enableinteraction`);
-                                    }
-                                }, 1000);
-                            }
+                            if(vconsole_server.physicsObjects[i].interval !== null)
+                                clearTimeout(vconsole_server.physicsObjects[i].interval);
+                            vconsole_server.physicsObjects[i].interval = setTimeout(() => {
+                                if(Date.now() - vconsole_server.physicsObjects[i].updateTime >= config.client_grace_period) {
+                                    vconsole_server.physicsObjects[i].motionDisabled = false;
+                                    vconsole_server.WriteCommand(`ent_fire ${vconsole_server.physicsObjects[i].name} enablemotion;ent_fire ${vconsole_server.physicsObjects[i].name} enableinteraction`);
+                                }
+                                vconsole_server.physicsObjects[i].interval = null;
+                            }, config.client_grace_period);
                         }
                         break;
                     }
@@ -125,16 +124,15 @@ export function StartClient(config) {
                             }
                             vconsole_server.buttons[i].updateTime = Date.now();
                             await vconsole_server.WriteCommand(`ent_fire ${vconsole_server.buttons[i].name} press`);
-                            if(vconsole_server.buttons[i].interval === null) {
-                                vconsole_server.buttons[i].interval = setInterval(() => {
-                                    if(Date.now() - vconsole_server.buttons[i].updateTime > 5000) {
-                                        clearInterval(vconsole_server.buttons[i].interval);
-                                        vconsole_server.buttons[i].interval = null;
-                                        vconsole_server.buttons[i].pressing = false;
-                                        vconsole_server.WriteCommand(`ent_fire ${vconsole_server.buttons[i].name} unlock`);
-                                    }
-                                }, 1000);
-                            }
+                            if(vconsole_server.buttons[i].interval === null)
+                                clearTimeout(vconsole_server.buttons[i].interval);
+                            vconsole_server.buttons[i].interval = setTimeout(() => {
+                                if(Date.now() - vconsole_server.buttons[i].updateTime >= config.client_grace_period) {
+                                    vconsole_server.buttons[i].pressing = false;
+                                    vconsole_server.WriteCommand(`ent_fire ${vconsole_server.buttons[i].name} unlock`);
+                                }
+                                vconsole_server.buttons[i].interval = null;
+                            }, config.client_grace_period);
                         }
                         break;
                     }
@@ -167,15 +165,17 @@ export function StartClient(config) {
                                 vconsole_server.triggers[i].triggeredOnce = (message.output == "OnTrigger");
                                 // Yes, you can still 'touch' triggers even if they're disabled.
                                 await vconsole_server.WriteCommand(`trigger_touch ${vconsole_server.triggers[i].index} ${message.output}`, true);
-                                if(vconsole_server.triggers[i].interval === null && !vconsole_server.triggers[i].once) { // Only re-enable if it's not a trigger_once.
-                                    vconsole_server.triggers[i].interval = setInterval(() => {
-                                        if(Date.now() - vconsole_server.triggers[i].updateTime > config.client_grace_period) {
+                                if(!vconsole_server.triggers[i].once) { // Only attempt to re-enable if it's not a trigger_once.
+                                    if(vconsole_server.triggers[i].interval !== null)
+                                        clearTimeout(vconsole_server.triggers[i].interval);
+                                    vconsole_server.triggers[i].interval = setTimeout(() => {
+                                        if(Date.now() - vconsole_server.triggers[i].updateTime >= config.client_grace_period) {
                                             clearInterval(vconsole_server.triggers[i].interval);
                                             vconsole_server.triggers[i].interval = null;
                                             vconsole_server.triggers[i].triggering = false;
                                             vconsole_server.WriteCommand(`ent_fire ${vconsole_server.triggers[i].name} enable`);
                                         }
-                                    }, 1000);
+                                    }, config.client_grace_period);
                                 }
                             }
                         }
