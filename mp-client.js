@@ -147,8 +147,8 @@ export function StartClient(config) {
                 break;
             case 'triggerbrush':
                 // Someone has triggered something.
-                for(let i = 0; i < vconsole_server.triggerBrushes.length; i++) {
-                    const triggerBrush = vconsole_server.triggerBrushes[i];
+                for(let i = 0; i < vconsole_server.triggers.length; i++) {
+                    const triggerBrush = vconsole_server.triggers[i];
                     if(triggerBrush.startLocation.x + margin >= message.startLocation.x && triggerBrush.startLocation.x - margin <= message.startLocation.x
                         && triggerBrush.startLocation.y + margin >= message.startLocation.y && triggerBrush.startLocation.y - margin <= message.startLocation.y
                         && triggerBrush.startLocation.z + margin >= message.startLocation.z && triggerBrush.startLocation.z - margin <= message.startLocation.z) {
