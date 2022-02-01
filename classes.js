@@ -1,5 +1,5 @@
 /*
-    kiwimp_alyx
+    Kiwi's Co-Op Mod for Half-Life: Alyx
     Copyright (c) 2022 KiwifruitDev
     All rights reserved.
     This software is licensed under the MIT License.
@@ -30,6 +30,7 @@ export class Client {
     username = '';
     authid = '';
     memo = '';
+    interval = null;
     /**
      * Player entity linked to the client.
      * @type {Player}
@@ -51,6 +52,69 @@ export class Entity {
         x: 0,
         y: 0,
         z: 0
+    }
+}
+
+export class PhysicsObject extends Entity {
+    index = 0;
+    name = '';
+    startLocation = {
+        x: 0,
+        y: 0,
+        z: 0
+    }
+    door = false;
+    motionDisabled = false;
+    updateTime = Date.now();
+    interval = null;
+    localInterval = null;
+    movingLocally = false;
+    constructor (index, name) {
+        super();
+        this.index = index;
+        this.name = name;
+    }
+}
+
+export class Button extends Entity {
+    index = 0;
+    name = '';
+    startLocation = {
+        x: 0,
+        y: 0,
+        z: 0
+    }
+    pressing = false;
+    updateTime = Date.now();
+    interval = null;
+    localInterval = null;
+    pressingLocally = false;
+    constructor (index, name) {
+        super();
+        this.index = index;
+        this.name = name;
+    }
+}
+
+export class Trigger extends Entity {
+    index = 0;
+    name = '';
+    startLocation = {
+        x: 0,
+        y: 0,
+        z: 0
+    }
+    once = false;
+    triggeredOnce = false;
+    triggering = false;
+    updateTime = Date.now();
+    interval = null;
+    localInterval = null;
+    triggeringLocally = false;
+    constructor (index, name) {
+        super();
+        this.index = index;
+        this.name = name;
     }
 }
 
@@ -100,7 +164,7 @@ export class VConsole {
 
     /**
      * The game version-based protocol to use.
-     * This can be found within VConsole.
+     * This can be found within VConsole's about box.
      * @type {number}
      */
     protocol = 211;
@@ -139,6 +203,30 @@ export class VConsole {
      * @type {string}
      */
     prefix = "";
+
+    /**
+     * List of physics objects known to us.
+     * @type {Array}
+     */
+    physicsObjects = [];
+
+    /**
+     * List of buttons known to us.
+     * @type {Array}
+     */
+    buttons = [];
+
+    /**
+     * List of triggers known to us.
+     * @type {Array}
+     */
+    triggers = [];
+
+    /**
+     * Current map name.
+     * @type {string}
+     */
+    mapName = "";
 
     constructor (socket) {
         this.socket = socket;

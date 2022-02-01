@@ -1,5 +1,5 @@
 /*
-    kiwimp_alyx
+    Kiwi's Co-Op Mod for Half-Life: Alyx
     Copyright (c) 2022 KiwifruitDev
     All rights reserved.
     This software is licensed under the MIT License.
@@ -88,7 +88,8 @@ export function StartServer(config) {
         // Tell the client to change map.
         ws.send(JSON.stringify({
             type: 'map',
-            map: config.server_map
+            map: config.server_map,
+            changelevel: false
         }));
         ws.isAlive = true;
         let index = connections.push(me);
@@ -193,113 +194,67 @@ export function StartServer(config) {
                         me.player.dead = false;
                     }
                     break;
-            }
-            // Update the clients.
-            wss.clients.forEach(function each(client) {
-                let connectioninfo_json = [];
-                for(let i = 0; i < connections.length; i++) {
-                    const c = connections[i];
-                    connectioninfo_json.push({
-                        username: c.username,
-                        player: {
-                            id: c.player.id || 0,
-                            health: c.player.health || 0,
-                            hud: c.player.hud || '',
-                            dead: c.player.dead || false,
-                            lastDamage: c.player.lastDamage || 0,
-                            position: {
-                                x: (!c.player.dead ? c.player.position.x : 0) || 0,
-                                y: (!c.player.dead ? c.player.position.y : 0) || 0,
-                                z: (!c.player.dead ? c.player.position.z : 0) || 0
-                            },
-                            angles: {
-                                x: (!c.player.dead ? c.player.angles.x : 0) || 0,
-                                y: (!c.player.dead ? c.player.angles.y : 0) || 0,
-                                z: (!c.player.dead ? c.player.angles.z : 0) || 0
-                            },
-                            head: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.head.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.head.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.head.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.head.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.head.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.head.angles.z : 0) || 0
-                                }
-                            },
-                            leftHand: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.leftHand.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.leftHand.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.leftHand.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.leftHand.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.leftHand.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.leftHand.angles.z : 0) || 0
-                                }
-                            },
-                            rightHand: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.rightHand.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.rightHand.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.rightHand.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.rightHand.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.rightHand.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.rightHand.angles.z : 0) || 0
-                                }
-                            },
-                            nameTag: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.nameTag.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.nameTag.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.nameTag.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.nameTag.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.nameTag.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.nameTag.angles.z : 0) || 0
-                                }
-                            },
-                            hudText: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.hudText.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.hudText.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.hudText.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.hudText.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.hudText.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.hudText.angles.z : 0) || 0
-                                }
-                            },
-                            teleport: {
-                                position: {
-                                    x: (!c.player.dead ? c.player.teleport.position.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.teleport.position.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.teleport.position.z : 0) || 0
-                                },
-                                angles: {
-                                    x: (!c.player.dead ? c.player.teleport.angles.x : 0) || 0,
-                                    y: (!c.player.dead ? c.player.teleport.angles.y : 0) || 0,
-                                    z: (!c.player.dead ? c.player.teleport.angles.z : 0) || 0
-                                }
-                            }
-                        }
-                    });
-                };
-                client.send(JSON.stringify({
-                    type: 'update',
-                    connectioninfo: {
-                        connections: connectioninfo_json,
-                        hud: "Test Hud"
+                case 'movephysics':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            // We don't want to send this to the client that sent the message.
+                            // Otherwise it will stop moving.
+                            client.send(JSON.stringify({
+                                type: 'physicsobject',
+                                position: message.position,
+                                angles: message.angles,
+                                startLocation: message.startLocation
+                            }));
+                        });
                     }
-                }));
-            });
+                    break;
+                case 'buttonpress':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            // We don't want to send this to the client that sent the message.
+                            // Otherwise it will press twice.
+                            client.send(JSON.stringify({
+                                type: 'button',
+                                startLocation: message.startLocation
+                            }));
+                        });
+                    }
+                    break;
+                case 'changelevel': // We trust in the client way too much, but we will oblige.
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            // Tell the client to change map.
+                            ws.send(JSON.stringify({
+                                type: 'map',
+                                map: config.server_map,
+                                changelevel: true
+                            }));
+                        });
+                    }
+                    break;
+                case 'break':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            client.send(JSON.stringify({
+                                type: 'breakphys',
+                                startLocation: message.startLocation
+                            }));
+                        });
+                    }
+                    break;
+                case 'trigger':
+                    if(me.player && !me.player.dead) {
+                        wss.clients.forEach(function each(client) {
+                            client.send(JSON.stringify({
+                                type: 'triggerbrush',
+                                startLocation: message.startLocation,
+                                output: message.output,
+                                once: message.once
+                            }));
+                        });
+                    }
+                    break;
+            }
         });
         // Client disconnected.
         ws.on('close', function close() {
@@ -308,6 +263,9 @@ export function StartServer(config) {
             // Remove the player from the slots array.
             if(me.player) {
                 slots[me.player.id] = false;
+                if(!me.player.interval) {
+                    clearInterval(me.player.interval);
+                }
             }
             console.log(chalk.cyan(`[SV] Client disconnected: ${me.username}`));
             wss.clients.forEach(function each(client) {
@@ -317,10 +275,115 @@ export function StartServer(config) {
                 }));
             });
         });
+        me.interval = setInterval(function() {
+            let connectioninfo_json = [];
+            for(let i = 0; i < connections.length; i++) {
+                const c = connections[i];
+                connectioninfo_json.push({
+                    username: c.username,
+                    player: {
+                        id: c.player.id || 0,
+                        health: c.player.health || 0,
+                        hud: c.player.hud || '',
+                        dead: c.player.dead || false,
+                        lastDamage: c.player.lastDamage || 0,
+                        position: {
+                            x: (!c.player.dead ? c.player.position.x : 0) || 0,
+                            y: (!c.player.dead ? c.player.position.y : 0) || 0,
+                            z: (!c.player.dead ? c.player.position.z : 0) || 0
+                        },
+                        angles: {
+                            x: (!c.player.dead ? c.player.angles.x : 0) || 0,
+                            y: (!c.player.dead ? c.player.angles.y : 0) || 0,
+                            z: (!c.player.dead ? c.player.angles.z : 0) || 0
+                        },
+                        head: {
+                            position: {
+                                x: (!c.player.dead ? c.player.head.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.head.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.head.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.head.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.head.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.head.angles.z : 0) || 0
+                            }
+                        },
+                        leftHand: {
+                            position: {
+                                x: (!c.player.dead ? c.player.leftHand.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.leftHand.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.leftHand.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.leftHand.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.leftHand.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.leftHand.angles.z : 0) || 0
+                            }
+                        },
+                        rightHand: {
+                            position: {
+                                x: (!c.player.dead ? c.player.rightHand.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.rightHand.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.rightHand.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.rightHand.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.rightHand.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.rightHand.angles.z : 0) || 0
+                            }
+                        },
+                        nameTag: {
+                            position: {
+                                x: (!c.player.dead ? c.player.nameTag.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.nameTag.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.nameTag.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.nameTag.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.nameTag.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.nameTag.angles.z : 0) || 0
+                            }
+                        },
+                        hudText: {
+                            position: {
+                                x: (!c.player.dead ? c.player.hudText.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.hudText.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.hudText.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.hudText.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.hudText.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.hudText.angles.z : 0) || 0
+                            }
+                        },
+                        teleport: {
+                            position: {
+                                x: (!c.player.dead ? c.player.teleport.position.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.teleport.position.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.teleport.position.z : 0) || 0
+                            },
+                            angles: {
+                                x: (!c.player.dead ? c.player.teleport.angles.x : 0) || 0,
+                                y: (!c.player.dead ? c.player.teleport.angles.y : 0) || 0,
+                                z: (!c.player.dead ? c.player.teleport.angles.z : 0) || 0
+                            }
+                        }
+                    }
+                });
+            };
+            ws.send(JSON.stringify({
+                type: 'update',
+                connectioninfo: {
+                    connections: connectioninfo_json
+                }
+            }));
+        }, 0);
     });
     // Handle server closure.
     wss.on('close', function close() {
-        clearInterval(interval);
+        console.log(chalk.cyan(`[SV] Server closed, process exiting.`));
+        process.exit(0);
     });
     // Handle errors.
     wss.on('error', function error(error) {
@@ -342,7 +405,13 @@ export function StartServer(config) {
     // Ping intervals.
     const interval = setInterval(function ping() {
         wss.clients.forEach(function each(ws) {
-            if (ws.isAlive === false) return ws.terminate();
+            if (ws.isAlive === false) {
+                ws.send(JSON.stringify({
+                    type: 'status',
+                    message: 'Your connection has timed out.'
+                }));
+                return ws.terminate();
+            }
             ws.isAlive = false;
             ws.ping();
         });

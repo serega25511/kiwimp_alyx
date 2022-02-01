@@ -1,7 +1,6 @@
-# kiwimp_alyx
-**Kiwi's Multiplayer Mod for Half-Life: Alyx**
+# Kiwi's Co-Op Mod for Half-Life: Alyx (KCOM)
 
-A work-in-progress customizable multiplayer mod for [Half-Life: Alyx](https://store.steampowered.com/app/546560/HalfLife_Alyx/) by [KiwifruitDev](https://github.com/TeamPopplio).
+A work-in-progress customizable multiplayer and co-op mod for [Half-Life: Alyx](https://store.steampowered.com/app/546560/HalfLife_Alyx/) by [KiwifruitDev](https://github.com/TeamPopplio).
 
 ## A word of warning
 **You are at your own risk if you use this mod!**
@@ -11,7 +10,7 @@ Both client and server-side functionality can easily be exploited when port forw
 It is recommended to keep it simple and to use it locally or only over the internet with a password.
 
 ## How does this work?
-kiwimp_alyx takes a different approach compared to other multiplayer mods.
+KCOM takes a different approach compared to other multiplayer mods.
 
 - This mod 'fakes' a VConsole application compatible with Half-Life: Alyx.
     - You won't be able to open VConsole at the same time.
@@ -26,9 +25,9 @@ kiwimp_alyx takes a different approach compared to other multiplayer mods.
     - Output from VScript is proxied through this mod and sent as input using console commands.
     - Examples of commands include ``ent_setpos``, ``ent_setang``, ``ent_fire``, etc.
 - The output is a seamless and smooth networking environment.
-    - The heads and hands of players will displa for everyone.
-    - You would be able to chat with other players and see their chat messages.
-    - You can also damage other players and see their health.
+    - The heads and hands of players will display for everyone.
+    - Triggering events and moving props will do the same for everyone else.
+    - You can also damage other players if enabled, alongside seeing their health.
 
 ## How do I get started?
 First, you'll need to install some prerequisite software, assuming you already have Half-Life: Alyx installed:
@@ -46,25 +45,25 @@ Now that you have the required software installed, you can install the applicati
     - It does not nesearily need to be the same directory as the game.
 5. Clone the repository using ``git clone https://github.com/TeamPopplio/kiwimp_alyx.git`` within the Git Bash window.
     - Alternatively, download the zip file via GitHub and extract it.
-6. Navivate to the folder containing the repository and open the ``install-update.bat`` file (Ignore Git errors if you do not have Git installed).
+6. Navigate to the folder containing the repository and open the ``install-update.bat`` file (Ignore Git errors if you do not have Git installed).
     - This will install the required dependencies and compile ``cap`` using [npm](https://www.npmjs.com/) alongside updating via Git if possible.
 
 After the installation is complete, you can now install the addon:
 
-5. Download the [latest release](https://github.com/TeamPopplio/kiwimp_alyx/releases) and extract it into the same directory as the game.
+7. Download the [latest release](https://github.com/TeamPopplio/kiwimp_alyx/releases) and extract it into the same directory as the game.
     - By default, this will be ``C:\Program Files (x86)\Steam\steamapps\common\Half-Life Alyx``.
-6. Inside of Steam, head to launch options and add the parameters ``-console -vconsole`` (Optionally, add ``-novr`` to disable VR support).
+8. Inside of Steam, head to launch options and add the parameters ``-console -vconsole`` (Optionally, add ``-novr`` to disable VR support).
     - This will allow the application to interact with the game.
-7. Launch the game and enable the addon through the menu.
+9. Launch the game and enable the addon through the menu.
     - If VR is disabled, launch VConsole using the tilde key (``~``) and use the ``addon_list`` command to click ``(enable)`` on the addon.
 
 Finally, you can now launch the application:
 
-8. Open ``launch.bat`` within the directory containing the application (Make sure VConsole is closed while the game is running).
+10. Open ``launch.bat`` within the directory containing the application (Make sure VConsole is closed while the game is running).
     - This will first start the config wizard to guide you through the setup before launching the application.
-9. If you hear a sound coming from Half-Life: Alyx, connection succeeded! (This sound plays whenever a client sends a chat message).
+11. If you hear a sound coming from Half-Life: Alyx, connection succeeded (This sound plays whenever a client sends a chat message).
     - You can use the ``/vc`` command within the command prompt to send commands to the game, alongside sending chat messages.
-10. When you're finished playing, press Ctrl+C within the command prompt to close the connection and shut down gracefully.
+12. When you're finished playing, press Ctrl+C within the command prompt to close the connection and shut down gracefully.
     - This will keep the game running but you will be disconnected from the server.
 
 Have fun!
@@ -81,10 +80,36 @@ You can update the mod using the following steps:
 
 This process should be relatively quick, it is recommended to install Git to ensure that updates are seamless.
 
+## How do I fix lag?
+If you experience network lag, severe input delay, invisible players, or sudden disconnections, you can try the following procedures in any order:
+
+**Make sure VConsole is closed while the game is running, this is the most common cause of issues.**
+
+**If you are using a cloud gaming PC, you CAN NOT host a server. A VPS is required as you must open a port for the game to connect to.**
+
+- Updating KCOM to the latest version.
+- Restarting Half-Life: Alyx.
+- Disabling VConsole logging via config.
+- Restarting KCOM.
+- Using non-vr mode (``-novr``) if playing in VR. (Ideally, both methods should work but this is not guaranteed.)
+- Restarting your computer.
+- Using a different port number.
+- Changing usernames and AuthIDs.
+- Tabbing into the game as soon as possible.
+- Disabling other addons.
+- Using a different map name.
+- Using port forwarding if hosting a server using the internet with UPNP mapping.
+- Disabling VPNs or proxy servers, this includes LAN applications such as Hamachi and ZeroTier.
+- Allowing node.js and hlvr.exe (Half-Life: Alyx) through the firewall.
+- Reinstalling npcap with a different configuration, keep note of the last good configuration for future use.
+- Try waiting up to a minute when all clients are connected before moving excessively in-game. You can check the latency by sending a chat message.
+
+If the problem persists, please contact me on my Discord linked below.
+
 ## Support
 Join my personal [Discord Server](https://discord.gg/3X3teNecWs) to ask me anything!
 
-There is a channel dedicated to `kiwimp_alyx` in the server.
+There is a channel dedicated to `kiwis-co-op-mod` in the server.
 
 My username is [Kiwifruit#2003](https://discord.com/users/728082336536854559).
 

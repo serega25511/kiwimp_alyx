@@ -1,7 +1,7 @@
 {
   "name": "kiwimp_alyx",
-  "version": "0.2.0",
-  "description": "Half-Life Alyx Multiplayer",
+  "version": "0.2.1",
+  "description": "Kiwifruit's Co-Op HLVR Mod",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
