@@ -168,32 +168,37 @@ export function InitVConsole(ws) {
                             for(let i = 0; i < args.length; i++) {
                                 players[i].leftHandIndex = parseInt(args[i]);
                             }
+                            console.log(chalk.yellow(`[VC] Left hand indexes updated.`));
                             break;
                         case "RHND":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].rightHandIndex = parseInt(args[i]);
                             }
+                            console.log(chalk.yellow(`[VC] Right hand indexes updated.`));
                             break;
                         case "HSET":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].headsetIndex = parseInt(args[i]);
                             }
+                            console.log(chalk.yellow(`[VC] Headset indexes updated.`));
                             break;
                         case "NPCS":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].npcIndex = parseInt(args[i]);
                             }
+                            console.log(chalk.yellow(`[VC] NPC indexes updated.`));
                             break;
                         case "TAGS":
                             for(let i = 0; i < args.length; i++) {
                                 players[i].nameTagIndex = parseInt(args[i]);
                             }
+                            console.log(chalk.yellow(`[VC] Name tag indexes updated.`));
                             break;
                         // Set targetname prefix
                         case "PRFX":
                             vconsole_server.prefix = args[0];
                             console.log(chalk.yellow(`[VC] Prefix set to ${args[0]}, sv_cheats has been enabled.`));
-                            vconsole_server.WriteCommand(`sv_cheats 1;ent_fire ${args[0]}_script_nametags runscriptfile nametags.lua;ent_fire ${args[0]}_script_npcs runscriptfile npcs.lua;ent_fire ${args[0]}_script_hand_l runscriptfile lefthands.lua;ent_fire ${args[0]}_script_hand_r runscriptfile righthands.lua`, true);
+                            vconsole_server.WriteCommand(`sv_cheats 1`, true);
                             break;
                         // Alive
                         case "ALIV":
@@ -255,6 +260,7 @@ export function InitVConsole(ws) {
                             ws.send(JSON.stringify({
                                 type: "alive",
                             }));
+                            vconsole_server.WriteCommand(`ent_fire ${vconsole_server.prefix}_script_server runscriptfile physics.lua`, true);
                             break;
                         // Buttons (untested)
                         case "BUTN":
