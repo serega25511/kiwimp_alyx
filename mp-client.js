@@ -164,8 +164,7 @@ export function StartClient(config) {
                             }
                             vconsole_server.triggers[i].updateTime = Date.now();
                             if(message.once && !vconsole_server.triggers[i].triggeredOnce || !message.once) {
-                                console.log(`${message.once} ${vconsole_server.triggers[i].index} ${message.output}`);
-                                vconsole_server.triggers[i].triggeredOnce = message.once;
+                                vconsole_server.triggers[i].triggeredOnce = (message.output == "OnTrigger");
                                 // Yes, you can still 'touch' triggers even if they're disabled.
                                 await vconsole_server.WriteCommand(`trigger_touch ${vconsole_server.triggers[i].index} ${message.output}`, true);
                                 if(vconsole_server.triggers[i].interval === null && !vconsole_server.triggers[i].once) { // Only re-enable if it's not a trigger_once.
