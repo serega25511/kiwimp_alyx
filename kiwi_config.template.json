@@ -41,12 +41,6 @@
         "default": "16",
         "description": "The maximum number of players that can be connected to the hosted server."
     },
-    "server_gamemode": {
-        "name": "Gamemode",
-        "type": "string",
-        "default": "",
-        "description": "The gamemode of the hosted server.\nThis gamemode defines actions that players can transmit or receive."
-    },
     "server_map": {
         "name": "Map",
         "type": "string",

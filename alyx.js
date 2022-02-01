@@ -18,9 +18,8 @@
 import chalk from 'chalk';
 import * as net from 'net';
 import pkg from 'cap';
-const { Cap, decoders } = pkg;
+const { Cap } = pkg;
 import { Button, PhysicsObject, VConsole, Player, LocalPlayer, Trigger } from './classes.js';
-import { config } from 'process';
 
 // Variables
 const valid_packet_types = [
