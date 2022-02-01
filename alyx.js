@@ -365,7 +365,7 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
             // Clientside stuff
             if(user.username == config.client_username) {
                 // Place the HUD down.
-                if(user.player.hudText != player.player.hudText) {
+                if(user.player.hudText.position.x != player.player.hudText.position.x || user.player.hudText.position.y != player.player.hudText.position.y || user.player.hudText.position.z != player.player.hudText.position.z) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.hudText.position.x} ${user.player.hudText.position.y} ${user.player.hudText.position.z}`
                         +`;ent_setang ${player.nameTagIndex} ${user.player.hudText.angles.x} ${user.player.hudText.angles.y} ${user.player.hudText.angles.z}`);
                 }
@@ -389,27 +389,27 @@ export async function UpdateVScript(vconsole_server, connectioninfo, config) {
                 };
             } else { // Don't update the player for the client
                 // NPCs
-                if(user.player.position != player.player.position && config.client_player_collision.toLowerCase() == "true") {
+                if((user.player.position.x != player.player.position.x || user.player.position.y != player.player.position.y || user.player.position.z != player.player.position.z) && config.client_player_collision.toLowerCase() == "true") {
                     vconsole_server.WriteCommand(`ent_setpos ${player.npcIndex} ${user.player.position.x} ${user.player.position.y} ${user.player.position.z}`);
                 }
                 // Name tags
-                if(user.player.nameTag != player.player.nameTag) {
+                if(user.player.nameTag.x != player.player.nameTag.x || user.player.nameTag.y != player.player.nameTag.y || user.player.nameTag.z != player.player.nameTag.z) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.nameTagIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z+10}`
                         +`;ent_setang ${player.nameTagIndex} 0 ${user.player.angles.y+90} 90`
                         +`;ent_fire ${vconsole_server.prefix}_kiwi_player_name_${user.player.id} setmessage\"${user.username} : ${user.player.health}/100\"`);
                 }
                 // Player left hands
-                if(user.player.leftHand != player.player.leftHand) {
+                if(user.player.leftHand.x != player.player.leftHand.x || user.player.leftHand.y != player.player.leftHand.y || user.player.leftHand.z != player.player.leftHand.z) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.leftHandIndex} ${user.player.leftHand.position.x} ${user.player.leftHand.position.y} ${user.player.leftHand.position.z}`
                         +`;ent_setang ${player.leftHandIndex} ${user.player.leftHand.angles.x} ${user.player.leftHand.angles.y} ${user.player.leftHand.angles.z}`);
                 }
                 // Player right hands
-                if(user.player.rightHand != player.player.rightHand) {
+                if(user.player.rightHand.x != player.player.rightHand.x || user.player.rightHand.y != player.player.rightHand.y || user.player.rightHand.z != player.player.rightHand.z) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.rightHandIndex} ${user.player.rightHand.position.x} ${user.player.rightHand.position.y} ${user.player.rightHand.position.z}`
                         +`;ent_setang ${player.rightHandIndex} ${user.player.rightHand.angles.x} ${user.player.rightHand.angles.y} ${user.player.rightHand.angles.z}`);
                 }
                 // Heads
-                if(user.player.head != player.player.head) {
+                if(user.player.head.x != player.player.head.x || user.player.head.y != player.player.head.y || user.player.head.z != player.player.head.z) {
                     vconsole_server.WriteCommand(`ent_setpos ${player.headsetIndex} ${user.player.head.position.x} ${user.player.head.position.y} ${user.player.head.position.z}`
                         +`;ent_setang ${player.headsetIndex} ${user.player.head.angles.x} ${user.player.head.angles.y} ${user.player.head.angles.z}`);
                 }
