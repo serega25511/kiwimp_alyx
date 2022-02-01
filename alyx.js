@@ -341,7 +341,7 @@ export function InitVConsole(ws, config) {
                             case "TRGD":
                                 for(let i = 0; i < vconsole_server.triggers.length; i++) {
                                     if(vconsole_server.triggers[i].index == parseInt(args[0])) {
-                                        if(!vconsole_server.buttons[i].triggering) {
+                                        if(!vconsole_server.triggers[i].triggering) {
                                             ws.send(JSON.stringify({
                                                 type: "trigger",
                                                 startLocation: vconsole_server.triggers[i].startLocation,
