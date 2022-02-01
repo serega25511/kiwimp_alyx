@@ -19,7 +19,7 @@ import chalk from 'chalk';
 import * as net from 'net';
 import pkg from 'cap';
 const { Cap, decoders } = pkg;
-import { Button, PhysicsObject, VConsole, Player, LocalPlayer } from './classes.js';
+import { Button, PhysicsObject, VConsole, Player, LocalPlayer, Trigger } from './classes.js';
 
 // Variables
 const valid_packet_types = [
@@ -40,7 +40,9 @@ const valid_packet_types = [
     "BUTN", // Button index and start position
     "BPRS", // Button index press
     "DOOR", // Door index and start position
-    "BRAK"  // Broken prop index
+    "BRAK", // Broken prop index
+    "TRIG", // Trigger index and start position
+    "TRGD"  // Triggered entity index
 ];
 const localPlayer = new Player();
 const players = [ // 16 players max
@@ -299,6 +301,24 @@ export function InitVConsole(ws) {
                                 }
                             }
                             break;
+                        // Triggers
+                        case "TRIG":
+                            const trigger = new Trigger(parseInt(args[0]), args[1]);
+                            trigger.startLocation.x = Math.floor(parseFloat(args[2]));
+                            trigger.startLocation.y = Math.floor(parseFloat(args[3]));
+                            trigger.startLocation.z = Math.floor(parseFloat(args[4]));
+                            vconsole_server.triggers.push(trigger);
+                            break;
+                        case "TRGD":
+                            for(let i = 0; i < vconsole_server.triggers.length; i++) {
+                                if(vconsole_server.triggers[i].index == parseInt(args[0])) {
+                                    ws.send(JSON.stringify({
+                                        type: "trigger",
+                                        startLocation: vconsole_server.triggers[i].startLocation
+                                    }));
+                                    break;  
+                                }
+                            }
                     }
                 }
                 vconsole_server.alive = Date.now();
