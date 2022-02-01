@@ -332,7 +332,8 @@ export function InitVConsole(ws, config) {
                                     if(vconsole_server.triggers[i].index == parseInt(args[0])) {
                                         ws.send(JSON.stringify({
                                             type: "trigger",
-                                            startLocation: vconsole_server.triggers[i].startLocation
+                                            startLocation: vconsole_server.triggers[i].startLocation,
+                                            output: args[1]
                                         }));
                                         break;
                                     }

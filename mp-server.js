@@ -247,7 +247,8 @@ export function StartServer(config) {
                         wss.clients.forEach(function each(client) {
                             client.send(JSON.stringify({
                                 type: 'triggerbrush',
-                                startLocation: message.startLocation
+                                startLocation: message.startLocation,
+                                output: message.output
                             }));
                         });
                     }

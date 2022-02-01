@@ -153,7 +153,7 @@ export function StartClient(config) {
                     if(triggerBrush.startLocation.x + margin >= message.startLocation.x && triggerBrush.startLocation.x - margin <= message.startLocation.x
                         && triggerBrush.startLocation.y + margin >= message.startLocation.y && triggerBrush.startLocation.y - margin <= message.startLocation.y
                         && triggerBrush.startLocation.z + margin >= message.startLocation.z && triggerBrush.startLocation.z - margin <= message.startLocation.z) {
-                        vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index}`, true);
+                        vconsole_server.WriteCommand(`trigger_touch ${triggerBrush.index} ${message.output}`, true);
                         break;
                     }
                 }
