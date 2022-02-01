@@ -75,9 +75,7 @@ export function StartClient(config) {
                 break;
             case 'map':
                 // Update map.
-                if(vconsole_server.mapName !== message.map && message.changelevel) {
-                    await vconsole_server.WriteCommand(`changelevel ${message.map}`); // TODO: Does this work?
-                } else {
+                if(vconsole_server.mapName !== message.map && message.changelevel === true || message.changelevel === false) {
                     await vconsole_server.WriteCommand(`addon_play ${message.map};addon_tools_map ${message.map}`);
                 }
             case 'physicsobject':
